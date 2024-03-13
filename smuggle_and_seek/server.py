@@ -6,31 +6,37 @@ from .model import SmuggleAndSeekGame
 def agent_portrayal(agent):
     portrayal = {}
 
-    if isinstance(agent, Customs):
-        portrayal["Color"] = "grey"
-        portrayal["Shape"] = "circle"
-        portrayal["r"] = 0.5
-        portrayal["Layer"] = 1
-        portrayal["Filled"] = "true"
-    elif isinstance(agent, Smuggler):
-        portrayal["Color"] = "red"
-        portrayal["Shape"] = "circle"
-        portrayal["r"] = 0.5
-        portrayal["Layer"] = 1
-        portrayal["Filled"] = "true"
-    elif isinstance(agent, Container):
-        portrayal["Color"] = "blue"
+    # if isinstance(agent, Customs):
+    #     portrayal["Color"] = "#1ABC9C"
+    #     portrayal["Shape"] = "circle"
+    #     portrayal["r"] = 0.6
+    #     portrayal["Layer"] = 0
+    #     portrayal["Filled"] = "true"
+    #     portrayal["text"] = "customs"
+    #     portrayal["text_color"] = "black"
+    # elif isinstance(agent, Smuggler):
+    #     portrayal["Color"] = "#E74C3C"
+    #     portrayal["Shape"] = "circle"
+    #     portrayal["r"] = 0.6
+    #     portrayal["Layer"] = 0
+    #     portrayal["Filled"] = "true"
+    #     portrayal["text"] = "smuggler"
+    #     portrayal["text_color"] = "black"
+    if isinstance(agent, Container):
+        portrayal["Color"] = "#85929E"
         portrayal["Shape"] = "rect"
         portrayal["w"] = 1
         portrayal["h"] = 1
-        portrayal["Layer"] = 1
-        portrayal["Filled"] = "true"
+        portrayal["Filled"] = "False"
+        portrayal["Layer"] = 0
+        portrayal["text"] = f"{agent.num_packages}"
+        portrayal["text_color"] = "black"
     return portrayal
 
-grid = mesa.visualization.CanvasGrid(agent_portrayal, 7, 7, 500, 500)
+grid = mesa.visualization.CanvasGrid(agent_portrayal, 3, 3, 500, 500)
 server = mesa.visualization.ModularServer(SmuggleAndSeekGame, 
                            [grid], 
                            "Smuggle and Seek Game", 
-                           {"width":7, "height":7})
+                           {"width":3, "height":3})
 server.port = 8521 
 server.launch()
