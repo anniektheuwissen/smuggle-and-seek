@@ -4,24 +4,11 @@ from .agents import Customs, Smuggler, Container
 from .model import SmuggleAndSeekGame
 
 def agent_portrayal(agent):
+    """
+    Initializes the portrayal of the agents in the visualization
+    """
     portrayal = {}
 
-    # if isinstance(agent, Customs):
-    #     portrayal["Color"] = "#1ABC9C"
-    #     portrayal["Shape"] = "circle"
-    #     portrayal["r"] = 0.6
-    #     portrayal["Layer"] = 0
-    #     portrayal["Filled"] = "true"
-    #     portrayal["text"] = "customs"
-    #     portrayal["text_color"] = "black"
-    # elif isinstance(agent, Smuggler):
-    #     portrayal["Color"] = "#E74C3C"
-    #     portrayal["Shape"] = "circle"
-    #     portrayal["r"] = 0.6
-    #     portrayal["Layer"] = 0
-    #     portrayal["Filled"] = "true"
-    #     portrayal["text"] = "smuggler"
-    #     portrayal["text_color"] = "black"
     if isinstance(agent, Container):
         portrayal["Color"] = "#85929E"
         portrayal["Shape"] = "rect"
@@ -33,6 +20,9 @@ def agent_portrayal(agent):
         portrayal["text_color"] = "black"
     return portrayal
 
+"""
+Add the grid and server, and launch the server
+"""
 grid = mesa.visualization.CanvasGrid(agent_portrayal, 3, 3, 500, 500)
 server = mesa.visualization.ModularServer(SmuggleAndSeekGame, 
                            [grid], 
