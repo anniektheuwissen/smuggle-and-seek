@@ -19,12 +19,14 @@ class SmuggleAndSeekGame(mesa.Model):
         self.running = True
 
         # Add containers to the game, and add features to these containers
+        self.num_features = 2
+        self.num_cont_per_feat = 2
         x=0; y=0
-        for i in range(0,9):
+        for i in range(0,self.num_cont_per_feat**self.num_features):
             container = Container(i, self)
             self.grid.place_agent(container, (x, y))
             container.add_features(x,y)
-            if x==2: y+=1; x=0 
+            if x==self.num_cont_per_feat-1: y+=1; x=0 
             else: x+=1
 
         # Add agents to the game: one smuggler and one customs

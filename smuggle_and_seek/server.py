@@ -6,6 +6,7 @@ from .model import SmuggleAndSeekGame
 def agent_portrayal(agent):
     """
     Initializes the portrayal of the agents in the visualization
+    :param agent: The agent to visualize
     """
     portrayal = {}
 
@@ -23,10 +24,10 @@ def agent_portrayal(agent):
 """
 Add the grid and server, and launch the server
 """
-grid = mesa.visualization.CanvasGrid(agent_portrayal, 3, 3, 500, 500)
+grid = mesa.visualization.CanvasGrid(agent_portrayal, 2, 2, 500, 500)
 server = mesa.visualization.ModularServer(SmuggleAndSeekGame, 
                            [grid], 
                            "Smuggle and Seek Game", 
-                           {"width":3, "height":3})
+                           {"width":2, "height":2})
 server.port = 8521 
 server.launch()
