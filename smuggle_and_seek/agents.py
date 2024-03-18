@@ -18,13 +18,16 @@ class Customs(mesa.Agent):
         super().__init__(unique_id, model)
         self.tom_order = tom_order
         self.points = 0
-        self.action = {}
+        self.action = []
+        self.failed_actions = []
+        self.succes_actions = []
 
         # Define all possible actions
         num_cont = len(self.model.get_agents_of_type(Container))
         self.possible_actions = list(map(list, powerset(np.arange(num_cont))))[1:]
 
-        # Initialize belief vectors and subjective value needed for tom_reasoning
+        # Initialize learning speed, belief vectors and subjective value needed for tom_reasoning
+        self.learning_speed = 0.2
         self.b0 = np.array([1/num_cont] * num_cont)
         self.phi = np.zeros(2**num_cont-1)
 
@@ -32,14 +35,17 @@ class Customs(mesa.Agent):
         """
         Chooses an action associated with zero-order theory of mind reasoning
         """
-        p = 1/2
+        p = 1/4
 
         # Calculate the subjective value phi for each action, and choose the action with the highest.
         for ai in range(len(self.possible_actions)):
             for aj in range(len(self.b0)):
                 self.phi[ai] += self.b0[aj] * (1*(aj in self.possible_actions[ai]) - p*len(self.possible_actions[ai]))
             self.phi[ai] = round(self.phi[ai], 4)
-        self.action = self.possible_actions[random.choice(np.where(self.phi == round(max(self.phi[1:]),4))[0])]
+        print(self.phi)
+        print(np.where(self.phi == round(max(self.phi),4))[0])
+        print(random.choice(np.where(self.phi == round(max(self.phi),4))[0]))
+        self.action = self.possible_actions[random.choice(np.where(self.phi == round(max(self.phi),4))[0])]
 
     def step_tom1(self):
         """
@@ -56,7 +62,7 @@ class Customs(mesa.Agent):
     def step(self):
         """
         Performs one step by choosing an action associated with its order of theory of mind reasoning,
-        taking this action, and updating its beliefs
+        and taking this action
         """
         # Choose action
         if self.tom_order == 0: self.step_tom0()
@@ -66,18 +72,39 @@ class Customs(mesa.Agent):
         
         # Take action
         print(f"checks containers {self.action}")
+        self.failed_actions = []; self.succes_actions = []
         containers = self.model.get_agents_of_type(Container)
         for container in containers:
-            for i in self.action:
-                if i == container.unique_id:
+            for ai in self.action:
+                if ai == container.unique_id:
                     if (container.num_packages != 0):
-                        print(f"CAUGHT {container.num_packages}!!")
+                        print(f"caught {container.num_packages} packages!!")
                         container.num_packages = 0
+                        self.succes_actions.append(ai)
                     else:
                         print("wooops caught nothing")
+                        self.failed_actions.append(ai)
+        print(f"customs succesfull actions are: {self.succes_actions}, and failed actions are: {self.failed_actions}")
 
-        # Update beliefs
-        # ...
+        #PRINT:
+        print("current environment:")
+        print([container.num_packages for container in containers])
+        
+    def update_beliefs(self):
+        """
+        Updates its beliefs
+        """
+        # b0
+        print("customs are updating beliefs from ... to ...:")
+        print(self.b0)
+        for aj in range(len(self.b0)):
+            other_actions_failed_addition = (len(self.failed_actions)/(len(self.b0)-len(self.failed_actions))) * (self.learning_speed/len(self.action))
+            succesfull_action_addition = self.learning_speed/len(self.action)
+            if aj in self.succes_actions: self.b0[aj] = (1 - self.learning_speed) * self.b0[aj] + succesfull_action_addition + other_actions_failed_addition
+            elif aj in self.failed_actions: self.b0[aj] = (1 - self.learning_speed) * self.b0[aj] 
+            else: self.b0[aj] = (1 - self.learning_speed) * self.b0[aj] + other_actions_failed_addition
+        print(self.b0)
+        
 
 """
 Smuggler class: the smuggler agent that tries to smuggle as many drugs as possible through the containers. They
@@ -95,10 +122,12 @@ class Smuggler(mesa.Agent):
         self.tom_order = tom_order
         self.points = 0
         self.action = []
-        self.preferences = {}
-        self.num_packages = 5
+        self.failed_actions = []
+        self.succes_actions = []
 
+        self.preferences = {}
         self.add_preferences()
+        self.num_packages = 5
 
         # Define all possible actions, all possible distributions within those actions, and non preferences per actions
         num_cont = len(self.model.get_agents_of_type(Container))
@@ -108,7 +137,8 @@ class Smuggler(mesa.Agent):
             self.possible_dist.append(self.possible_distributions(self.num_packages,i))
         self.actions_nonpref = self.preferences_actions()
 
-        # Initialize belief vectors and subjective value needed for tom_reasoning
+        # Initialize learning speed, belief vectors and subjective value needed for tom_reasoning
+        self.learning_speed = 0.2
         self.b0 = np.array([1/num_cont] * num_cont)
         self.phi = np.zeros(2**num_cont-1)
 
@@ -172,7 +202,9 @@ class Smuggler(mesa.Agent):
             self.phi[ai] = max(temp_phi)
             self.phi[ai] = round(self.phi[ai], 4)
         print(self.phi)
-        self.action = self.possible_actions[random.choice(np.where(self.phi == round(max(self.phi[1:]),4))[0])]
+        print(np.where(self.phi == round(max(self.phi),4))[0])
+        print(random.choice(np.where(self.phi == round(max(self.phi),4))[0]))
+        self.action = self.possible_actions[random.choice(np.where(self.phi == round(max(self.phi),4))[0])]
 
     def step_tom1(self):
         """
@@ -193,15 +225,43 @@ class Smuggler(mesa.Agent):
         else: print("ERROR: A smuggler cannot have a theory of mind reasoning above the first order")
 
         # Take action:
+        print(f"hides in container {self.action}")
         containers = self.model.get_agents_of_type(Container)
         for container in containers:
-            for i in self.action:
-                if i == container.unique_id:
-                    container.num_packages += 10
-        print(f"hides in container {self.action}")
+            for ai in self.action:
+                if ai == container.unique_id:
+                    container.num_packages += self.num_packages
 
-        # Update beliefs
-        # ...
+        #PRINT:
+        print("current environment:")
+        print([container.num_packages for container in containers])
+
+    def update_beliefs(self):
+        """
+        Updates its beliefs
+        """
+
+        # Check which actions were successful and which were not
+        self.succes_actions = []; self.failed_actions = []
+        containers = self.model.get_agents_of_type(Container)
+        for ai in self.action:
+            for container in containers:
+                if container.unique_id == ai:
+                    if container.num_packages == 0: self.failed_actions.append(ai)
+                    else: self.succes_actions.append(ai)
+        print(f"smuggler successful actions are: {self.succes_actions}, and failed actions are {self.failed_actions}")
+        
+        # b0
+        print("smuggler is updating beliefs from ... to ...:")
+        print(self.b0)
+        for aj in range(len(self.b0)):
+            other_actions_failed_addition = (len(self.succes_actions)/(len(containers)-len(self.succes_actions))) * (self.learning_speed/len(self.action))
+            succesfull_action_addition = self.learning_speed/len(self.action)
+            if aj in self.failed_actions: self.b0[aj] = (1 - self.learning_speed) * self.b0[aj] + succesfull_action_addition + other_actions_failed_addition
+            if aj in self.succes_actions: self.b0[aj] = (1 - self.learning_speed) * self.b0[aj] 
+            else: self.b0[aj] = (1 - self.learning_speed) * self.b0[aj] + other_actions_failed_addition
+        print(self.b0)
+                
         
 
 """

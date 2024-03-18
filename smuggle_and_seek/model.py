@@ -17,6 +17,7 @@ class SmuggleAndSeekGame(mesa.Model):
         self.grid = mesa.space.SingleGrid(width, height, True)
         self.schedule = mesa.time.BaseScheduler(self)
         self.running = True
+        self.day = 0
 
         # Add containers to the game, and add features to these containers
         self.num_features = 2
@@ -67,9 +68,17 @@ class SmuggleAndSeekGame(mesa.Model):
         # Distribute points to the customs based on the amount of succesfully caught drugs and the amount of
         # containers checked.
         customs = self.get_agents_of_type(Customs)[0]
-        caught_drugs = (10-smuggled_drugs); containers_checked = len(customs.action)
+        caught_drugs = (5-smuggled_drugs); containers_checked = len(customs.action)
         customs.points += caught_drugs - containers_checked*p
         print(f"customs points:{customs.points}")
+
+    def agents_update_beliefs(self):
+        """
+        Lets all agents of type Smuggler and Customs update their beliefs
+        """
+        self.get_agents_of_type(Customs)[0].update_beliefs()
+        self.get_agents_of_type(Smuggler)[0].update_beliefs()
+
 
     def step(self):
         """
@@ -78,5 +87,8 @@ class SmuggleAndSeekGame(mesa.Model):
         """
         self.datacollector.collect(self)
         self.schedule.step()
+        self.agents_update_beliefs()
         self.distribute_points(0.5, 0.5, 0.25)
         self.empty_containers()
+        self.day += 1
+        print("")
