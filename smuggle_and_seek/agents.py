@@ -39,8 +39,8 @@ class Customs(mesa.Agent):
 
         # Calculate the subjective value phi for each action, and choose the action with the highest.
         for ai in range(len(self.possible_actions)):
-            for aj in range(len(self.b0)):
-                self.phi[ai] += self.b0[aj] * (1*(aj in self.possible_actions[ai]) - p*len(self.possible_actions[ai]))
+            for c in range(len(self.b0)):
+                self.phi[ai] += self.b0[c] * (1*(c in self.possible_actions[ai]) - p*len(self.possible_actions[ai]))
             self.phi[ai] = round(self.phi[ai], 4)
         print(self.phi)
         print(np.where(self.phi == round(max(self.phi),4))[0])
