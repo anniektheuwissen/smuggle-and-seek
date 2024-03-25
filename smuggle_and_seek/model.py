@@ -39,7 +39,7 @@ class SmuggleAndSeekGame(mesa.Model):
 
         # Add datacollector to the game
         self.datacollector = mesa.DataCollector(
-            model_reporters= {"day": "self.day"}, agent_reporters= {"customs points": "points"}
+            model_reporters= {}, agent_reporters= {"points": "points"}
         )
 
     def empty_containers(self):

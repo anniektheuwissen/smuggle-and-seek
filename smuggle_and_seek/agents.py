@@ -35,12 +35,12 @@ class Customs(mesa.Agent):
         """
         Chooses an action associated with zero-order theory of mind reasoning
         """
-        p = 1/4
+        c_c = 1/3
 
         # Calculate the subjective value phi for each action, and choose the action with the highest.
         for ai in range(len(self.possible_actions)):
             for c in range(len(self.b0)):
-                self.phi[ai] += self.b0[c] * (1*(c in self.possible_actions[ai]) - p*len(self.possible_actions[ai]))
+                self.phi[ai] += self.b0[c] * (1*(c in self.possible_actions[ai]) - c_c*len(self.possible_actions[ai]))
             self.phi[ai] = round(self.phi[ai], 4)
         print(f"custom's phi is : {self.phi}")
         print(f"highest index is at : {np.where(self.phi == round(max(self.phi),4))[0]}")
@@ -121,6 +121,7 @@ class Smuggler(mesa.Agent):
         self.tom_order = tom_order
         self.points = 0
         self.action = []
+        self.distribution = []
         self.failed_actions = []
         self.succes_actions = []
 
@@ -186,9 +187,10 @@ class Smuggler(mesa.Agent):
         """
         Chooses an action associated with zero-order theory of mind reasoning
         """
-        n = 3/2
-        m = 1/4
+        c_s = 1/3
+        f = 1/4
 
+        best_distributions_per_ai = [0] * len(self.possible_actions)
         for ai in range(len(self.possible_actions)):
             action_ai = self.possible_actions[ai]
             # Determine the highest phi that can be reached with this action_ai based on different distributions
@@ -196,10 +198,12 @@ class Smuggler(mesa.Agent):
             for (idx, dist) in enumerate(self.possible_dist[len(action_ai)-1]):
                 # Loop over all possible actions of the opponent
                 for aj in range(len(self.b0)):
-                    if aj in action_ai: temp_phi[idx] += self.b0[aj] * (self.num_packages - dist[action_ai.index(aj)] - n*len(action_ai) - m*self.actions_nonpref[ai])
-                    else: temp_phi[idx] += self.b0[aj] * (self.num_packages - n*len(action_ai) - m*self.actions_nonpref[ai])
+                    if aj in action_ai: temp_phi[idx] += self.b0[aj] * (self.num_packages - dist[action_ai.index(aj)] - c_s*len(action_ai) - f*self.actions_nonpref[ai])
+                    else: temp_phi[idx] += self.b0[aj] * (self.num_packages - c_s*len(action_ai) - f*self.actions_nonpref[ai])
             self.phi[ai] = max(temp_phi)
             self.phi[ai] = round(self.phi[ai], 4)
+            best_distributions_per_ai[ai] = self.possible_dist[len(action_ai)-1][random.choice(np.where(temp_phi == max(temp_phi))[0])]
+        print(f"best distributions per ai : {best_distributions_per_ai}")
         print(f"smugglers phi is : {self.phi}")
         print(f"highest index is at : {np.where(self.phi == round(max(self.phi),4))[0]}")
         self.action = self.possible_actions[random.choice(np.where(self.phi == round(max(self.phi),4))[0])]
