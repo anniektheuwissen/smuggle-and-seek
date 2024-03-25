@@ -259,6 +259,7 @@ class Smuggler(mesa.Agent):
             if aj in self.succes_actions: self.b0[aj] = (1 - self.learning_speed) * self.b0[aj] 
             else: self.b0[aj] = (1 - self.learning_speed) * self.b0[aj] + other_actions_failed_addition
         print(self.b0)
+
                 
         
 
