@@ -25,9 +25,15 @@ def agent_portrayal(agent):
 Add the grid and server, and launch the server
 """
 grid = mesa.visualization.CanvasGrid(agent_portrayal, 2, 2, 500, 500)
+
+chart = mesa.visualization.ChartModule(
+    [
+        {"Label": "customs points", "Color": "Green"},
+        {"Label": "smuggler points", "Color": "Red"},
+    ]
+)
+
 server = mesa.visualization.ModularServer(SmuggleAndSeekGame, 
-                           [grid], 
+                           [grid, chart], 
                            "Smuggle and Seek Game", 
                            {"width":2, "height":2})
-server.port = 8521 
-server.launch()

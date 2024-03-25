@@ -3,6 +3,13 @@ import pandas
 
 from .agents import Customs, Smuggler, Container
 
+
+def get_points_customs(model):
+    return model.get_agents_of_type(Customs)[0].points
+
+def get_points_smuggler(model):
+    return model.get_agents_of_type(Smuggler)[0].points
+
 """
 SmuggleAndSeekGame class: the game in which two agents: a smuggler and a customs can smuggle and seek drugs. The game
 environment contains 9 containers, each having 2 features, that the agents can use to hide drugs and seek for drugs.
@@ -39,7 +46,11 @@ class SmuggleAndSeekGame(mesa.Model):
 
         # Add datacollector to the game
         self.datacollector = mesa.DataCollector(
-            model_reporters= {}, agent_reporters= {"points": "points"}
+            model_reporters= {
+                "customs points": get_points_customs,
+                "smuggler points": get_points_smuggler
+                }, 
+            agent_reporters= {}
         )
 
     def empty_containers(self):
