@@ -42,9 +42,8 @@ class Customs(mesa.Agent):
             for c in range(len(self.b0)):
                 self.phi[ai] += self.b0[c] * (1*(c in self.possible_actions[ai]) - p*len(self.possible_actions[ai]))
             self.phi[ai] = round(self.phi[ai], 4)
-        print(self.phi)
-        print(np.where(self.phi == round(max(self.phi),4))[0])
-        print(random.choice(np.where(self.phi == round(max(self.phi),4))[0]))
+        print(f"custom's phi is : {self.phi}")
+        print(f"highest index is at : {np.where(self.phi == round(max(self.phi),4))[0]}")
         self.action = self.possible_actions[random.choice(np.where(self.phi == round(max(self.phi),4))[0])]
 
     def step_tom1(self):
@@ -201,9 +200,8 @@ class Smuggler(mesa.Agent):
                     else: temp_phi[idx] += self.b0[aj] * (self.num_packages - n*len(action_ai) - m*self.actions_nonpref[ai])
             self.phi[ai] = max(temp_phi)
             self.phi[ai] = round(self.phi[ai], 4)
-        print(self.phi)
-        print(np.where(self.phi == round(max(self.phi),4))[0])
-        print(random.choice(np.where(self.phi == round(max(self.phi),4))[0]))
+        print(f"smugglers phi is : {self.phi}")
+        print(f"highest index is at : {np.where(self.phi == round(max(self.phi),4))[0]}")
         self.action = self.possible_actions[random.choice(np.where(self.phi == round(max(self.phi),4))[0])]
 
     def step_tom1(self):
