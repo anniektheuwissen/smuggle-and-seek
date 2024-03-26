@@ -76,6 +76,7 @@ class Customs(mesa.Agent):
         for container in containers:
             for ai in self.action:
                 if ai == container.unique_id:
+                    container.checks += 1
                     if (container.num_packages != 0):
                         print(f"caught {container.num_packages} packages!!")
                         container.num_packages = 0
@@ -175,6 +176,7 @@ class Smuggler(mesa.Agent):
         """
         self.preferences["country"] = self.random.randint(0,self.model.num_features-1)
         self.preferences["cargo"] = self.random.randint(0,self.model.num_features-1)
+        print(f"preferences: {self.preferences["country"],self.preferences["cargo"]}")
 
     def new_packages(self, x):
         """
@@ -232,6 +234,7 @@ class Smuggler(mesa.Agent):
         for container in containers:
             for ai in self.action:
                 if ai == container.unique_id:
+                    container.smuggles += 1
                     container.num_packages += self.num_packages
 
         #PRINT:
@@ -280,6 +283,8 @@ class Container(mesa.Agent):
         super().__init__(unique_id, model)
         self.features = {}
         self.num_packages = 0
+        self.smuggles = 0
+        self.checks = 0
 
     def add_features(self, x, y):
         """

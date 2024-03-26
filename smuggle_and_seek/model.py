@@ -1,5 +1,4 @@
 import mesa
-import pandas
 
 from .agents import Customs, Smuggler, Container
 
@@ -96,11 +95,12 @@ class SmuggleAndSeekGame(mesa.Model):
         """
         Performs one step/round/day in which the agents take actions in turn: first the smuggler and then the customs,
         after which points are distributed and the containers are emptied.
-        """
-        self.datacollector.collect(self)
+        """        
         self.schedule.step()
         self.agents_update_beliefs()
         self.distribute_points(0.5, 0.5, 0.25)
         self.empty_containers()
+        self.datacollector.collect(self)
         self.day += 1
         print("")
+        
