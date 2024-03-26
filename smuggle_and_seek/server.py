@@ -1,7 +1,6 @@
 import mesa
 
-from .agents import Customs, Smuggler, Container
-from .model import SmuggleAndSeekGame
+from .model import SmuggleAndSeekGame, Smuggler, Customs, Container
 
 def color_variant(hex_color, brightness_offset=1):
     """ takes a color like #87c95f and produces a lighter or darker variant """
@@ -67,15 +66,21 @@ def portrayal_smuggler_grid(agent):
 
 def customs_grid_name(model):
     """
-    Display a text representing the name of the model.
+    Display a text representing the name of the grid.
     """
     return f"Customs actions:"
 
 def smuggler_grid_name(model):
     """
-    Display a text representing the name of the model.
+    Display a text representing the name of the grid.
     """
     return f"Smugglers actions:"
+
+def chart_name(model):
+    """
+    Display a text representing the name of the chart.
+    """
+    return f"Points:"
 
 """
 Add the grid and server, and launch the server
@@ -92,7 +97,7 @@ chart = mesa.visualization.ChartModule(
 )
 
 server = mesa.visualization.ModularServer(SmuggleAndSeekGame, 
-                           [customs_grid_name, grid1, smuggler_grid_name, grid2, chart], 
+                           [customs_grid_name, grid1, smuggler_grid_name, grid2, chart_name, chart], 
                            "Smuggle and Seek Game", 
                            {"width":2, "height":2})
 server.port = 8521

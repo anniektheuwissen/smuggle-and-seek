@@ -1,6 +1,8 @@
 import mesa
 
-from .agents import Customs, Smuggler, Container
+from .agents.customs import Customs
+from .agents.smuggler import Smuggler
+from .agents.container import Container
 
 
 def get_points_customs(model):
