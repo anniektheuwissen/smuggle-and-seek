@@ -1,15 +1,15 @@
-import mesa
 import random
 import numpy as np
 from more_itertools import powerset
 
 from .container import Container
+from .agent import Agent
 
 """
 Customs class: the customs agent that tries to capture as many drugs as possible from the containers. They
 can have different levels of ToM reasoning.
 """
-class Customs(mesa.Agent):
+class Customs(Agent):
     def __init__(self, unique_id, model, tom_order):
         """
         Initializes the agent Customs
@@ -17,21 +17,7 @@ class Customs(mesa.Agent):
         :param model: The model in which the agent is placed
         :param tom_order: The order of ToM at which the agent reasons
         """
-        super().__init__(unique_id, model)
-        self.tom_order = tom_order
-        self.points = 0
-        self.action = []
-        self.failed_actions = []
-        self.succes_actions = []
-
-        # Define all possible actions
-        num_cont = len(self.model.get_agents_of_type(Container))
-        self.possible_actions = list(map(list, powerset(np.arange(num_cont))))[1:]
-
-        # Initialize learning speed, belief vectors and subjective value needed for tom_reasoning
-        self.learning_speed = 0.2
-        self.b0 = np.array([1/num_cont] * num_cont)
-        self.phi = np.zeros(2**num_cont-1)
+        super().__init__(unique_id, model, tom_order)
 
     def step_tom0(self):
         """

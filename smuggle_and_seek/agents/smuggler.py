@@ -1,15 +1,15 @@
-import mesa
 import random
 import numpy as np
 from more_itertools import powerset
 
 from .container import Container
+from .agent import Agent
 
 """
 Smuggler class: the smuggler agent that tries to smuggle as many drugs as possible through the containers. They
 have preferences for certain containers, and they can have different levels of ToM reasoning.
 """
-class Smuggler(mesa.Agent):
+class Smuggler(Agent):
     def __init__(self, unique_id, model, tom_order):
         """
         Initializes the agent Smuggler
@@ -17,30 +17,19 @@ class Smuggler(mesa.Agent):
         :param model: The model in which the agent is placed
         :param tom_order: The order of ToM at which the agent reasons
         """
-        super().__init__(unique_id, model)
-        self.tom_order = tom_order
-        self.points = 0
-        self.action = []
+        super().__init__(unique_id, model, tom_order)
         self.distribution = []
-        self.failed_actions = []
-        self.succes_actions = []
 
         self.preferences = {}
         self.add_preferences()
         self.num_packages = 5
 
-        # Define all possible actions, all possible distributions within those actions, and non preferences per actions
+        # Define all possible distributions within those actions, and non preferences per actions
         num_cont = len(self.model.get_agents_of_type(Container))
-        self.possible_actions = list(map(list, powerset(np.arange(num_cont))))[1:]
         self.possible_dist = []
         for i in range(1, num_cont+1):
             self.possible_dist.append(self.possible_distributions(self.num_packages,i))
         self.actions_nonpref = self.preferences_actions()
-
-        # Initialize learning speed, belief vectors and subjective value needed for tom_reasoning
-        self.learning_speed = 0.2
-        self.b0 = np.array([1/num_cont] * num_cont)
-        self.phi = np.zeros(2**num_cont-1)
 
     def possible_distributions(self, n, m):
         """
