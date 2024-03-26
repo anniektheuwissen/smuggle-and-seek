@@ -102,6 +102,7 @@ class Smuggler(Agent):
         """
         Chooses an action associated with first-order theory of mind reasoning
         """
+        print("I am a first order ToM smuggler")
         pass
 
     def step(self):
@@ -133,24 +134,26 @@ class Smuggler(Agent):
         """
         Updates its beliefs
         """
-
-        # Check which actions were successful and which were not
-        self.succes_actions = []; self.failed_actions = []
-        containers = self.model.get_agents_of_type(Container)
-        for ai in self.action:
-            for container in containers:
-                if container.unique_id == ai:
-                    if container.num_packages == 0: self.failed_actions.append(ai)
-                    else: self.succes_actions.append(ai)
-        print(f"smuggler successful actions are: {self.succes_actions}, and failed actions are {self.failed_actions}")
-        
-        # b0
-        print("smuggler is updating beliefs from ... to ...:")
-        print(self.b0)
-        for aj in range(len(self.b0)):
-            other_actions_failed_addition = (len(self.succes_actions)/(len(containers)-len(self.succes_actions))) * (self.learning_speed/len(self.action))
-            succesfull_action_addition = self.learning_speed/len(self.action)
-            if aj in self.failed_actions: self.b0[aj] = (1 - self.learning_speed) * self.b0[aj] + succesfull_action_addition + other_actions_failed_addition
-            if aj in self.succes_actions: self.b0[aj] = (1 - self.learning_speed) * self.b0[aj] 
-            else: self.b0[aj] = (1 - self.learning_speed) * self.b0[aj] + other_actions_failed_addition
-        print(self.b0)
+        if self.action == []:
+            pass
+        else: 
+            # Check which actions were successful and which were not
+            self.succes_actions = []; self.failed_actions = []
+            containers = self.model.get_agents_of_type(Container)
+            for ai in self.action:
+                for container in containers:
+                    if container.unique_id == ai:
+                        if container.num_packages == 0: self.failed_actions.append(ai)
+                        else: self.succes_actions.append(ai)
+            print(f"smuggler successful actions are: {self.succes_actions}, and failed actions are {self.failed_actions}")
+            
+            # b0
+            print("smuggler is updating beliefs from ... to ...:")
+            print(self.b0)
+            for aj in range(len(self.b0)):
+                other_actions_failed_addition = (len(self.succes_actions)/(len(containers)-len(self.succes_actions))) * (self.learning_speed/len(self.action))
+                succesfull_action_addition = self.learning_speed/len(self.action)
+                if aj in self.failed_actions: self.b0[aj] = (1 - self.learning_speed) * self.b0[aj] + succesfull_action_addition + other_actions_failed_addition
+                if aj in self.succes_actions: self.b0[aj] = (1 - self.learning_speed) * self.b0[aj] 
+                else: self.b0[aj] = (1 - self.learning_speed) * self.b0[aj] + other_actions_failed_addition
+            print(self.b0)

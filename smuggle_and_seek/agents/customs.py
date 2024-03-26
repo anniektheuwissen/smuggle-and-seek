@@ -38,12 +38,14 @@ class Customs(Agent):
         """
         Chooses an action associated with first-order theory of mind reasoning
         """
+        print("I am a first order ToM customs")
         pass
 
     def step_tom2(self):
         """
         Chooses an action associated with second-order theory of mind reasoning
         """
+        print("I am a second order ToM customs")
         pass
     
     def step(self):
@@ -83,12 +85,15 @@ class Customs(Agent):
         Updates its beliefs
         """
         # b0
-        print("customs are updating beliefs from ... to ...:")
-        print(self.b0)
-        for aj in range(len(self.b0)):
-            other_actions_failed_addition = (len(self.failed_actions)/(len(self.b0)-len(self.failed_actions))) * (self.learning_speed/len(self.action))
-            succesfull_action_addition = self.learning_speed/len(self.action)
-            if aj in self.succes_actions: self.b0[aj] = (1 - self.learning_speed) * self.b0[aj] + succesfull_action_addition + other_actions_failed_addition
-            elif aj in self.failed_actions: self.b0[aj] = (1 - self.learning_speed) * self.b0[aj] 
-            else: self.b0[aj] = (1 - self.learning_speed) * self.b0[aj] + other_actions_failed_addition
-        print(self.b0)
+        if self.action == []:
+            pass
+        else:
+            print("customs are updating beliefs from ... to ...:")
+            print(self.b0)
+            for aj in range(len(self.b0)):
+                other_actions_failed_addition = (len(self.failed_actions)/(len(self.b0)-len(self.failed_actions))) * (self.learning_speed/len(self.action))
+                succesfull_action_addition = self.learning_speed/len(self.action)
+                if aj in self.succes_actions: self.b0[aj] = (1 - self.learning_speed) * self.b0[aj] + succesfull_action_addition + other_actions_failed_addition
+                elif aj in self.failed_actions: self.b0[aj] = (1 - self.learning_speed) * self.b0[aj] 
+                else: self.b0[aj] = (1 - self.learning_speed) * self.b0[aj] + other_actions_failed_addition
+            print(self.b0)

@@ -96,8 +96,23 @@ chart = mesa.visualization.ChartModule(
     ]
 )
 
+model_params = {
+    "width": 2,
+    "height": 2,
+    "tom_order_customs": mesa.visualization.Choice(
+        "Customs ToM order",
+        value=0,
+        choices=[0,1,2],
+    ),
+    "tom_order_smuggler": mesa.visualization.Choice(
+        "Smuggler ToM order",
+        value=0,
+        choices=[0,1],
+    ),
+}
+
 server = mesa.visualization.ModularServer(SmuggleAndSeekGame, 
                            [customs_grid_name, grid1, smuggler_grid_name, grid2, chart_name, chart], 
                            "Smuggle and Seek Game", 
-                           {"width":2, "height":2})
+                           model_params)
 server.port = 8521

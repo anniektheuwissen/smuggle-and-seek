@@ -16,7 +16,7 @@ SmuggleAndSeekGame class: the game in which two agents: a smuggler and a customs
 environment contains 9 containers, each having 2 features, that the agents can use to hide drugs and seek for drugs.
 """
 class SmuggleAndSeekGame(mesa.Model):
-    def __init__(self, width, height):
+    def __init__(self, width, height, tom_order_customs, tom_order_smuggler):
         """
         Initializes the Game
         :param width: The width of the interface
@@ -40,9 +40,9 @@ class SmuggleAndSeekGame(mesa.Model):
             else: x+=1
 
         # Add agents to the game: one smuggler and one customs
-        smuggler = Smuggler(10, self, 0)
+        smuggler = Smuggler(10, self, tom_order_smuggler)
         self.schedule.add(smuggler)
-        customs = Customs(11, self, 0)
+        customs = Customs(11, self, tom_order_customs)
         self.schedule.add(customs)
 
         # Add datacollector to the game
