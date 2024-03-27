@@ -10,14 +10,14 @@ Smuggler class: the smuggler agent that tries to smuggle as many drugs as possib
 have preferences for certain containers, and they can have different levels of ToM reasoning.
 """
 class Smuggler(Agent):
-    def __init__(self, unique_id, model, tom_order):
+    def __init__(self, unique_id, model, tom_order, learning_speed):
         """
         Initializes the agent Smuggler
         :param unique_id: The unqiue id related to the agent
         :param model: The model in which the agent is placed
         :param tom_order: The order of ToM at which the agent reasons
         """
-        super().__init__(unique_id, model, tom_order)
+        super().__init__(unique_id, model, tom_order, learning_speed)
         self.distribution = []
 
         self.preferences = {}

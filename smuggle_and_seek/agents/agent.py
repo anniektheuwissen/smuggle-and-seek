@@ -8,7 +8,7 @@ from .container import Container
 Agent class: the customs agent and smuggler agent inherit from this class
 """
 class Agent(mesa.Agent):
-    def __init__(self, unique_id, model, tom_order):
+    def __init__(self, unique_id, model, tom_order, learning_speed):
         """
         Initializes the agent Customs
         :param unique_id: The unqiue id related to the agent
@@ -27,7 +27,7 @@ class Agent(mesa.Agent):
         self.possible_actions = list(map(list, powerset(np.arange(num_cont))))[1:]
 
         # Initialize learning speed, belief vectors and subjective value needed for tom_reasoning
-        self.learning_speed = 0.2
+        self.learning_speed = learning_speed
         self.b0 = np.array([1/num_cont] * num_cont)
         self.phi = np.zeros(2**num_cont-1)
 

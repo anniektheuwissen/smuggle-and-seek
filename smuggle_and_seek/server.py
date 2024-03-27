@@ -76,11 +76,17 @@ def smuggler_grid_name(model):
     """
     return f"Smugglers actions:"
 
-def chart_name(model):
+def chart_name1(model):
     """
     Display a text representing the name of the chart.
     """
     return f"Points:"
+
+def chart_name2(model):
+    """
+    Display a text representing the name of the chart.
+    """
+    return f"Average points:"
 
 """
 Add the grid and server, and launch the server
@@ -89,10 +95,17 @@ grid1 = mesa.visualization.CanvasGrid(portrayal_customs_grid, 2, 2, 500, 500)
 
 grid2 = mesa.visualization.CanvasGrid(portrayal_smuggler_grid, 2, 2, 500, 500)
 
-chart = mesa.visualization.ChartModule(
+chart1 = mesa.visualization.ChartModule(
     [
         {"Label": "customs points", "Color": "#a3c3b1"},
         {"Label": "smuggler points", "Color": "#c8a9a6"},
+    ]
+)
+
+chart2 = mesa.visualization.ChartModule(
+    [
+        {"Label": "customs average points", "Color": "#a3c3b1"},
+        {"Label": "smuggler average points", "Color": "#c8a9a6"},
     ]
 )
 
@@ -109,10 +122,17 @@ model_params = {
         value=0,
         choices=[0,1],
     ),
+    "learning_speed": mesa.visualization.Slider(
+        "Learning speed",
+        value=0.2,
+        min_value=0,
+        max_value=1,
+        step=0.1
+    ),
 }
 
 server = mesa.visualization.ModularServer(SmuggleAndSeekGame, 
-                           [customs_grid_name, grid1, smuggler_grid_name, grid2, chart_name, chart], 
+                           [customs_grid_name, grid1, smuggler_grid_name, grid2, chart_name1, chart1, chart_name2, chart2], 
                            "Smuggle and Seek Game", 
                            model_params)
 server.port = 8521

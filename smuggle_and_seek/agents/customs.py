@@ -10,14 +10,14 @@ Customs class: the customs agent that tries to capture as many drugs as possible
 can have different levels of ToM reasoning.
 """
 class Customs(Agent):
-    def __init__(self, unique_id, model, tom_order):
+    def __init__(self, unique_id, model, tom_order, learning_speed):
         """
         Initializes the agent Customs
         :param unique_id: The unqiue id related to the agent
         :param model: The model in which the agent is placed
         :param tom_order: The order of ToM at which the agent reasons
         """
-        super().__init__(unique_id, model, tom_order)
+        super().__init__(unique_id, model, tom_order, learning_speed)
 
     def step_tom0(self):
         """
