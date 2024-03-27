@@ -68,13 +68,17 @@ def customs_grid_name(model):
     """
     Display a text representing the name of the grid.
     """
-    return f"Customs actions:"
+    last_action = model.get_agents_of_type(Customs)[0].action
+    tab = "&nbsp &nbsp &nbsp &nbsp"   
+    return f"Customs distribution of actions: {tab}{tab}{tab} last action:{last_action}"
 
 def smuggler_grid_name(model):
     """
     Display a text representing the name of the grid.
     """
-    return f"Smugglers actions:"
+    last_action = model.get_agents_of_type(Smuggler)[0].action
+    tab = "&nbsp &nbsp &nbsp &nbsp"   
+    return f"Smuggler's distribution of actions: {tab}{tab}&nbsp &nbsp last action:{last_action}"
 
 def chart_name1(model):
     """

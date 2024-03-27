@@ -30,6 +30,7 @@ class SmuggleAndSeekGame(mesa.Model):
         self.schedule = mesa.time.BaseScheduler(self)
         self.running = True
         self.day = 0
+        self.packages_per_day = 5
 
         # Add containers to the game, and add features to these containers
         self.num_features = 2
@@ -79,9 +80,9 @@ class SmuggleAndSeekGame(mesa.Model):
                     smuggled_drugs += container.num_packages
                     none_preferences_used += (container.features["cargo"]!=smuggler.preferences["cargo"])
                     none_preferences_used += (container.features["country"]!=smuggler.preferences["country"])
-        ## OOK MINPUNTEN ALS ZE GEPAKT WORDEN !?!?
-        # smuggler.points += smuggled_drugs - (5 - smuggled_drugs) - containers_used*n - none_preferences_used*m
-        smuggler.points += smuggled_drugs - containers_used*n - none_preferences_used*m
+        smuggler.points += smuggled_drugs - (self.packages_per_day - smuggled_drugs) - containers_used*n - none_preferences_used*m
+        ## GEEN MINPUNTEN ALS ZE GEPAKT WORDEN !?!?
+        # smuggler.points += smuggled_drugs - containers_used*n - none_preferences_used*m
 
         print(f"smuggler's points:{smuggler.points}")
         

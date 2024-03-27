@@ -22,13 +22,13 @@ class Smuggler(Agent):
 
         self.preferences = {}
         self.add_preferences()
-        self.num_packages = 5
+        self.num_packages = 0
 
         # Define all possible distributions within those actions, and non preferences per actions
         num_cont = len(self.model.get_agents_of_type(Container))
         self.possible_dist = []
         for i in range(1, num_cont+1):
-            self.possible_dist.append(self.possible_distributions(self.num_packages,i))
+            self.possible_dist.append(self.possible_distributions(self.model.packages_per_day,i))
         self.actions_nonpref = self.preferences_actions()
 
     def possible_distributions(self, n, m):
@@ -77,7 +77,7 @@ class Smuggler(Agent):
         """
         Chooses an action associated with zero-order theory of mind reasoning
         """
-        c_s = 1/3
+        c_s = 1/2
         f = 1/4
 
         best_distributions_per_ai = [0] * len(self.possible_actions)
@@ -88,7 +88,7 @@ class Smuggler(Agent):
             for (idx, dist) in enumerate(self.possible_dist[len(action_ai)-1]):
                 # Loop over all possible actions of the opponent
                 for aj in range(len(self.b0)):
-                    if aj in action_ai: temp_phi[idx] += self.b0[aj] * (self.num_packages - dist[action_ai.index(aj)] - c_s*len(action_ai) - f*self.actions_nonpref[ai])
+                    if aj in action_ai: temp_phi[idx] += self.b0[aj] * (self.num_packages - 2*dist[action_ai.index(aj)] - c_s*len(action_ai) - f*self.actions_nonpref[ai])
                     else: temp_phi[idx] += self.b0[aj] * (self.num_packages - c_s*len(action_ai) - f*self.actions_nonpref[ai])
             self.phi[ai] = max(temp_phi)
             self.phi[ai] = round(self.phi[ai], 4)
@@ -96,7 +96,9 @@ class Smuggler(Agent):
         print(f"best distributions per ai : {best_distributions_per_ai}")
         print(f"smugglers phi is : {self.phi}")
         print(f"highest index is at : {np.where(self.phi == round(max(self.phi),4))[0]}")
-        self.action = self.possible_actions[random.choice(np.where(self.phi == round(max(self.phi),4))[0])]
+        index_action = random.choice(np.where(self.phi == round(max(self.phi),4))[0])
+        self.action = self.possible_actions[index_action]
+        self.distribution = best_distributions_per_ai[index_action]
 
     def step_tom1(self):
         """
@@ -110,7 +112,9 @@ class Smuggler(Agent):
         Performs one step by choosing an action associated with its order of theory of mind reasoning,
         taking this action, and updating its beliefs
         """
-        self.new_packages(5)
+        # Reset phi and receive new packages
+        for i in range(len(self.phi)): self.phi[i] = 0
+        self.new_packages(self.model.packages_per_day)
 
         # Choose action
         if self.tom_order == 0: self.step_tom0()
@@ -121,10 +125,11 @@ class Smuggler(Agent):
         print(f"hides in container {self.action}")
         containers = self.model.get_agents_of_type(Container)
         for container in containers:
-            for ai in self.action:
+            for (idx,ai) in enumerate(self.action):
+                print(idx, ai)
                 if ai == container.unique_id:
                     container.smuggles += 1
-                    container.num_packages += self.num_packages
+                    container.num_packages += self.distribution[idx]
 
         #PRINT:
         print("current environment:")

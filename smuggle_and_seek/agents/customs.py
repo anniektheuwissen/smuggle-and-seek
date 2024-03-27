@@ -23,7 +23,7 @@ class Customs(Agent):
         """
         Chooses an action associated with zero-order theory of mind reasoning
         """
-        c_c = 1/3
+        c_c = 1/2
 
         # Calculate the subjective value phi for each action, and choose the action with the highest.
         for ai in range(len(self.possible_actions)):
@@ -53,6 +53,8 @@ class Customs(Agent):
         Performs one step by choosing an action associated with its order of theory of mind reasoning,
         and taking this action
         """
+        # Reset phi
+        for i in range(len(self.phi)): self.phi[i] = 0
         # Choose action
         if self.tom_order == 0: self.step_tom0()
         elif self.tom_order == 1: self.step_tom1()
