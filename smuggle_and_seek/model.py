@@ -78,31 +78,31 @@ class SmuggleAndSeekGame(mesa.Model):
         for container in self.get_agents_of_type(Container):
             container.num_packages = 0  
 
-    def distribute_points(self, p, n, m):
+    def distribute_points(self):
         """
         Distributes points to the smuggler and customs based on the taken actions.
         """
+        # Retrieve the smuggler and customs and their costs parameters
+        smuggler = self.get_agents_of_type(Smuggler)[0]
+        customs = self.get_agents_of_type(Customs)[0]
+        c_s = smuggler.container_costs; f_s = smuggler.feature_costs; c_c = customs.container_costs
+
         # Distribute points to the smuggler based on the amount of successfully smuggled drugs, the amount of 
         # containers used and the amount of features of used containers that were not preferred ones.
-        smuggler = self.get_agents_of_type(Smuggler)[0]
         smuggled_drugs = 0; containers_used = len(smuggler.action); none_preferences_used = 0
-        for container_id in smuggler.action:
+        for containers_used in smuggler.action:
             for container in self.get_agents_of_type(Container):
-                if container.unique_id == container_id:
+                if container.unique_id == containers_used:
                     smuggled_drugs += container.num_packages
                     none_preferences_used += (container.features["cargo"]!=smuggler.preferences["cargo"])
                     none_preferences_used += (container.features["country"]!=smuggler.preferences["country"])
-        smuggler.points += smuggled_drugs - (self.packages_per_day - smuggled_drugs) - containers_used*n - none_preferences_used*m
-        ## GEEN MINPUNTEN ALS ZE GEPAKT WORDEN !?!?
-        # smuggler.points += smuggled_drugs - containers_used*n - none_preferences_used*m
-
+        smuggler.points += smuggled_drugs - (self.packages_per_day - smuggled_drugs) - c_s*containers_used - f_s*none_preferences_used
         print(f"smuggler's points:{smuggler.points}")
         
         # Distribute points to the customs based on the amount of succesfully caught drugs and the amount of
         # containers checked.
-        customs = self.get_agents_of_type(Customs)[0]
-        caught_drugs = (5-smuggled_drugs); containers_checked = len(customs.action)
-        customs.points += caught_drugs - containers_checked*p
+        caught_drugs = (self.packages_per_day - smuggled_drugs); containers_checked = len(customs.action)
+        customs.points += caught_drugs - c_c*containers_checked
         print(f"customs points:{customs.points}")
 
     def agents_update_beliefs(self):
@@ -116,11 +116,11 @@ class SmuggleAndSeekGame(mesa.Model):
     def step(self):
         """
         Performs one step/round/day in which the agents take actions in turn: first the smuggler and then the customs,
-        after which points are distributed and the containers are emptied.
+        after which both agents update their beliefs, the points are distributed and the containers are emptied.
         """        
         self.schedule.step()
         self.agents_update_beliefs()
-        self.distribute_points(0.5, 0.5, 0.25)
+        self.distribute_points()
         self.empty_containers()
         self.datacollector.collect(self)
         self.day += 1

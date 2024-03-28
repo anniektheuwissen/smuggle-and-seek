@@ -16,20 +16,39 @@ class Smuggler(Agent):
         :param unique_id: The unqiue id related to the agent
         :param model: The model in which the agent is placed
         :param tom_order: The order of ToM at which the agent reasons
+        :param learning_speed: The speed at which the agent learns
         """
         super().__init__(unique_id, model, tom_order, learning_speed)
-        self.distribution = []
+        self.container_costs = 1/8
+        self.feature_costs = 1/4
 
+        self.distribution = []
         self.preferences = {}
         self.add_preferences()
         self.num_packages = 0
 
-        # Define all possible distributions within those actions, and non preferences per actions
+        # Define all possible distributions within the actions, and non preferences per actions
         num_cont = len(self.model.get_agents_of_type(Container))
         self.possible_dist = []
         for i in range(1, num_cont+1):
             self.possible_dist.append(self.possible_distributions(self.model.packages_per_day,i))
         self.actions_nonpref = self.preferences_actions()
+
+
+    def add_preferences(self):
+        """
+        Assigns random preferences to the smuggler
+        """
+        self.preferences["country"] = self.random.randint(0,self.model.num_features-1)
+        self.preferences["cargo"] = self.random.randint(0,self.model.num_features-1)
+        print(f"preferences: {self.preferences["country"],self.preferences["cargo"]}")
+
+    def new_packages(self, x):
+        """
+        Gives new packages to the smuggler
+        :param x: The number of packages given to the smuggler
+        """
+        self.num_packages = x
 
     def possible_distributions(self, n, m):
         """
@@ -58,27 +77,12 @@ class Smuggler(Agent):
                         if container.features["country"] != self.preferences["country"]: not_pref[idx] +=1
         return not_pref
 
-    def add_preferences(self):
-        """
-        Assigns random preferences to the smuggler
-        """
-        self.preferences["country"] = self.random.randint(0,self.model.num_features-1)
-        self.preferences["cargo"] = self.random.randint(0,self.model.num_features-1)
-        print(f"preferences: {self.preferences["country"],self.preferences["cargo"]}")
-
-    def new_packages(self, x):
-        """
-        Gives new packages to the smuggler
-        :param x: The number of packages given to the smuggler
-        """
-        self.num_packages = x
-
     def step_tom0(self):
         """
         Chooses an action associated with zero-order theory of mind reasoning
         """
-        c_s = 1/8
-        f = 1/4
+        c_s = self.container_costs
+        f = self.feature_costs
 
         best_distributions_per_ai = [0] * len(self.possible_actions)
         for ai in range(len(self.possible_actions)):
@@ -95,6 +99,7 @@ class Smuggler(Agent):
             best_distributions_per_ai[ai] = self.possible_dist[len(action_ai)-1][random.choice(np.where(temp_phi == max(temp_phi))[0])]
         print(f"best distributions per ai : {best_distributions_per_ai}")
         print(f"smugglers phi is : {self.phi}")
+        # Add some noise to phi
         for i in range(len(self.phi)): self.phi[i] += random.uniform(-0.5,0.5); self.phi[i] = round(self.phi[i],2)
         print(f"smugglers phi with noise is : {self.phi}")
         print(round(max(self.phi),2))
@@ -119,7 +124,7 @@ class Smuggler(Agent):
         for i in range(len(self.phi)): self.phi[i] = 0
         self.new_packages(self.model.packages_per_day)
 
-        # Choose action
+        # Choose action based on the order of tom reasoning
         if self.tom_order == 0: self.step_tom0()
         elif self.tom_order == 1: self.step_tom1()
         else: print("ERROR: A smuggler cannot have a theory of mind reasoning above the first order")
@@ -155,7 +160,7 @@ class Smuggler(Agent):
                         else: self.succes_actions.append(ai)
             print(f"smuggler successful actions are: {self.succes_actions}, and failed actions are {self.failed_actions}")
             
-            # b0
+            # Update b0
             print("smuggler is updating beliefs from ... to ...:")
             print(self.b0)
             for aj in range(len(self.b0)):

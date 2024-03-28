@@ -14,6 +14,7 @@ class Agent(mesa.Agent):
         :param unique_id: The unqiue id related to the agent
         :param model: The model in which the agent is placed
         :param tom_order: The order of ToM at which the agent reasons
+        :param learning_speed: The speed at which the agent learns
         """
         super().__init__(unique_id, model)
         self.tom_order = tom_order

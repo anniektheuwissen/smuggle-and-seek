@@ -3,7 +3,10 @@ import mesa
 from .model import SmuggleAndSeekGame, Smuggler, Customs, Container
 
 def color_variant(hex_color, brightness_offset=1):
-    """ takes a color like #87c95f and produces a lighter or darker variant """
+    """ 
+    Takes a color like #87c95f and produces a lighter or darker variant 
+    (taken from https://chase-seibert.github.io/blog/2011/07/29/python-calculate-lighterdarker-rgb-colors.html)
+    """
     if len(hex_color) != 7:
         raise Exception("Passed %s into color_variant(), needs to be in #87c95f format." % hex_color)
     rgb_hex = [hex_color[x:x+2] for x in [1, 3, 5]]
@@ -14,7 +17,7 @@ def color_variant(hex_color, brightness_offset=1):
 
 def portrayal_customs_grid(agent):
     """
-    Initializes the portrayal of the agents in the visualization
+    Initializes the portrayal of the agents in the visualization of the customs grid
     :param agent: The agent to visualize
     """
     portrayal = {}
@@ -28,11 +31,14 @@ def portrayal_customs_grid(agent):
         portrayal["text"] = f"country:{agent.features["country"]}, cargo:{agent.features["cargo"]}"
         portrayal["text_color"] = "black"
 
+        # Makes the color darker/brighter corresponding to whether the percentage that it is chosen as action 
+        # (low percentage = dark, high percentage = bright)
         if agent.model.day > 0:
             portrayal["Color"] = color_variant("#D5F5E3", int(-50 + 100*(agent.used_c / agent.model.day)))
         else:
             portrayal["Color"] = "#D5F5E3"
 
+        #PRINT
         if agent.model.day > 0:
             print(f"{agent.unique_id}, {agent.features["country"], agent.features["cargo"]} : {agent.used_c / agent.model.day}")
         
@@ -40,7 +46,7 @@ def portrayal_customs_grid(agent):
 
 def portrayal_smuggler_grid(agent):
     """
-    Initializes the portrayal of the agents in the visualization
+    Initializes the portrayal of the agents in the visualization of the smuggler grid
     :param agent: The agent to visualize
     """
     portrayal = {}
@@ -54,16 +60,19 @@ def portrayal_smuggler_grid(agent):
         portrayal["text"] = f"country:{agent.features["country"]}, cargo:{agent.features["cargo"]}"
         portrayal["text_color"] = "black"
 
-        total_smuggles = 0
-        for container in agent.model.get_agents_of_type(Container): total_smuggles += container.used_s
-
+        total_containers_used = 0
+        for container in agent.model.get_agents_of_type(Container): total_containers_used += container.used_s
+        
+        # Makes the color darker/brighter corresponding to whether the percentage that it is chosen as action 
+        # (low percentage = dark, high percentage = bright)
         if agent.model.day > 0:
-            portrayal["Color"] = color_variant("#FADBD8", int(-50 + 100*(agent.used_s / total_smuggles)))
+            portrayal["Color"] = color_variant("#FADBD8", int(-50 + 100*(agent.used_s / total_containers_used)))
         else:
             portrayal["Color"] = "#FADBD8"
 
+        #PRINT
         if agent.model.day > 0:
-            print(f"{agent.unique_id}, {agent.features["country"], agent.features["cargo"]} : {agent.used_s / total_smuggles}")
+            print(f"{agent.unique_id}, {agent.features["country"], agent.features["cargo"]} : {agent.used_s / total_containers_used}")
         
     return portrayal
 
@@ -96,19 +105,16 @@ def chart_name2(model):
     return f"Average points:"
 
 """
-Add the grid and server, and launch the server
+Add the grids, charts, model parameters and server
 """
 grid1 = mesa.visualization.CanvasGrid(portrayal_customs_grid, 2, 2, 500, 500)
-
 grid2 = mesa.visualization.CanvasGrid(portrayal_smuggler_grid, 2, 2, 500, 500)
-
 chart1 = mesa.visualization.ChartModule(
     [
         {"Label": "customs points", "Color": "#a3c3b1"},
         {"Label": "smuggler points", "Color": "#c8a9a6"},
     ]
 )
-
 chart2 = mesa.visualization.ChartModule(
     [
         {"Label": "customs average points", "Color": "#a3c3b1"},

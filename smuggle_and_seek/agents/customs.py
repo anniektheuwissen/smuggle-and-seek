@@ -16,14 +16,16 @@ class Customs(Agent):
         :param unique_id: The unqiue id related to the agent
         :param model: The model in which the agent is placed
         :param tom_order: The order of ToM at which the agent reasons
+        :param learning_speed: The speed at which the agent learns
         """
         super().__init__(unique_id, model, tom_order, learning_speed)
+        self.container_costs = 1/2
 
     def step_tom0(self):
         """
         Chooses an action associated with zero-order theory of mind reasoning
         """
-        c_c = 1/2
+        c_c = self.container_costs
 
         # Calculate the subjective value phi for each action, and choose the action with the highest.
         for ai in range(len(self.possible_actions)):
@@ -55,7 +57,7 @@ class Customs(Agent):
         """
         # Reset phi
         for i in range(len(self.phi)): self.phi[i] = 0
-        # Choose action
+        # Choose action based on order of tom reasoning
         if self.tom_order == 0: self.step_tom0()
         elif self.tom_order == 1: self.step_tom1()
         elif self.tom_order == 2: self.step_tom2()
@@ -86,10 +88,10 @@ class Customs(Agent):
         """
         Updates its beliefs
         """
-        # b0
         if self.action == []:
             pass
         else:
+            # Update b0
             print("customs are updating beliefs from ... to ...:")
             print(self.b0)
             for aj in range(len(self.b0)):
