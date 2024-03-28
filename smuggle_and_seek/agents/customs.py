@@ -68,7 +68,7 @@ class Customs(Agent):
         for container in containers:
             for ai in self.action:
                 if ai == container.unique_id:
-                    container.checks += 1
+                    container.used_c += 1
                     if (container.num_packages != 0):
                         print(f"caught {container.num_packages} packages!!")
                         container.num_packages = 0

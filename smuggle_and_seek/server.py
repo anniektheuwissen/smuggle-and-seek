@@ -29,12 +29,12 @@ def portrayal_customs_grid(agent):
         portrayal["text_color"] = "black"
 
         if agent.model.day > 0:
-            portrayal["Color"] = color_variant("#D5F5E3", int(-50 + 100*(agent.checks / agent.model.day)))
+            portrayal["Color"] = color_variant("#D5F5E3", int(-50 + 100*(agent.used_c / agent.model.day)))
         else:
             portrayal["Color"] = "#D5F5E3"
 
         if agent.model.day > 0:
-            print(f"{agent.unique_id}, {agent.features["country"], agent.features["cargo"]} : {agent.checks / agent.model.day}")
+            print(f"{agent.unique_id}, {agent.features["country"], agent.features["cargo"]} : {agent.used_c / agent.model.day}")
         
     return portrayal
 
@@ -55,15 +55,15 @@ def portrayal_smuggler_grid(agent):
         portrayal["text_color"] = "black"
 
         total_smuggles = 0
-        for container in agent.model.get_agents_of_type(Container): total_smuggles += container.smuggles
+        for container in agent.model.get_agents_of_type(Container): total_smuggles += container.used_s
 
         if agent.model.day > 0:
-            portrayal["Color"] = color_variant("#FADBD8", int(-50 + 100*(agent.smuggles / total_smuggles)))
+            portrayal["Color"] = color_variant("#FADBD8", int(-50 + 100*(agent.used_s / total_smuggles)))
         else:
             portrayal["Color"] = "#FADBD8"
 
         if agent.model.day > 0:
-            print(f"{agent.unique_id}, {agent.features["country"], agent.features["cargo"]} : {agent.smuggles / total_smuggles}")
+            print(f"{agent.unique_id}, {agent.features["country"], agent.features["cargo"]} : {agent.used_s / total_smuggles}")
         
     return portrayal
 
@@ -119,12 +119,12 @@ chart2 = mesa.visualization.ChartModule(
 model_params = {
     "width": 2,
     "height": 2,
-    "tom_order_customs": mesa.visualization.Choice(
+    "tom_customs": mesa.visualization.Choice(
         "Customs ToM order",
         value=0,
         choices=[0,1,2],
     ),
-    "tom_order_smuggler": mesa.visualization.Choice(
+    "tom_smuggler": mesa.visualization.Choice(
         "Smuggler ToM order",
         value=0,
         choices=[0,1],

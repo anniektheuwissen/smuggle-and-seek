@@ -131,7 +131,7 @@ class Smuggler(Agent):
             for (idx,ai) in enumerate(self.action):
                 print(idx, ai)
                 if ai == container.unique_id:
-                    container.smuggles += 1
+                    container.used_s += 1
                     container.num_packages += self.distribution[idx]
 
         #PRINT:

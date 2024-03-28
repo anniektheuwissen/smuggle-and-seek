@@ -5,50 +5,62 @@ from .agents.smuggler import Smuggler
 from .agents.container import Container
 
 def get_average_points_customs(model):
+    """
+    Returns the average points that customs obtained per day
+    """
     if model.day > 0:
         return model.get_agents_of_type(Customs)[0].points / model.day,
     return 0
 
 def get_average_points_smuggler(model):
+    """
+    Returns the average points that the smuggler obtained per day
+    """
     if model.day > 0:
         return model.get_agents_of_type(Smuggler)[0].points / model.day,
     return 0
 
 """
 SmuggleAndSeekGame class: the game in which two agents: a smuggler and a customs can smuggle and seek drugs. The game
-environment contains 9 containers, each having 2 features, that the agents can use to hide drugs and seek for drugs.
+environment contains different kinds of9 containers, each having 2 features, that the agents can use to hide drugs and 
+seek for drugs.
 """
 class SmuggleAndSeekGame(mesa.Model):
-    def __init__(self, width, height, tom_order_customs, tom_order_smuggler, learning_speed):
+    def __init__(self, width, height, tom_customs, tom_smuggler, learning_speed):
         """
         Initializes the Game
         :param width: The width of the interface
         :param height: The height of the interface
+        :param tom_customs: The order of theory of mind at which the customs reason
+        :param tom_smuggler: The order of theory of mind at which the smuggler reasons
+        :param learning_speed: The learning speed of both the customs and smuggler
         """
         super().__init__()
         self.grid = mesa.space.SingleGrid(width, height, True)
         self.schedule = mesa.time.BaseScheduler(self)
         self.running = True
+
+        # Initialize day and packages that are smuggled per day
         self.day = 0
         self.packages_per_day = 5
 
-        # Add containers to the game, and add features to these containers
-        self.num_features = 2
-        self.num_cont_per_feat = 2
-        x=0; y=0
-        for i in range(0,self.num_cont_per_feat**self.num_features):
+        # Add containers to the game, add features to these containers, and add container to the grid
+        self.num_features = 2; self.num_c_per_feat = 2
+        x = 0; y = 0
+        for i in range(self.num_c_per_feat**self.num_features):
             container = Container(i, self)
             self.grid.place_agent(container, (x, y))
             container.add_features(x,y)
-            if x==self.num_cont_per_feat-1: y+=1; x=0 
+            if x==self.num_c_per_feat-1: y+=1; x=0 
             else: x+=1
 
-        # Add agents to the game: one smuggler and one customs
-        smuggler = Smuggler(10, self, tom_order_smuggler, learning_speed)
+        # Add agents to the game: one smuggler and one customs, and add both to the schedule
+        smuggler = Smuggler(i+1, self, tom_smuggler, learning_speed)
         self.schedule.add(smuggler)
-        customs = Customs(11, self, tom_order_customs, learning_speed)
+        customs = Customs(i+2, self, tom_customs, learning_speed)
         self.schedule.add(customs)
 
+        # Add data collector that collects the points and average points of both the customs and smuggler
         self.datacollector = mesa.DataCollector(
             model_reporters= {
                 "customs points": lambda m: m.get_agents_of_type(Customs)[0].points,
@@ -61,7 +73,7 @@ class SmuggleAndSeekGame(mesa.Model):
 
     def empty_containers(self):
         """
-        Removes all drugs from the containers
+        Removes all drugs from the containers (called at the end of the day)
         """
         for container in self.get_agents_of_type(Container):
             container.num_packages = 0  
