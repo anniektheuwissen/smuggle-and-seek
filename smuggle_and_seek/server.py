@@ -54,13 +54,16 @@ def portrayal_smuggler_grid(agent):
         portrayal["text"] = f"country:{agent.features["country"]}, cargo:{agent.features["cargo"]}"
         portrayal["text_color"] = "black"
 
+        total_smuggles = 0
+        for container in agent.model.get_agents_of_type(Container): total_smuggles += container.smuggles
+
         if agent.model.day > 0:
-            portrayal["Color"] = color_variant("#FADBD8", int(-50 + 100*(agent.smuggles / agent.model.day)))
+            portrayal["Color"] = color_variant("#FADBD8", int(-50 + 100*(agent.smuggles / total_smuggles)))
         else:
             portrayal["Color"] = "#FADBD8"
 
         if agent.model.day > 0:
-            print(f"{agent.unique_id}, {agent.features["country"], agent.features["cargo"]} : {agent.smuggles / agent.model.day}")
+            print(f"{agent.unique_id}, {agent.features["country"], agent.features["cargo"]} : {agent.smuggles / total_smuggles}")
         
     return portrayal
 
