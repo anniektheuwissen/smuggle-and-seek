@@ -104,6 +104,13 @@ def chart_name2(model):
     """
     return f"Average points:"
 
+def preferences(model):
+    """
+    Display a text representing the preffered features of the smuggler
+    """
+    preferences = model.get_agents_of_type(Smuggler)[0].preferences
+    return f"Preferences: {preferences}"
+
 """
 Add the grids, charts, model parameters and server
 """
@@ -145,7 +152,7 @@ model_params = {
 }
 
 server = mesa.visualization.ModularServer(SmuggleAndSeekGame, 
-                           [customs_grid_name, grid1, smuggler_grid_name, grid2, chart_name1, chart1, chart_name2, chart2], 
+                           [customs_grid_name, grid1, smuggler_grid_name, grid2, preferences, chart_name1, chart1, chart_name2, chart2], 
                            "Smuggle and Seek Game", 
                            model_params)
 server.port = 8521

@@ -100,9 +100,9 @@ class Smuggler(Agent):
             best_distributions_per_ai[ai] = self.possible_dist[len(action_ai)-1][random.choice(np.where(temp_phi == max(temp_phi))[0])]
         print(f"best distributions per ai : {best_distributions_per_ai}")
         print(f"smugglers phi is : {self.phi}")
-        # Add some noise to phi
-        for i in range(len(self.phi)): self.phi[i] += random.uniform(-0.5,0.5); self.phi[i] = round(self.phi[i],2)
-        print(f"smugglers phi with noise is : {self.phi}")
+        # # Add some noise to phi
+        # for i in range(len(self.phi)): self.phi[i] += random.uniform(-0.5,0.5); self.phi[i] = round(self.phi[i],2)
+        # print(f"smugglers phi with noise is : {self.phi}")
         print(round(max(self.phi),2))
         print(f"highest index is at : {np.where(self.phi == round(max(self.phi),2))[0]}")
         index_action = random.choice(np.where(self.phi == round(max(self.phi),4))[0])
