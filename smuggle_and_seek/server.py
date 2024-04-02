@@ -40,7 +40,7 @@ def portrayal_customs_grid(agent):
 
         #PRINT
         if agent.model.day > 0:
-            print(f"{agent.unique_id}, {agent.features["country"], agent.features["cargo"]} : {agent.used_c / agent.model.day}")
+            print(f"customs grid: {agent.unique_id}, {agent.features["country"], agent.features["cargo"]} : {agent.used_c / agent.model.day}")
         
     return portrayal
 
@@ -72,7 +72,7 @@ def portrayal_smuggler_grid(agent):
 
         #PRINT
         if agent.model.day > 0:
-            print(f"{agent.unique_id}, {agent.features["country"], agent.features["cargo"]} : {agent.used_s / total_containers_used}")
+            print(f"smugglers grid: {agent.unique_id}, {agent.features["country"], agent.features["cargo"]} : {agent.used_s / total_containers_used}")
         
     return portrayal
 

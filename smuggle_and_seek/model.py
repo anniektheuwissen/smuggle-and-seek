@@ -90,12 +90,11 @@ class SmuggleAndSeekGame(mesa.Model):
         # Distribute points to the smuggler based on the amount of successfully smuggled drugs, the amount of 
         # containers used and the amount of features of used containers that were not preferred ones.
         smuggled_drugs = 0; containers_used = len(smuggler.action); none_preferences_used = 0
-        for containers_used in smuggler.action:
+        for used_containers in smuggler.action:
             for container in self.get_agents_of_type(Container):
-                if container.unique_id == containers_used:
+                if container.unique_id == used_containers:
                     smuggled_drugs += container.num_packages
-                    none_preferences_used += (container.features["cargo"]!=smuggler.preferences["cargo"])
-                    none_preferences_used += (container.features["country"]!=smuggler.preferences["country"])
+                    none_preferences_used += (container.features["cargo"]!=smuggler.preferences["cargo"]) + (container.features["country"]!=smuggler.preferences["country"])
         smuggler.points += smuggled_drugs - (self.packages_per_day - smuggled_drugs) - c_s*containers_used - f_s*none_preferences_used
         print(f"smuggler's points:{smuggler.points}")
         

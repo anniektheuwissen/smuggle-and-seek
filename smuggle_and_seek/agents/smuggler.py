@@ -19,7 +19,7 @@ class Smuggler(Agent):
         :param learning_speed: The speed at which the agent learns
         """
         super().__init__(unique_id, model, tom_order, learning_speed)
-        self.container_costs = 1/8
+        self.container_costs = 1/4
         self.feature_costs = 1/4
 
         self.distribution = []
@@ -94,6 +94,7 @@ class Smuggler(Agent):
                 for aj in range(len(self.b0)):
                     if aj in action_ai: temp_phi[idx] += self.b0[aj] * (self.num_packages - 2*dist[action_ai.index(aj)] - c_s*len(action_ai) - f*self.actions_nonpref[ai])
                     else: temp_phi[idx] += self.b0[aj] * (self.num_packages - c_s*len(action_ai) - f*self.actions_nonpref[ai])
+            print(f"{ai}, {action_ai}: {temp_phi}")
             self.phi[ai] = max(temp_phi)
             self.phi[ai] = round(self.phi[ai], 4)
             best_distributions_per_ai[ai] = self.possible_dist[len(action_ai)-1][random.choice(np.where(temp_phi == max(temp_phi))[0])]
@@ -130,12 +131,12 @@ class Smuggler(Agent):
         else: print("ERROR: A smuggler cannot have a theory of mind reasoning above the first order")
 
         # Take action:
-        print(f"hides in container {self.action}")
+        print(f"hides in container {self.action} with distribution {self.distribution}")
         containers = self.model.get_agents_of_type(Container)
         for container in containers:
             for (idx,ai) in enumerate(self.action):
-                print(idx, ai)
                 if ai == container.unique_id:
+                    print(f"{idx}, {ai}: {self.distribution[idx]}")
                     container.used_s += 1
                     container.num_packages += self.distribution[idx]
 
@@ -164,9 +165,9 @@ class Smuggler(Agent):
             print("smuggler is updating beliefs from ... to ...:")
             print(self.b0)
             for aj in range(len(self.b0)):
-                other_actions_failed_addition = (len(self.succes_actions)/(len(containers)-len(self.succes_actions))) * (self.learning_speed/len(self.action))
-                succesfull_action_addition = self.learning_speed/len(self.action)
-                if aj in self.failed_actions: self.b0[aj] = (1 - self.learning_speed) * self.b0[aj] + succesfull_action_addition + other_actions_failed_addition
-                if aj in self.succes_actions: self.b0[aj] = (1 - self.learning_speed) * self.b0[aj] 
-                else: self.b0[aj] = (1 - self.learning_speed) * self.b0[aj] + other_actions_failed_addition
+                other_actions_succeeded_addition = (len(self.succes_actions)/(len(containers)-len(self.succes_actions))) * (self.learning_speed/len(self.action))
+                failed_action_addition = self.learning_speed/len(self.action)
+                if aj in self.failed_actions: self.b0[aj] = (1 - self.learning_speed) * self.b0[aj] + failed_action_addition + other_actions_succeeded_addition
+                elif aj in self.succes_actions: self.b0[aj] = (1 - self.learning_speed) * self.b0[aj] 
+                else: self.b0[aj] = (1 - self.learning_speed) * self.b0[aj] + other_actions_succeeded_addition
             print(self.b0)
