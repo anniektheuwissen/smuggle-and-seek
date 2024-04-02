@@ -20,6 +20,9 @@ class Customs(Agent):
         """
         super().__init__(unique_id, model, tom_order, learning_speed)
         self.container_costs = 1/2
+        self.num_checks = 0
+        self.successful_checks = 0
+
 
     def step_tom0(self):
         """
@@ -79,6 +82,7 @@ class Customs(Agent):
                         print("wooops caught nothing")
                         self.failed_actions.append(ai)
         print(f"customs succesfull actions are: {self.succes_actions}, and failed actions are: {self.failed_actions}")
+        self.num_checks += len(self.action); self.successful_checks += len(self.succes_actions)
 
         #PRINT:
         print("current environment:")

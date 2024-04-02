@@ -111,6 +111,30 @@ def preferences(model):
     preferences = model.get_agents_of_type(Smuggler)[0].preferences
     return f"Preferences: {preferences}"
 
+def succesfull_checks(model):
+    """
+    Display a text representing the succesful checks
+    """
+    successful_checks = model.get_agents_of_type(Customs)[0].successful_checks
+    num_checks = model.get_agents_of_type(Customs)[0].num_checks
+    if (num_checks > 0): percentage = round(successful_checks/num_checks * 100,2)
+    else: percentage = 0
+    tab = "&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp"  
+    return f"Number of successful checks: {successful_checks} {tab}{tab}{tab}&nbsp&nbsp percentage: {percentage} %"
+
+def succesfull_smuggles(model):
+    """
+    Display a text representing the succesful smuggled packages
+    """
+    successful_smuggled_packages = model.get_agents_of_type(Smuggler)[0].successful_smuggled_packages
+    num_packages = 5 * model.day
+    if (num_packages> 0): percentage = round(successful_smuggled_packages/num_packages * 100,2)
+    else: percentage = 0
+    tab = "&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp"  
+    return f"Number of successful smuggled packages: {successful_smuggled_packages} {tab}{tab} percentage: {percentage} %"
+
+
+
 """
 Add the grids, charts, model parameters and server
 """
@@ -152,7 +176,7 @@ model_params = {
 }
 
 server = mesa.visualization.ModularServer(SmuggleAndSeekGame, 
-                           [customs_grid_name, grid1, smuggler_grid_name, grid2, preferences, chart_name1, chart1, chart_name2, chart2], 
+                           [customs_grid_name, grid1, smuggler_grid_name, grid2, preferences, succesfull_checks, succesfull_smuggles, chart_name1, chart1, chart_name2, chart2], 
                            "Smuggle and Seek Game", 
                            model_params)
 server.port = 8521
