@@ -176,7 +176,7 @@ model_params = {
 }
 
 server = mesa.visualization.ModularServer(SmuggleAndSeekGame, 
-                           [customs_grid_name, grid1, smuggler_grid_name, grid2, preferences, succesfull_checks, succesfull_smuggles, chart_name1, chart1, chart_name2, chart2], 
+                           [smuggler_grid_name, grid2, customs_grid_name, grid1,preferences, succesfull_smuggles, succesfull_checks, chart_name1, chart1, chart_name2, chart2], 
                            "Smuggle and Seek Game", 
                            model_params)
 server.port = 8521
