@@ -121,7 +121,7 @@ class SmuggleAndSeekGame(mesa.Model):
         self.agents_update_beliefs()
         self.distribute_points()
         self.empty_containers()
-        self.datacollector.collect(self)
         self.day += 1
+        self.datacollector.collect(self)
         print("")
         
