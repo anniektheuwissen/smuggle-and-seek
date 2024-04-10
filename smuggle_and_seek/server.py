@@ -28,8 +28,9 @@ def portrayal_customs_grid(agent):
         portrayal["h"] = 1
         portrayal["Filled"] = "False"
         portrayal["Layer"] = 0
-        portrayal["text"] = f"country:{agent.features["country"]}, cargo:{agent.features["cargo"]}"
+        portrayal["text"] = f"{agent.unique_id}: (country:{agent.features["country"]}, cargo:{agent.features["cargo"]})"
         portrayal["text_color"] = "black"
+        portrayal["size"] = 100
 
         total_containers_used = 0
         for container in agent.model.get_agents_of_type(Container): total_containers_used += container.used_c
@@ -60,7 +61,7 @@ def portrayal_smuggler_grid(agent):
         portrayal["h"] = 1
         portrayal["Filled"] = "False"
         portrayal["Layer"] = 0
-        portrayal["text"] = f"country:{agent.features["country"]}, cargo:{agent.features["cargo"]}"
+        portrayal["text"] = f"{agent.unique_id}: (country:{agent.features["country"]}, cargo:{agent.features["cargo"]})"
         portrayal["text_color"] = "black"
 
         total_containers_used = 0
@@ -119,7 +120,7 @@ def preferences(model):
     Display a text representing the preffered features of the smuggler
     """
     preferences = model.get_agents_of_type(Smuggler)[0].preferences
-    return f"Preferences: {preferences}"
+    return f"Preferences: (country: {preferences["country"]}, cargo: {preferences["cargo"]})"
 
 def succesfull_checks(model):
     """
