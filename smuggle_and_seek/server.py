@@ -31,16 +31,19 @@ def portrayal_customs_grid(agent):
         portrayal["text"] = f"country:{agent.features["country"]}, cargo:{agent.features["cargo"]}"
         portrayal["text_color"] = "black"
 
+        total_containers_used = 0
+        for container in agent.model.get_agents_of_type(Container): total_containers_used += container.used_c
+
         # Makes the color darker/brighter corresponding to whether the percentage that it is chosen as action 
         # (low percentage = dark, high percentage = bright)
         if agent.model.day > 0:
-            portrayal["Color"] = color_variant("#D5F5E3", int(-50 + 100*(agent.used_c / agent.model.day)))
+            portrayal["Color"] = color_variant("#D5F5E3", int(-50 + 100*(agent.used_c / total_containers_used)))
         else:
             portrayal["Color"] = "#D5F5E3"
 
         #PRINT
         if agent.model.day > 0:
-            print(f"customs grid: {agent.unique_id}, {agent.features["country"], agent.features["cargo"]} : {agent.used_c / agent.model.day}")
+            print(f"customs grid: {agent.unique_id}, {agent.features["country"], agent.features["cargo"]} : {agent.used_c / total_containers_used}")
         
     return portrayal
 
@@ -92,6 +95,13 @@ def smuggler_grid_name(model):
     tab = "&nbsp &nbsp &nbsp &nbsp"   
     return f"Smuggler's distribution of actions: {tab}{tab}&nbsp &nbsp last action:{last_action}"
 
+def barchart_name(model):
+    """
+    Display a text representing the name of the grid.
+    """
+    return f"Smuggler's and Customs distribution of actions:"
+
+
 def chart_name1(model):
     """
     Display a text representing the name of the chart.
@@ -134,12 +144,21 @@ def succesfull_smuggles(model):
     return f"Number of successful smuggled packages: {successful_smuggled_packages} {tab}{tab} percentage: {percentage} %"
 
 
-
 """
 Add the grids, charts, model parameters and server
 """
 grid1 = mesa.visualization.CanvasGrid(portrayal_customs_grid, 2, 2, 500, 500)
 grid2 = mesa.visualization.CanvasGrid(portrayal_smuggler_grid, 2, 2, 500, 500)
+
+barchart = mesa.visualization.BarChartModule(
+    [
+        {"Label": "used by smugglers", "Color": "#c8a9a6"},
+        {"Label": "used by customs", "Color": "#a3c3b1"},
+    ],
+    scope="agent"
+    
+)
+
 chart1 = mesa.visualization.ChartModule(
     [
         {"Label": "customs points", "Color": "#a3c3b1"},
@@ -176,7 +195,7 @@ model_params = {
 }
 
 server = mesa.visualization.ModularServer(SmuggleAndSeekGame, 
-                           [smuggler_grid_name, grid2, customs_grid_name, grid1,preferences, succesfull_smuggles, succesfull_checks, chart_name1, chart1, chart_name2, chart2], 
+                           [smuggler_grid_name, grid2, customs_grid_name, grid1, barchart_name, barchart, preferences, succesfull_smuggles, succesfull_checks, chart_name1, chart1, chart_name2, chart2], 
                            "Smuggle and Seek Game", 
                            model_params)
 server.port = 8521

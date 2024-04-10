@@ -50,6 +50,7 @@ class SmuggleAndSeekGame(mesa.Model):
         for i in range(self.num_c_per_feat**self.num_features):
             container = Container(i, self)
             self.grid.place_agent(container, (x, y))
+            self.schedule.add(container)
             container.add_features(x,y)
             if x==self.num_c_per_feat-1: y+=1; x=0 
             else: x+=1
@@ -66,10 +67,14 @@ class SmuggleAndSeekGame(mesa.Model):
                 "customs points": lambda m: m.get_agents_of_type(Customs)[0].points,
                 "customs average points": get_average_points_customs,
                 "smuggler points": lambda m: m.get_agents_of_type(Smuggler)[0].points,
-                "smuggler average points": get_average_points_smuggler
+                "smuggler average points": get_average_points_smuggler,
                 }, 
-            agent_reporters= {}
+            agent_reporters={
+                "used by smugglers": lambda a: getattr(a, "used_s", 0),
+                "used by customs": lambda a: getattr(a, "used_c", 0),
+                },
         )
+        self.datacollector.collect(self)
 
     def empty_containers(self):
         """
