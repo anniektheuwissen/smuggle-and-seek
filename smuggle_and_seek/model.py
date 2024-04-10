@@ -37,6 +37,7 @@ class SmuggleAndSeekGame(mesa.Model):
         """
         super().__init__()
         self.grid = mesa.space.SingleGrid(width, height, True)
+        self.running_schedule = mesa.time.BaseScheduler(self)
         self.schedule = mesa.time.BaseScheduler(self)
         self.running = True
 
@@ -57,9 +58,9 @@ class SmuggleAndSeekGame(mesa.Model):
 
         # Add agents to the game: one smuggler and one customs, and add both to the schedule
         smuggler = Smuggler(i+1, self, tom_smuggler, learning_speed)
-        self.schedule.add(smuggler)
+        self.running_schedule.add(smuggler)
         customs = Customs(i+2, self, tom_customs, learning_speed)
-        self.schedule.add(customs)
+        self.running_schedule.add(customs)
 
         # Add data collector that collects the points and average points of both the customs and smuggler
         self.datacollector = mesa.DataCollector(
@@ -122,7 +123,7 @@ class SmuggleAndSeekGame(mesa.Model):
         Performs one step/round/day in which the agents take actions in turn: first the smuggler and then the customs,
         after which both agents update their beliefs, the points are distributed and the containers are emptied.
         """        
-        self.schedule.step()
+        self.running_schedule.step()
         self.agents_update_beliefs()
         self.distribute_points()
         self.empty_containers()
