@@ -52,7 +52,7 @@ class Customs(Agent):
         for c in range(len(self.b1)):
             for c_star in range(len(self.b1)):
                 simulation_phi[c] += self.b1[c_star] * (-1*(c == c_star) +1*(c != c_star))
-        print(simulation_phi)
+        print(f"custom's simulation phi is : {simulation_phi}")
         smallest = simulation_phi[0]
         for i in simulation_phi:
             if i < smallest:
@@ -60,15 +60,16 @@ class Customs(Agent):
         if smallest < 0:
             for i in range(len(simulation_phi)):
                 simulation_phi[i] += smallest
+            print(f"updated to.... {simulation_phi}")
         for i in range(len(self.prediction_a1)):
             self.prediction_a1[i] = simulation_phi[i] /sum(simulation_phi)
-        print(self.prediction_a1)
+        print(f"prediction a1 is : {self.prediction_a1}")
 
         # Merge prediction with zero-order belief
         W = np.zeros(len(self.b1))
         for c in range(len(self.b1)):
             W[c] = self.c1 * self.prediction_a1[c] + (1-self.c1) * self.b0[c]
-        print(W)
+        print(f"W is : {W}")
 
         # Make decision
         # Calculate the subjective value phi for each action, and choose the action with the highest.
@@ -164,6 +165,7 @@ class Customs(Agent):
                 print("customs are updating c1 from ... to ...:")
                 print(self.c1)
                 max_indexes_prediction = np.where(self.prediction_a1 == max(self.prediction_a1))[0]
+                print(f"max indexes prediction to update from are: {max_indexes_prediction}")
                 for c in max_indexes_prediction:
                     if c in self.failed_actions:
                         self.c1 = (1 - update_speed) * self.c1
