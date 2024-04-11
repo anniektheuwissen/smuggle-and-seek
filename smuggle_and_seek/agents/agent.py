@@ -8,7 +8,7 @@ from .container import Container
 Agent class: the customs agent and smuggler agent inherit from this class
 """
 class Agent(mesa.Agent):
-    def __init__(self, unique_id, model, tom_order, learning_speed):
+    def __init__(self, unique_id, model, tom_order, learning_speed, exploration_exploitation):
         """
         Initializes the agent Customs
         :param unique_id: The unqiue id related to the agent
@@ -22,6 +22,7 @@ class Agent(mesa.Agent):
         self.action = []
         self.failed_actions = []
         self.succes_actions = []
+        self.exploration_exploitation = exploration_exploitation
 
         # Define all possible actions
         num_cont = len(self.model.get_agents_of_type(Container))

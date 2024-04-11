@@ -10,7 +10,7 @@ Customs class: the customs agent that tries to capture as many drugs as possible
 can have different levels of ToM reasoning.
 """
 class Customs(Agent):
-    def __init__(self, unique_id, model, tom_order, learning_speed):
+    def __init__(self, unique_id, model, tom_order, learning_speed, exploration_exploitation):
         """
         Initializes the agent Customs
         :param unique_id: The unqiue id related to the agent
@@ -18,7 +18,7 @@ class Customs(Agent):
         :param tom_order: The order of ToM at which the agent reasons
         :param learning_speed: The speed at which the agent learns
         """
-        super().__init__(unique_id, model, tom_order, learning_speed)
+        super().__init__(unique_id, model, tom_order, learning_speed, exploration_exploitation)
         self.container_costs = 1/2
         self.num_checks = 0
         self.successful_checks = 0
@@ -66,6 +66,11 @@ class Customs(Agent):
         elif self.tom_order == 2: self.step_tom2()
         else: print("ERROR: Customs cannot have a theory of mind reasoning above the second order")
         
+        # Random checkups:
+        if self.exploration_exploitation:
+            if (random.randint(0,99) < 1):
+                self.action = random.choice(self.possible_actions)
+
         # Take action
         print(f"checks containers {self.action}")
         self.failed_actions = []; self.succes_actions = []

@@ -10,7 +10,7 @@ Smuggler class: the smuggler agent that tries to smuggle as many drugs as possib
 have preferences for certain containers, and they can have different levels of ToM reasoning.
 """
 class Smuggler(Agent):
-    def __init__(self, unique_id, model, tom_order, learning_speed):
+    def __init__(self, unique_id, model, tom_order, learning_speed, exploration_exploitation):
         """
         Initializes the agent Smuggler
         :param unique_id: The unqiue id related to the agent
@@ -18,7 +18,7 @@ class Smuggler(Agent):
         :param tom_order: The order of ToM at which the agent reasons
         :param learning_speed: The speed at which the agent learns
         """
-        super().__init__(unique_id, model, tom_order, learning_speed)
+        super().__init__(unique_id, model, tom_order, learning_speed, exploration_exploitation)
         self.container_costs = 1/4
         self.feature_costs = 1/4
 
@@ -131,6 +131,12 @@ class Smuggler(Agent):
         if self.tom_order == 0: self.step_tom0()
         elif self.tom_order == 1: self.step_tom1()
         else: print("ERROR: A smuggler cannot have a theory of mind reasoning above the first order")
+
+        # Random checkups:
+        if self.exploration_exploitation:
+            if (random.randint(0,99) < 1):
+                self.action = random.choice(self.possible_actions)
+                self.distribution = random.choice(self.possible_dist[len(self.action)-1])
 
         # Take action:
         print(f"hides in container {self.action} with distribution {self.distribution}")

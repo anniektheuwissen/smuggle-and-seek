@@ -44,6 +44,7 @@ class SmuggleAndSeekGame(mesa.Model):
         # Initialize day and packages that are smuggled per day
         self.day = 0
         self.packages_per_day = 5
+        self.exploration_exploitation = True
 
         # Add containers to the game, add features to these containers, and add container to the grid
         self.num_features = 2; self.num_c_per_feat = 2
@@ -57,9 +58,9 @@ class SmuggleAndSeekGame(mesa.Model):
             else: x+=1
 
         # Add agents to the game: one smuggler and one customs, and add both to the schedule
-        smuggler = Smuggler(i+1, self, tom_smuggler, learning_speed)
+        smuggler = Smuggler(i+1, self, tom_smuggler, learning_speed, self.exploration_exploitation)
         self.running_schedule.add(smuggler)
-        customs = Customs(i+2, self, tom_customs, learning_speed)
+        customs = Customs(i+2, self, tom_customs, learning_speed, self.exploration_exploitation)
         self.running_schedule.add(customs)
 
         # Add data collector that collects the points and average points of both the customs and smuggler
