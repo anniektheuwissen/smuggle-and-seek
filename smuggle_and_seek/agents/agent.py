@@ -30,8 +30,12 @@ class Agent(mesa.Agent):
 
         # Initialize learning speed, belief vectors and subjective value needed for tom_reasoning
         self.learning_speed = learning_speed
+        self.c1 = 0
         self.b0 = np.array([1/num_cont] * num_cont)
+        self.b1 = np.array([1/num_cont] * num_cont)
         self.phi = np.zeros(2**num_cont-1)
+
+        self.prediction_a1 = np.zeros(num_cont)
 
     def step_tom0(self):
         """
