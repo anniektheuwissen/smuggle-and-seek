@@ -62,7 +62,8 @@ class Customs(Agent):
                 simulation_phi[i] += smallest
             print(f"updated to.... {simulation_phi}")
         for i in range(len(self.prediction_a1)):
-            self.prediction_a1[i] = simulation_phi[i] /sum(simulation_phi)
+            if sum(simulation_phi) == 0: self.prediction_a1[i] = 0
+            else: self.prediction_a1[i] = round(simulation_phi[i] /sum(simulation_phi),2)
         print(f"prediction a1 is : {self.prediction_a1}")
 
         # Merge prediction with zero-order belief
@@ -78,8 +79,8 @@ class Customs(Agent):
                 self.phi[ai] += W[c] * (1*(c in self.possible_actions[ai]) - c_c*len(self.possible_actions[ai]))
             self.phi[ai] = round(self.phi[ai], 4)
         print(f"custom's phi is : {self.phi}")
-        print(f"highest index is at : {np.where(self.phi == round(max(self.phi),4))[0]}")
-        self.action = self.possible_actions[random.choice(np.where(self.phi == round(max(self.phi),4))[0])]
+        print(f"highest index is at : {np.where(self.phi == max(self.phi))[0]}")
+        self.action = self.possible_actions[random.choice(np.where(self.phi == max(self.phi))[0])]
 
 
     def step_tom2(self):
@@ -156,6 +157,11 @@ class Customs(Agent):
                         succesfull_action_addition = self.learning_speed/len(self.succes_actions)
                         if aj in self.succes_actions: self.b1[aj] = (1 - self.learning_speed) * self.b1[aj] + succesfull_action_addition
                         else: self.b1[aj] = (1 - self.learning_speed) * self.b1[aj]
+                elif len(self.failed_actions) > 0:
+                    for aj in range(len(self.b1)):
+                        failed_action_addition = (self.learning_speed/3)/len(self.failed_actions)
+                        if aj in self.failed_actions: self.b1[aj] = (1 - self.learning_speed/3) * self.b1[aj] + failed_action_addition
+                        else: self.b1[aj] = (1 - self.learning_speed/3) * self.b1[aj]
                 else: print("stays the same...")
                 print(self.b1)
 
@@ -171,5 +177,7 @@ class Customs(Agent):
                         self.c1 = (1 - update_speed) * self.c1
                     elif c in self.succes_actions:
                         self.c1 = (1 - update_speed) * self.c1 + update_speed
+                if (not any(c in self.action for c in max_indexes_prediction) and len(self.succes_actions) == 0):
+                    self.c1 = (1 - update_speed/3) * self.c1 + update_speed/3
                 print(self.c1)
 

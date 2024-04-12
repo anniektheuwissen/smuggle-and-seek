@@ -133,7 +133,7 @@ class Smuggler(Agent):
             print(f"updated to.... {simulation_phi}")          
         for i in range(len(self.prediction_a1)):
             if sum(simulation_phi) == 0: self.prediction_a1[i] = 0
-            else: self.prediction_a1[i] = simulation_phi[i] /sum(simulation_phi)
+            else: self.prediction_a1[i] = round(simulation_phi[i] /sum(simulation_phi),2)
         print(f"prediction a1 is : {self.prediction_a1}")
 
         # Merge prediction with zero-order belief
@@ -160,9 +160,9 @@ class Smuggler(Agent):
             best_distributions_per_ai[ai] = self.possible_dist[len(action_ai)-1][random.choice(np.where(temp_phi == max(temp_phi))[0])]
         print(f"best distributions per ai : {best_distributions_per_ai}")
         print(f"smugglers phi is : {self.phi}")
-        print(round(max(self.phi),2))
-        print(f"highest index is at : {np.where(self.phi == round(max(self.phi),2))[0]}")
-        index_action = random.choice(np.where(self.phi == round(max(self.phi),4))[0])
+        print(max(self.phi))
+        print(f"highest index is at : {np.where(self.phi == max(self.phi))[0]}")
+        index_action = random.choice(np.where(self.phi == max(self.phi))[0])
         self.action = self.possible_actions[index_action]
         self.distribution = best_distributions_per_ai[index_action]
 
@@ -237,6 +237,11 @@ class Smuggler(Agent):
                         failed_action_addition = self.learning_speed/len(self.failed_actions)
                         if aj in self.failed_actions: self.b1[aj] = (1 - self.learning_speed) * self.b1[aj] + failed_action_addition
                         else: self.b1[aj] = (1 - self.learning_speed) * self.b1[aj]
+                elif len(self.succes_actions) > 0:
+                    for aj in range(len(self.b1)):
+                        succesfull_action_addition = (self.learning_speed/3)/len(self.succes_actions)
+                        if aj in self.succes_actions: self.b1[aj] = (1 - self.learning_speed/3) * self.b1[aj] + succesfull_action_addition
+                        else: self.b1[aj] = (1 - self.learning_speed/3) * self.b1[aj]
                 else: print("stays the same...")
                 print(self.b1)
 
@@ -252,4 +257,6 @@ class Smuggler(Agent):
                         self.c1 = (1 - update_speed) * self.c1
                     elif c in self.failed_actions:
                         self.c1 = (1 - update_speed) * self.c1 + update_speed
+                if (not any(c in self.action for c in max_indexes_prediction) and len(self.failed_actions) == 0):
+                    self.c1 = (1 - update_speed/3) * self.c1 + update_speed/3
                 print(self.c1)
