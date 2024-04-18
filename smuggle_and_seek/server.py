@@ -138,7 +138,7 @@ def succesfull_smuggles(model):
     Display a text representing the succesful smuggled packages
     """
     successful_smuggled_packages = model.get_agents_of_type(Smuggler)[0].successful_smuggled_packages
-    num_packages = 5 * model.day
+    num_packages = model.packages_per_day * model.day
     if (num_packages> 0): percentage = round(successful_smuggled_packages/num_packages * 100,2)
     else: percentage = 0
     tab = "&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp"  
