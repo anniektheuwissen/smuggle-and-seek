@@ -193,7 +193,7 @@ class Customs(Agent):
                 for c in range(len(self.b0)):
                     ucf_fail = 0
                     for c_star in self.failed_actions:
-                        ucf_fail += self.common_features(c, c_star)
+                        ucf_fail += self.uncommon_features(c, c_star)
                     self.b0[c] = (1 - self.learning_speed/2) * self.b0[c] + a * ucf_fail
             # for c in range(len(self.b0)):
             #     cf_succ = 0; ucf_fail = 0; 

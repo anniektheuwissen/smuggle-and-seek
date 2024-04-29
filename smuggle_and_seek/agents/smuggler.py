@@ -270,7 +270,7 @@ class Smuggler(Agent):
                 for c in range(len(self.b0)):
                     ucf_succ = 0
                     for c_star in self.succes_actions:
-                        ucf_succ += self.common_features(c, c_star)
+                        ucf_succ += self.uncommon_features(c, c_star)
                     self.b0[c] = (1 - self.learning_speed/2) * self.b0[c] + a * ucf_succ
             # for c in range(len(self.b0)):
             #     cf_fail = 0; ucf_succ = 0; 
