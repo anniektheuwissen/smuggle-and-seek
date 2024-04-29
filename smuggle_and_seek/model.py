@@ -44,7 +44,7 @@ class SmuggleAndSeekGame(mesa.Model):
         # Initialize day and packages that are smuggled per day
         self.day = 0
         self.packages_per_day = 5
-        self.exploration_exploitation = True
+        self.exploration_exploitation = False
 
         # Add containers to the game, add features to these containers, and add container to the grid
         self.num_features = 2; self.num_c_per_feat = 2
@@ -102,7 +102,8 @@ class SmuggleAndSeekGame(mesa.Model):
                 if container.unique_id == used_containers:
                     smuggled_drugs += container.num_packages
                     none_preferences_used += (container.features["cargo"]!=smuggler.preferences["cargo"]) + (container.features["country"]!=smuggler.preferences["country"])
-        smuggler.points += smuggled_drugs - (self.packages_per_day - smuggled_drugs) - c_s*containers_used - f_s*none_preferences_used
+        # smuggler.points += smuggled_drugs - (self.packages_per_day - smuggled_drugs) - c_s*containers_used - f_s*none_preferences_used
+        smuggler.points += smuggled_drugs  - c_s*containers_used - f_s*none_preferences_used
         print(f"smuggler's points:{smuggler.points}")
         
         # Distribute points to the customs based on the amount of succesfully caught drugs and the amount of

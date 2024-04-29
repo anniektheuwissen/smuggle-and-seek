@@ -19,9 +19,12 @@ class Customs(Agent):
         :param learning_speed: The speed at which the agent learns
         """
         super().__init__(unique_id, model, tom_order, learning_speed, exploration_exploitation)
-        self.container_costs = 1/2
+        self.container_costs = 2
         self.num_checks = 0
         self.successful_checks = 0
+        self.catched_packages = 0
+
+        self.expected_gain_catch = 1
 
 
     def step_tom0(self):
@@ -33,11 +36,14 @@ class Customs(Agent):
         # Calculate the subjective value phi for each action, and choose the action with the highest.
         for ai in range(len(self.possible_actions)):
             for c in range(len(self.b0)):
-                self.phi[ai] += self.b0[c] * (1*(c in self.possible_actions[ai]) - c_c*len(self.possible_actions[ai]))
+                self.phi[ai] += self.b0[c] * (self.expected_gain_catch*(c in self.possible_actions[ai]) - c_c*len(self.possible_actions[ai]))
             self.phi[ai] = round(self.phi[ai], 4)
         print(f"custom's phi is : {self.phi}")
-        print(f"highest index is at : {np.where(self.phi == round(max(self.phi),4))[0]}")
-        self.action = self.possible_actions[random.choice(np.where(self.phi == round(max(self.phi),4))[0])]
+        softmax_phi = np.exp(self.phi) / np.sum(np.exp(self.phi))
+        print(f"customs softmax of phi is : {softmax_phi}")
+        action_indexes = [i for i in range(0,len(self.possible_actions))]
+        index_action = np.random.choice(action_indexes, 1, p=softmax_phi)[0]
+        self.action = self.possible_actions[index_action]
 
     def step_tom1(self):
         """
@@ -53,17 +59,18 @@ class Customs(Agent):
             for c_star in range(len(self.b1)):
                 simulation_phi[c] += self.b1[c_star] * (-1*(c == c_star) +1*(c != c_star))
         print(f"custom's simulation phi is : {simulation_phi}")
-        smallest = simulation_phi[0]
-        for i in simulation_phi:
-            if i < smallest:
-                smallest = i
-        if smallest < 0:
-            for i in range(len(simulation_phi)):
-                simulation_phi[i] += smallest
-            print(f"updated to.... {simulation_phi}")
-        for i in range(len(self.prediction_a1)):
-            if sum(simulation_phi) == 0: self.prediction_a1[i] = 0
-            else: self.prediction_a1[i] = round(simulation_phi[i] /sum(simulation_phi),2)
+        # smallest = simulation_phi[0]
+        # for i in simulation_phi:
+        #     if i < smallest:
+        #         smallest = i
+        # if smallest < 0:
+        #     for i in range(len(simulation_phi)):
+        #         simulation_phi[i] += smallest
+        #     print(f"updated to.... {simulation_phi}")
+        self.prediction_a1 = np.exp(simulation_phi) / np.sum(np.exp(simulation_phi))     
+        # for i in range(len(self.prediction_a1)):
+        #     if sum(simulation_phi) == 0: self.prediction_a1[i] = 0
+        #     else: self.prediction_a1[i] = round(simulation_phi[i] /sum(simulation_phi),2)
         print(f"prediction a1 is : {self.prediction_a1}")
 
         # Merge prediction with zero-order belief
@@ -76,11 +83,17 @@ class Customs(Agent):
         # Calculate the subjective value phi for each action, and choose the action with the highest.
         for ai in range(len(self.possible_actions)):
             for c in range(len(W)):
-                self.phi[ai] += W[c] * (1*(c in self.possible_actions[ai]) - c_c*len(self.possible_actions[ai]))
+                self.phi[ai] += W[c] * (self.expected_gain_catch*(c in self.possible_actions[ai]) - c_c*len(self.possible_actions[ai]))
             self.phi[ai] = round(self.phi[ai], 4)
         print(f"custom's phi is : {self.phi}")
-        print(f"highest index is at : {np.where(self.phi == max(self.phi))[0]}")
-        self.action = self.possible_actions[random.choice(np.where(self.phi == max(self.phi))[0])]
+        softmax_phi = np.exp(self.phi) / np.sum(np.exp(self.phi))
+        print(f"customs softmax of phi is : {softmax_phi}")
+        action_indexes = [i for i in range(0,len(self.possible_actions))]
+        index_action = np.random.choice(action_indexes, 1, p=softmax_phi)[0]
+        self.action = self.possible_actions[index_action]
+
+        # print(f"highest index is at : {np.where(self.phi == max(self.phi))[0]}")
+        # self.action = self.possible_actions[random.choice(np.where(self.phi == max(self.phi))[0])]
 
 
     def step_tom2(self):
@@ -118,6 +131,7 @@ class Customs(Agent):
                     container.used_c += 1
                     if (container.num_packages != 0):
                         print(f"caught {container.num_packages} packages!!")
+                        self.catched_packages += container.num_packages
                         container.num_packages = 0
                         self.succes_actions.append(ai)
                     else:
@@ -130,22 +144,51 @@ class Customs(Agent):
         print("current environment:")
         print([container.num_packages for container in containers])
         
+    def common_features(self, c, cstar):
+        containers = self.model.get_agents_of_type(Container)
+        for container in containers:
+            if container.unique_id == c:
+                feature1_c = container.features["cargo"]
+                feature2_c = container.features["country"]
+            if container.unique_id == cstar:
+                feature1_cstar = container.features["cargo"]
+                feature2_cstar = container.features["country"]
+        return 0 + (feature1_c == feature1_cstar) + (feature2_c == feature2_cstar)
+    
+    def uncommon_features(self, c, cstar):
+        containers = self.model.get_agents_of_type(Container)
+        for container in containers:
+            if container.unique_id == c:
+                feature1_c = container.features["cargo"]
+                feature2_c = container.features["country"]
+            if container.unique_id == cstar:
+                feature1_cstar = container.features["cargo"]
+                feature2_cstar = container.features["country"]
+        return 0 + (feature1_c != feature1_cstar) + (feature2_c != feature2_cstar)
+
     def update_beliefs(self):
         """
         Updates its beliefs
         """
+        if self.successful_checks > 0:
+            self.expected_gain_catch = self.catched_packages / self.successful_checks
+            print(f"expected gain catch is: {self.expected_gain_catch}")
+
         if self.action == []:
             pass
         else:
+            f = self.model.num_c_per_feat ** self.model.num_features
             # Update b0
             print("customs are updating beliefs b0 from ... to ...:")
             print(self.b0)
-            for aj in range(len(self.b0)):
-                other_actions_failed_addition = (len(self.failed_actions)/(len(self.b0)-len(self.failed_actions))) * (self.learning_speed/len(self.action))
-                succesfull_action_addition = self.learning_speed/len(self.action)
-                if aj in self.succes_actions: self.b0[aj] = (1 - self.learning_speed) * self.b0[aj] + succesfull_action_addition + other_actions_failed_addition
-                elif aj in self.failed_actions: self.b0[aj] = (1 - self.learning_speed) * self.b0[aj] 
-                else: self.b0[aj] = (1 - self.learning_speed) * self.b0[aj] + other_actions_failed_addition
+            for c in range(len(self.b0)):
+                cf_succ = 0; ucf_fail = 0; 
+                for c_star in self.succes_actions:
+                    cf_succ += self.common_features(c, c_star)
+                for c_star in self.failed_actions:
+                    ucf_fail += self.uncommon_features(c, c_star)
+                a = (self.learning_speed/f)/len(self.action)
+                self.b0[c] = (1 - self.learning_speed) * self.b0[c] + a * (cf_succ + ucf_fail)
             print(self.b0)
 
             if self.tom_order > 0:
@@ -153,15 +196,16 @@ class Customs(Agent):
                 print("customs are updating beliefs b1 from ... to ...:")
                 print(self.b1)
                 if len(self.succes_actions) > 0:
-                    for aj in range(len(self.b1)):
-                        succesfull_action_addition = self.learning_speed/len(self.succes_actions)
-                        if aj in self.succes_actions: self.b1[aj] = (1 - self.learning_speed) * self.b1[aj] + succesfull_action_addition
-                        else: self.b1[aj] = (1 - self.learning_speed) * self.b1[aj]
+                    a = (self.learning_speed/f)/len(self.succes_actions)
+                    for c in range(len(self.b1)):
+                        cf_succ = 0
+                        for c_star in self.succes_actions:
+                            cf_succ += self.common_features(c, c_star)
+                        self.b1[c] = (1 - self.learning_speed) * self.b1[c] + a * cf_succ
                 elif len(self.failed_actions) > 0:
-                    for aj in range(len(self.b1)):
-                        failed_action_addition = (self.learning_speed/3)/len(self.failed_actions)
-                        if aj in self.failed_actions: self.b1[aj] = (1 - self.learning_speed/3) * self.b1[aj] + failed_action_addition
-                        else: self.b1[aj] = (1 - self.learning_speed/3) * self.b1[aj]
+                    b = (self.learning_speed/f)/len(self.failed_actions)
+                    for c in range(len(self.b1)):
+                        self.b1[c] = (1 - self.learning_speed/f) * self.b1[c] + b * (c in self.failed_actions)
                 else: print("stays the same...")
                 print(self.b1)
 
@@ -170,14 +214,21 @@ class Customs(Agent):
 
                 print("customs are updating c1 from ... to ...:")
                 print(self.c1)
-                max_indexes_prediction = np.where(self.prediction_a1 == max(self.prediction_a1))[0]
-                print(f"max indexes prediction to update from are: {max_indexes_prediction}")
-                for c in max_indexes_prediction:
-                    if c in self.failed_actions:
-                        self.c1 = (1 - update_speed) * self.c1
-                    elif c in self.succes_actions:
-                        self.c1 = (1 - update_speed) * self.c1 + update_speed
-                if (not any(c in self.action for c in max_indexes_prediction) and len(self.succes_actions) == 0):
-                    self.c1 = (1 - update_speed/3) * self.c1 + update_speed/3
+                for a in self.action:
+                    action_index = self.possible_actions.index(a)
+                    update = update_speed * self.prediction_a1[action_index]
+                    if a in self.succes_actions: self.c1 = (1 - update) * self.c1 + update * (self.prediction_a1[action_index]/max(self.prediction_a1))
+                    if a in self.failed_actions: self.c1 = (1 - update) * self.c1 + update * (1 - self.prediction_a1[action_index]/max(self.prediction_a1))
                 print(self.c1)
+
+                # max_indexes_prediction = np.where(self.prediction_a1 == max(self.prediction_a1))[0]
+                # print(f"max indexes prediction to update from are: {max_indexes_prediction}")
+                # for c in max_indexes_prediction:
+                #     if c in self.failed_actions:
+                #         self.c1 = (1 - update_speed) * self.c1
+                #     elif c in self.succes_actions:
+                #         self.c1 = (1 - update_speed) * self.c1 + update_speed
+                # if (not any(c in self.action for c in max_indexes_prediction) and len(self.succes_actions) == 0):
+                #     self.c1 = (1 - update_speed/3) * self.c1 + update_speed/3
+                # print(self.c1)
 
