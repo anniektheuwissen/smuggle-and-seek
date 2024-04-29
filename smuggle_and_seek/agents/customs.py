@@ -181,14 +181,28 @@ class Customs(Agent):
             # Update b0
             print("customs are updating beliefs b0 from ... to ...:")
             print(self.b0)
-            for c in range(len(self.b0)):
-                cf_succ = 0; ucf_fail = 0; 
-                for c_star in self.succes_actions:
-                    cf_succ += self.common_features(c, c_star)
-                for c_star in self.failed_actions:
-                    ucf_fail += self.uncommon_features(c, c_star)
-                a = (self.learning_speed/f)/len(self.action)
-                self.b0[c] = (1 - self.learning_speed) * self.b0[c] + a * (cf_succ + ucf_fail)
+            if len(self.succes_actions) > 0:
+                a = (self.learning_speed/f)/len(self.succes_actions)
+                for c in range(len(self.b0)):
+                    cf_succ = 0
+                    for c_star in self.succes_actions:
+                        cf_succ += self.common_features(c, c_star)
+                    self.b0[c] = (1 - self.learning_speed) * self.b0[c] + a * cf_succ
+            elif len(self.failed_actions) > 0:
+                a = (self.learning_speed/2/f)/len(self.failed_actions)
+                for c in range(len(self.b0)):
+                    ucf_fail = 0
+                    for c_star in self.failed_actions:
+                        ucf_fail += self.common_features(c, c_star)
+                    self.b0[c] = (1 - self.learning_speed/2) * self.b0[c] + a * ucf_fail
+            # for c in range(len(self.b0)):
+            #     cf_succ = 0; ucf_fail = 0; 
+            #     for c_star in self.succes_actions:
+            #         cf_succ += self.common_features(c, c_star)
+            #     for c_star in self.failed_actions:
+            #         ucf_fail += self.uncommon_features(c, c_star)
+            #     a = (self.learning_speed/f)/len(self.action)
+            #     self.b0[c] = (1 - self.learning_speed) * self.b0[c] + a * (cf_succ + ucf_fail)
             print(self.b0)
 
             if self.tom_order > 0:
