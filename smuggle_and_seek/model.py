@@ -103,13 +103,13 @@ class SmuggleAndSeekGame(mesa.Model):
                     smuggled_drugs += container.num_packages
                     none_preferences_used += (container.features["cargo"]!=smuggler.preferences["cargo"]) + (container.features["country"]!=smuggler.preferences["country"])
         # smuggler.points += smuggled_drugs - (self.packages_per_day - smuggled_drugs) - c_s*containers_used - f_s*none_preferences_used
-        smuggler.points += smuggled_drugs  - c_s*containers_used - f_s*none_preferences_used
+        smuggler.points += 2*smuggled_drugs  - c_s*containers_used - f_s*none_preferences_used
         print(f"smuggler's points:{smuggler.points}")
         
         # Distribute points to the customs based on the amount of succesfully caught drugs and the amount of
         # containers checked.
         caught_drugs = (self.packages_per_day - smuggled_drugs); containers_checked = len(customs.action)
-        customs.points += caught_drugs - c_c*containers_checked
+        customs.points += 2*caught_drugs - c_c*containers_checked
         print(f"customs points:{customs.points}")
 
     def agents_update_beliefs(self):
