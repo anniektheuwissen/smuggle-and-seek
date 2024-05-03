@@ -19,8 +19,8 @@ class Smuggler(Agent):
         :param learning_speed: The speed at which the agent learns
         """
         super().__init__(unique_id, model, tom_order, learning_speed, exploration_exploitation)
-        self.container_costs = 2
-        self.feature_costs = 2
+        self.container_costs = 3
+        self.feature_costs = 1
 
         self.distribution = []
         self.preferences = {}

@@ -24,7 +24,7 @@ class Customs(Agent):
         self.successful_checks = 0
         self.catched_packages = 0
 
-        self.expected_gain_catch = 1
+        self.expected_amount_catch = 1
 
 
     def step_tom0(self):
@@ -36,7 +36,7 @@ class Customs(Agent):
         # Calculate the subjective value phi for each action, and choose the action with the highest.
         for ai in range(len(self.possible_actions)):
             for c in range(len(self.b0)):
-                self.phi[ai] += self.b0[c] * (2*self.expected_gain_catch*(c in self.possible_actions[ai]) - c_c*len(self.possible_actions[ai]))
+                self.phi[ai] += self.b0[c] * (2*self.expected_amount_catch*(c in self.possible_actions[ai]) - c_c*len(self.possible_actions[ai]))
             self.phi[ai] = round(self.phi[ai], 4)
         print(f"custom's phi is : {self.phi}")
         softmax_phi = np.exp(self.phi) / np.sum(np.exp(self.phi))
@@ -75,7 +75,7 @@ class Customs(Agent):
         # Calculate the subjective value phi for each action, and choose the action with the highest.
         for ai in range(len(self.possible_actions)):
             for c in range(len(W)):
-                self.phi[ai] += W[c] * (2*self.expected_gain_catch*(c in self.possible_actions[ai]) - c_c*len(self.possible_actions[ai]))
+                self.phi[ai] += W[c] * (2*self.expected_amount_catch*(c in self.possible_actions[ai]) - c_c*len(self.possible_actions[ai]))
             self.phi[ai] = round(self.phi[ai], 4)
         print(f"custom's phi is : {self.phi}")
         softmax_phi = np.exp(self.phi) / np.sum(np.exp(self.phi))
@@ -160,8 +160,8 @@ class Customs(Agent):
         Updates its beliefs
         """
         if self.successful_checks > 0:
-            self.expected_gain_catch = self.catched_packages / self.successful_checks
-            print(f"expected gain catch is: {self.expected_gain_catch}")
+            self.expected_amount_catch = self.catched_packages / self.successful_checks
+            print(f"expected amount catch is: {self.expected_amount_catch}")
 
         if self.action == []:
             pass
