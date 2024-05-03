@@ -127,10 +127,10 @@ class Smuggler(Agent):
             for c_star in range(len(self.b1)):
                 simulation_phi[c] += self.b1[c_star] * (1*(c == c_star) +0*(c != c_star))
         print(f"smugglers simulation phi is : {simulation_phi}")   
-        # self.prediction_a1 = np.exp(simulation_phi) / np.sum(np.exp(simulation_phi))       
-        for i in range(len(self.prediction_a1)):
-            if sum(simulation_phi) == 0: self.prediction_a1[i] = 0
-            else: self.prediction_a1[i] = round(simulation_phi[i] /sum(simulation_phi),2)
+        self.prediction_a1 = np.exp(simulation_phi) / np.sum(np.exp(simulation_phi))       
+        # for i in range(len(self.prediction_a1)):
+        #     if sum(simulation_phi) == 0: self.prediction_a1[i] = 0
+        #     else: self.prediction_a1[i] = round(simulation_phi[i] /sum(simulation_phi),2)
         print(f"prediction a1 is : {self.prediction_a1}")
 
         # Merge prediction with zero-order belief
@@ -269,9 +269,9 @@ class Smuggler(Agent):
                             cf_fail += self.common_features(c, c_star)
                         self.b1[c] = (1 - self.learning_speed) * self.b1[c] + a * cf_fail
                 elif len(self.succes_actions) > 0:
-                    b = (self.learning_speed/n)/len(self.succes_actions)
+                    b = (self.learning_speed/(2*n))/len(self.succes_actions)
                     for c in range(len(self.b1)):
-                        self.b1[c] = (1 - self.learning_speed/n) * self.b1[c] + b * (c in self.succes_actions)
+                        self.b1[c] = (1 - self.learning_speed/(2*n)) * self.b1[c] + b * (c in self.succes_actions)
                 else: print("stays the same...")
                 print(self.b1)
 
@@ -282,9 +282,17 @@ class Smuggler(Agent):
                 print(self.c1)
                 for a in self.action:
                     action_index = self.possible_actions.index(a)
-                    # update = update_speed * self.prediction_a1[action_index]
-                    if a in self.failed_actions: self.c1 = (1 - update_speed) * self.c1 + update_speed * (self.prediction_a1[action_index]/max(self.prediction_a1)); print(f"failed: {(self.prediction_a1[action_index]/max(self.prediction_a1))}")
-                    if a in self.succes_actions: self.c1 = (1 - update_speed) * self.c1 + update_speed * (1 - self.prediction_a1[action_index]/max(self.prediction_a1)); print(f"succes: {1 - self.prediction_a1[action_index]/max(self.prediction_a1)}")
+                    update = self.prediction_a1[action_index]
+                    # if a in self.failed_actions: self.c1 = (1 - update) * self.c1 + update; print(f"failed: {self.prediction_a1[action_index]}")
+                    # if a in self.succes_actions: self.c1 = (1 - update) * self.c1; print(f"succes: {self.prediction_a1[action_index]}")
+                    if update < 0.25:
+                        update = 0.25 - update
+                        if a in self.succes_actions: self.c1 = (1 - update) * self.c1 + update; print(f"succes: {self.prediction_a1[action_index]}")
+                        if a in self.failed_actions: self.c1 = (1 - update) * self.c1; print(f"failed: {self.prediction_a1[action_index]}")
+                    if update > 0.25:
+                        update = update - 0.25
+                        if a in self.succes_actions: self.c1 = (1 - update) * self.c1; print(f"succes: {self.prediction_a1[action_index]}")
+                        if a in self.failed_actions: self.c1 = (1 - update) * self.c1 + update; print(f"failed: {self.prediction_a1[action_index]}")
                 print(self.c1)
 
 

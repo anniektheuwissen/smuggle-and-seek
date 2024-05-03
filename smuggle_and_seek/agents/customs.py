@@ -25,7 +25,9 @@ class Customs(Agent):
         self.catched_packages = 0
 
         self.expected_amount_catch = 1
-
+        self.expected_preferences = {}
+        self.expected_preferences["country"] = self.random.randint(0,1)
+        self.expected_preferences["cargo"] = self.random.randint(0,1)
 
     def step_tom0(self):
         """
@@ -53,16 +55,19 @@ class Customs(Agent):
 
         c_c = self.container_costs
 
+
         # Make prediction about behavior of opponent
         simulation_phi = np.zeros(len(self.b1))
         for c in range(len(self.b1)):
+            non_pref = (self.model.get_agents_of_type(Container)[c].features["cargo"] != self.expected_preferences["cargo"]) + (self.model.get_agents_of_type(Container)[c].features["country"] != self.expected_preferences["country"])
             for c_star in range(len(self.b1)):
-                simulation_phi[c] += self.b1[c_star] * (0*(c == c_star) +1*(c != c_star))
+                # DIE 10 EN 3 KUNNEN ZE NIET WETEN DUS HIER MOET NOG NAAR GEKEKEN WORDEN!!!!
+                simulation_phi[c] += self.b1[c_star] * (0*(c == c_star) +10*(c != c_star) - 3 - non_pref)
         print(f"custom's simulation phi is : {simulation_phi}")
-        # self.prediction_a1 = np.exp(simulation_phi) / np.sum(np.exp(simulation_phi))     
-        for i in range(len(self.prediction_a1)):
-            if sum(simulation_phi) == 0: self.prediction_a1[i] = 0
-            else: self.prediction_a1[i] = round(simulation_phi[i] /sum(simulation_phi),2)
+        self.prediction_a1 = np.exp(simulation_phi) / np.sum(np.exp(simulation_phi))     
+        # for i in range(len(self.prediction_a1)):
+        #     if sum(simulation_phi) == 0: self.prediction_a1[i] = 0
+        #     else: self.prediction_a1[i] = round(simulation_phi[i] /sum(simulation_phi),2)
         print(f"prediction a1 is : {self.prediction_a1}")
 
         # Merge prediction with zero-order belief
@@ -185,6 +190,27 @@ class Customs(Agent):
             print(self.b0)
 
             if self.tom_order > 0:
+                # Update expected preferences
+                # containers = self.model.get_agents_of_type(Container)
+                # checked_country0 = 0; checked_country1 = 0; checked_cargo0 = 0; checked_cargo1 = 0
+                # for container in containers:
+                #     if container.features["country"] == 0:
+                #         checked_country0 += container.used_c
+                #     if container.features["country"] == 1:
+                #         checked_country1 += container.used_c
+                #     if container.features["cargo"] == 0:
+                #         checked_cargo0 += container.used_c
+                #     if container.features["cargo"] == 1:
+                #         checked_cargo1 += container.used_c
+
+                # if checked_country0 > checked_country1: self.expected_preferences["country"] = 0
+                # else: self.expected_preferences["country"] = 1
+                # if checked_cargo0 > checked_cargo1: self.expected_preferences["cargo"] = 0
+                # else: self.expected_preferences["cargo"] = 1
+                index = np.argmax(self.b0)
+                self.expected_preferences = self.model.get_agents_of_type(Container)[index].features
+                print(f"expected preferences are: {self.expected_preferences}")
+
                 # Update b1
                 print("customs are updating beliefs b1 from ... to ...:")
                 print(self.b1)
@@ -209,10 +235,19 @@ class Customs(Agent):
                 print(self.c1)
                 for a in self.action:
                     action_index = self.possible_actions.index(a)
-                    # update = update_speed * self.prediction_a1[action_index]
-                    if a in self.succes_actions: self.c1 = (1 - update_speed) * self.c1 + update_speed * (self.prediction_a1[action_index]/max(self.prediction_a1)); print(f"succes action: {a} with: {self.prediction_a1[action_index]} / {max(self.prediction_a1)}")
-                    if a in self.failed_actions: self.c1 = (1 - update_speed) * self.c1 + update_speed * (1 - self.prediction_a1[action_index]/max(self.prediction_a1)); print(f"failed action: {a} with: {self.prediction_a1[action_index]} / {max(self.prediction_a1)}")
+                    update = self.prediction_a1[action_index]
+                    # if a in self.succes_actions: self.c1 = (1 - update_speed) * self.c1 + update_speed * (self.prediction_a1[action_index]/max(self.prediction_a1)); print(f"succes action: {a} with: {self.prediction_a1[action_index]} / {max(self.prediction_a1)}")
+                    # if a in self.failed_actions: self.c1 = (1 - update_speed) * self.c1 + update_speed * (1 - self.prediction_a1[action_index]/max(self.prediction_a1)); print(f"failed action: {a} with: {self.prediction_a1[action_index]} / {max(self.prediction_a1)}")
+                    if update < 0.25:
+                        update = 0.25 - update
+                        if a in self.failed_actions: self.c1 = (1 - update) * self.c1 + update; print(f"failed: {self.prediction_a1[action_index]}")
+                        if a in self.succes_actions: self.c1 = (1 - update) * self.c1; print(f"succes: {self.prediction_a1[action_index]}")
+                    if update > 0.25:
+                        update = update - 0.25
+                        if a in self.failed_actions: self.c1 = (1 - update) * self.c1; print(f"failed: {self.prediction_a1[action_index]}")
+                        if a in self.succes_actions: self.c1 = (1 - update) * self.c1 + update; print(f"succes: {self.prediction_a1[action_index]}")
                 print(self.c1)
+
 
                 # max_indexes_prediction = np.where(self.prediction_a1 == max(self.prediction_a1))[0]
                 # print(f"max indexes prediction to update from are: {max_indexes_prediction}")
