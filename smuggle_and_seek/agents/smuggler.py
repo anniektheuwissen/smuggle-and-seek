@@ -96,7 +96,7 @@ class Smuggler(Agent):
                 for aj in range(len(self.b0)):
                     if aj in action_ai: temp_phi[idx] += self.b0[aj] * (2*(self.num_packages - dist[action_ai.index(aj)]) - c_s*len(action_ai) - f*self.actions_nonpref[ai])
                     else: temp_phi[idx] += self.b0[aj] * (2*self.num_packages - c_s*len(action_ai) - f*self.actions_nonpref[ai])
-            print(f"{ai}, {action_ai}: {temp_phi}")
+            # print(f"{ai}, {action_ai}: {temp_phi}")
             self.phi[ai] = max(temp_phi)
             self.phi[ai] = round(self.phi[ai], 4)
             best_distributions_per_ai[ai] = self.possible_dist[len(action_ai)-1][random.choice(np.where(temp_phi == max(temp_phi))[0])]
@@ -104,7 +104,6 @@ class Smuggler(Agent):
         print(f"smugglers phi is : {self.phi}")
         softmax_phi = np.exp(self.phi) / np.sum(np.exp(self.phi))
         print(f"smugglers softmax of phi is : {softmax_phi}")
-        print(sum(softmax_phi))
         action_indexes = [i for i in range(0,len(self.possible_actions))]
         print(action_indexes)
         index_action = np.random.choice(action_indexes, 1, p=softmax_phi)[0]
@@ -125,12 +124,9 @@ class Smuggler(Agent):
         simulation_phi = np.zeros(len(self.b1))
         for c in range(len(self.b1)):
             for c_star in range(len(self.b1)):
-                simulation_phi[c] += self.b1[c_star] * (1*(c == c_star) +0*(c != c_star))
+                simulation_phi[c] += self.b1[c_star] * (10*(c == c_star) +0*(c != c_star))
         print(f"smugglers simulation phi is : {simulation_phi}")   
         self.prediction_a1 = np.exp(simulation_phi) / np.sum(np.exp(simulation_phi))       
-        # for i in range(len(self.prediction_a1)):
-        #     if sum(simulation_phi) == 0: self.prediction_a1[i] = 0
-        #     else: self.prediction_a1[i] = round(simulation_phi[i] /sum(simulation_phi),2)
         print(f"prediction a1 is : {self.prediction_a1}")
 
         # Merge prediction with zero-order belief
@@ -151,7 +147,7 @@ class Smuggler(Agent):
                 for c in range(len(W)):
                     if c in action_ai: temp_phi[idx] += W[c] * (2*(self.num_packages - dist[action_ai.index(c)]) - c_s*len(action_ai) - f*self.actions_nonpref[ai])
                     else: temp_phi[idx] += W[c] * (2*self.num_packages - c_s*len(action_ai) - f*self.actions_nonpref[ai])
-            print(f"{ai}, {action_ai}: {temp_phi}")
+            # print(f"{ai}, {action_ai}: {temp_phi}")
             self.phi[ai] = max(temp_phi)
             self.phi[ai] = round(self.phi[ai], 4)
             best_distributions_per_ai[ai] = self.possible_dist[len(action_ai)-1][random.choice(np.where(temp_phi == max(temp_phi))[0])]

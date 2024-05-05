@@ -3,6 +3,7 @@ import numpy as np
 from more_itertools import powerset
 
 from .container import Container
+from .smuggler import Smuggler
 from .agent import Agent
 
 """
@@ -55,19 +56,14 @@ class Customs(Agent):
 
         c_c = self.container_costs
 
-
         # Make prediction about behavior of opponent
         simulation_phi = np.zeros(len(self.b1))
         for c in range(len(self.b1)):
             non_pref = (self.model.get_agents_of_type(Container)[c].features["cargo"] != self.expected_preferences["cargo"]) + (self.model.get_agents_of_type(Container)[c].features["country"] != self.expected_preferences["country"])
             for c_star in range(len(self.b1)):
-                # DIE 10 EN 3 KUNNEN ZE NIET WETEN DUS HIER MOET NOG NAAR GEKEKEN WORDEN!!!!
-                simulation_phi[c] += self.b1[c_star] * (0*(c == c_star) +10*(c != c_star) - 3 - non_pref)
+                simulation_phi[c] += self.b1[c_star] * (0*(c == c_star) +2*self.expected_amount_catch*(c != c_star) - non_pref)
         print(f"custom's simulation phi is : {simulation_phi}")
         self.prediction_a1 = np.exp(simulation_phi) / np.sum(np.exp(simulation_phi))     
-        # for i in range(len(self.prediction_a1)):
-        #     if sum(simulation_phi) == 0: self.prediction_a1[i] = 0
-        #     else: self.prediction_a1[i] = round(simulation_phi[i] /sum(simulation_phi),2)
         print(f"prediction a1 is : {self.prediction_a1}")
 
         # Merge prediction with zero-order belief
@@ -207,8 +203,11 @@ class Customs(Agent):
                 # else: self.expected_preferences["country"] = 1
                 # if checked_cargo0 > checked_cargo1: self.expected_preferences["cargo"] = 0
                 # else: self.expected_preferences["cargo"] = 1
-                index = np.argmax(self.b0)
-                self.expected_preferences = self.model.get_agents_of_type(Container)[index].features
+                #METHOD2
+                # index = np.argmax(self.b0)
+                # self.expected_preferences = self.model.get_agents_of_type(Container)[index].features
+                #METHODCHEAT
+                self.expected_preferences = self.model.get_agents_of_type(Smuggler)[0].preferences
                 print(f"expected preferences are: {self.expected_preferences}")
 
                 # Update b1
@@ -247,6 +246,7 @@ class Customs(Agent):
                         if a in self.failed_actions: self.c1 = (1 - update) * self.c1; print(f"failed: {self.prediction_a1[action_index]}")
                         if a in self.succes_actions: self.c1 = (1 - update) * self.c1 + update; print(f"succes: {self.prediction_a1[action_index]}")
                 print(self.c1)
+                # self.c1 = 1
 
 
                 # max_indexes_prediction = np.where(self.prediction_a1 == max(self.prediction_a1))[0]
