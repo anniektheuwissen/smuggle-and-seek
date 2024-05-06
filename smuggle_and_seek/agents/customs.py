@@ -61,7 +61,9 @@ class Customs(Agent):
         for c in range(len(self.b1)):
             non_pref = (self.model.get_agents_of_type(Container)[c].features["cargo"] != self.expected_preferences["cargo"]) + (self.model.get_agents_of_type(Container)[c].features["country"] != self.expected_preferences["country"])
             for c_star in range(len(self.b1)):
-                simulation_phi[c] += self.b1[c_star] * (0*(c == c_star) +2*self.expected_amount_catch*(c != c_star) - non_pref)
+                simulation_phi[c] += self.b1[c_star] * (-1*(c == c_star) +1*(c != c_star) - non_pref)
+                #CHEATMETHOD
+                # simulation_phi[c] += self.b1[c_star] * (2*5*(c != c_star) - non_pref)
         print(f"custom's simulation phi is : {simulation_phi}")
         self.prediction_a1 = np.exp(simulation_phi) / np.sum(np.exp(simulation_phi))     
         print(f"prediction a1 is : {self.prediction_a1}")
@@ -118,12 +120,13 @@ class Customs(Agent):
         for container in containers:
             for ai in self.action:
                 if ai == container.unique_id:
-                    container.used_c += 1
+                    container.used_by_c += 1
                     if (container.num_packages != 0):
                         print(f"caught {container.num_packages} packages!!")
                         self.catched_packages += container.num_packages
                         container.num_packages = 0
                         self.succes_actions.append(ai)
+                        container.used_succ_by_c += 1
                     else:
                         print("wooops caught nothing")
                         self.failed_actions.append(ai)
@@ -206,8 +209,24 @@ class Customs(Agent):
                 #METHOD2
                 # index = np.argmax(self.b0)
                 # self.expected_preferences = self.model.get_agents_of_type(Container)[index].features
+                #METHOD3
+                containers = self.model.get_agents_of_type(Container)
+                checked_country0 = 0; checked_country1 = 0; checked_cargo0 = 0; checked_cargo1 = 0
+                for container in containers:
+                    if container.features["country"] == 0:
+                        checked_country0 += container.used_succ_by_c
+                    if container.features["country"] == 1:
+                        checked_country1 += container.used_succ_by_c
+                    if container.features["cargo"] == 0:
+                        checked_cargo0 += container.used_succ_by_c
+                    if container.features["cargo"] == 1:
+                        checked_cargo1 += container.used_succ_by_c
+                if checked_country0 > checked_country1: self.expected_preferences["country"] = 0
+                else: self.expected_preferences["country"] = 1
+                if checked_cargo0 > checked_cargo1: self.expected_preferences["cargo"] = 0
+                else: self.expected_preferences["cargo"] = 1
                 #METHODCHEAT
-                self.expected_preferences = self.model.get_agents_of_type(Smuggler)[0].preferences
+                # self.expected_preferences = self.model.get_agents_of_type(Smuggler)[0].preferences
                 print(f"expected preferences are: {self.expected_preferences}")
 
                 # Update b1

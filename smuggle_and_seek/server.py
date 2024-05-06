@@ -33,18 +33,18 @@ def portrayal_customs_grid(agent):
         portrayal["size"] = 100
 
         total_containers_used = 0
-        for container in agent.model.get_agents_of_type(Container): total_containers_used += container.used_c
+        for container in agent.model.get_agents_of_type(Container): total_containers_used += container.used_by_c
 
         # Makes the color darker/brighter corresponding to whether the percentage that it is chosen as action 
         # (low percentage = dark, high percentage = bright)
         if agent.model.day > 0:
-            portrayal["Color"] = color_variant("#D5F5E3", int(-50 + 100*(agent.used_c / total_containers_used)))
+            portrayal["Color"] = color_variant("#D5F5E3", int(-50 + 100*(agent.used_by_c / total_containers_used)))
         else:
             portrayal["Color"] = "#D5F5E3"
 
         #PRINT
         if agent.model.day > 0:
-            print(f"customs grid: {agent.unique_id}, {agent.features["country"], agent.features["cargo"]} : {agent.used_c / total_containers_used}")
+            print(f"customs grid: {agent.unique_id}, {agent.features["country"], agent.features["cargo"]} : {agent.used_by_c / total_containers_used}")
         
     return portrayal
 
@@ -65,18 +65,18 @@ def portrayal_smuggler_grid(agent):
         portrayal["text_color"] = "black"
 
         total_containers_used = 0
-        for container in agent.model.get_agents_of_type(Container): total_containers_used += container.used_s
+        for container in agent.model.get_agents_of_type(Container): total_containers_used += container.used_by_s
         
         # Makes the color darker/brighter corresponding to whether the percentage that it is chosen as action 
         # (low percentage = dark, high percentage = bright)
         if agent.model.day > 0:
-            portrayal["Color"] = color_variant("#FADBD8", int(-50 + 100*(agent.used_s / total_containers_used)))
+            portrayal["Color"] = color_variant("#FADBD8", int(-50 + 100*(agent.used_by_s / total_containers_used)))
         else:
             portrayal["Color"] = "#FADBD8"
 
         #PRINT
         if agent.model.day > 0:
-            print(f"smugglers grid: {agent.unique_id}, {agent.features["country"], agent.features["cargo"]} : {agent.used_s / total_containers_used}")
+            print(f"smugglers grid: {agent.unique_id}, {agent.features["country"], agent.features["cargo"]} : {agent.used_by_s / total_containers_used}")
         
     return portrayal
 

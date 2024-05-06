@@ -13,8 +13,9 @@ class Container(mesa.Agent):
         super().__init__(unique_id, model)
         self.features = {}
         self.num_packages = 0
-        self.used_s = 0
-        self.used_c = 0
+        self.used_by_s = 0
+        self.used_by_c = 0
+        self.used_succ_by_c = 0 
 
     def add_features(self, x, y):
         """

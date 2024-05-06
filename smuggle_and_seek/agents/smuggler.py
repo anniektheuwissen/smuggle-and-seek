@@ -145,8 +145,8 @@ class Smuggler(Agent):
             for (idx, dist) in enumerate(self.possible_dist[len(action_ai)-1]):
                 # Loop over all possible actions of the opponent
                 for c in range(len(W)):
-                    if c in action_ai: temp_phi[idx] += W[c] * (2*(self.num_packages - dist[action_ai.index(c)]) - c_s*len(action_ai) - f*self.actions_nonpref[ai])
-                    else: temp_phi[idx] += W[c] * (2*self.num_packages - c_s*len(action_ai) - f*self.actions_nonpref[ai])
+                    if c in action_ai: temp_phi[idx] += W[c] * (self.num_packages - 2*dist[action_ai.index(c)] - c_s*len(action_ai) - f*self.actions_nonpref[ai])
+                    else: temp_phi[idx] += W[c] * (self.num_packages - c_s*len(action_ai) - f*self.actions_nonpref[ai])
             # print(f"{ai}, {action_ai}: {temp_phi}")
             self.phi[ai] = max(temp_phi)
             self.phi[ai] = round(self.phi[ai], 4)
@@ -189,7 +189,7 @@ class Smuggler(Agent):
             for (idx,ai) in enumerate(self.action):
                 if ai == container.unique_id:
                     print(f"{idx}, {ai}: {self.distribution[idx]}")
-                    container.used_s += 1
+                    container.used_by_s += 1
                     container.num_packages += self.distribution[idx]
 
         #PRINT:

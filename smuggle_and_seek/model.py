@@ -72,8 +72,8 @@ class SmuggleAndSeekGame(mesa.Model):
                 "smuggler average points": get_average_points_smuggler,
                 }, 
             agent_reporters={
-                "used by smugglers": lambda a: getattr(a, "used_s", 0),
-                "used by customs": lambda a: getattr(a, "used_c", 0),
+                "used by smugglers": lambda a: getattr(a, "used_by_s", 0),
+                "used by customs": lambda a: getattr(a, "used_by_c", 0),
                 },
         )
         self.datacollector.collect(self)
