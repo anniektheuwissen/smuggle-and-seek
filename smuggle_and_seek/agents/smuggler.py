@@ -43,7 +43,7 @@ class Smuggler(Agent):
         """
         self.preferences["country"] = self.random.randint(0,self.model.num_features-1)
         self.preferences["cargo"] = self.random.randint(0,self.model.num_features-1)
-        print(f"preferences: {self.preferences["country"],self.preferences["cargo"]}")
+        if self.model.print: print(f"preferences: {self.preferences["country"],self.preferences["cargo"]}")
 
     def new_packages(self, x):
         """
@@ -96,18 +96,18 @@ class Smuggler(Agent):
                 for aj in range(len(self.b0)):
                     if aj in action_ai: temp_phi[idx] += self.b0[aj] * (2*(self.num_packages - dist[action_ai.index(aj)]) - c_s*len(action_ai) - f*self.actions_nonpref[ai])
                     else: temp_phi[idx] += self.b0[aj] * (2*self.num_packages - c_s*len(action_ai) - f*self.actions_nonpref[ai])
-            # print(f"{ai}, {action_ai}: {temp_phi}")
+            if self.model.print: print(f"{ai}, {action_ai}: {temp_phi}")
             self.phi[ai] = max(temp_phi)
             self.phi[ai] = round(self.phi[ai], 4)
             best_distributions_per_ai[ai] = self.possible_dist[len(action_ai)-1][random.choice(np.where(temp_phi == max(temp_phi))[0])]
-        print(f"best distributions per ai : {best_distributions_per_ai}")
-        print(f"smugglers phi is : {self.phi}")
+        if self.model.print: print(f"best distributions per ai : {best_distributions_per_ai}")
+        if self.model.print: print(f"smugglers phi is : {self.phi}")
         softmax_phi = np.exp(self.phi) / np.sum(np.exp(self.phi))
-        print(f"smugglers softmax of phi is : {softmax_phi}")
+        if self.model.print: print(f"smugglers softmax of phi is : {softmax_phi}")
         action_indexes = [i for i in range(0,len(self.possible_actions))]
-        print(action_indexes)
+        if self.model.print: print(action_indexes)
         index_action = np.random.choice(action_indexes, 1, p=softmax_phi)[0]
-        print(index_action)
+        if self.model.print: print(index_action)
         self.action = self.possible_actions[index_action]
         self.distribution = best_distributions_per_ai[index_action]
 
@@ -115,7 +115,7 @@ class Smuggler(Agent):
         """
         Chooses an action associated with first-order theory of mind reasoning
         """
-        print("I am a first order ToM smuggler")
+        if self.model.print: print("I am a first order ToM smuggler")
 
         c_s = self.container_costs
         f = self.feature_costs
@@ -124,16 +124,16 @@ class Smuggler(Agent):
         simulation_phi = np.zeros(len(self.b1))
         for c in range(len(self.b1)):
             for c_star in range(len(self.b1)):
-                simulation_phi[c] += self.b1[c_star] * (10*(c == c_star) +0*(c != c_star))
-        print(f"smugglers simulation phi is : {simulation_phi}")   
+                simulation_phi[c] += self.b1[c_star] * (1*(c == c_star) -1*(c != c_star))
+        if self.model.print: print(f"smugglers simulation phi is : {simulation_phi}")   
         self.prediction_a1 = np.exp(simulation_phi) / np.sum(np.exp(simulation_phi))       
-        print(f"prediction a1 is : {self.prediction_a1}")
+        if self.model.print: print(f"prediction a1 is : {self.prediction_a1}")
 
         # Merge prediction with zero-order belief
         W = np.zeros(len(self.b1))
         for c in range(len(self.b1)):
             W[c] = self.c1 * self.prediction_a1[c] + (1-self.c1) * self.b0[c]
-        print(f"W is : {W}")
+        if self.model.print: print(f"W is : {W}")
 
         # Make decision
         # Calculate the subjective value phi for each action, and choose the action with the highest.
@@ -145,20 +145,20 @@ class Smuggler(Agent):
             for (idx, dist) in enumerate(self.possible_dist[len(action_ai)-1]):
                 # Loop over all possible actions of the opponent
                 for c in range(len(W)):
-                    if c in action_ai: temp_phi[idx] += W[c] * (self.num_packages - 2*dist[action_ai.index(c)] - c_s*len(action_ai) - f*self.actions_nonpref[ai])
-                    else: temp_phi[idx] += W[c] * (self.num_packages - c_s*len(action_ai) - f*self.actions_nonpref[ai])
-            # print(f"{ai}, {action_ai}: {temp_phi}")
+                    if c in action_ai: temp_phi[idx] += W[c] * (2*(self.num_packages - dist[action_ai.index(c)]) - c_s*len(action_ai) - f*self.actions_nonpref[ai])
+                    else: temp_phi[idx] += W[c] * (2*self.num_packages - c_s*len(action_ai) - f*self.actions_nonpref[ai])
+            if self.model.print: print(f"{ai}, {action_ai}: {temp_phi}")
             self.phi[ai] = max(temp_phi)
             self.phi[ai] = round(self.phi[ai], 4)
             best_distributions_per_ai[ai] = self.possible_dist[len(action_ai)-1][random.choice(np.where(temp_phi == max(temp_phi))[0])]
-        print(f"best distributions per ai : {best_distributions_per_ai}")
-        print(f"smugglers phi is : {self.phi}")
+        if self.model.print: print(f"best distributions per ai : {best_distributions_per_ai}")
+        if self.model.print: print(f"smugglers phi is : {self.phi}")
         softmax_phi = np.exp(self.phi) / np.sum(np.exp(self.phi))
-        print(f"smugglers softmax of phi is : {softmax_phi}")
+        if self.model.print: print(f"smugglers softmax of phi is : {softmax_phi}")
         action_indexes = [i for i in range(0,len(self.possible_actions))]
-        print(action_indexes)
+        if self.model.print: print(action_indexes)
         index_action = np.random.choice(action_indexes, 1, p=softmax_phi)[0]
-        print(index_action)
+        if self.model.print: print(index_action)
         self.action = self.possible_actions[index_action]
         self.distribution = best_distributions_per_ai[index_action]
 
@@ -183,18 +183,18 @@ class Smuggler(Agent):
                 self.distribution = random.choice(self.possible_dist[len(self.action)-1])
 
         # Take action:
-        print(f"hides in container {self.action} with distribution {self.distribution}")
+        if self.model.print: print(f"hides in container {self.action} with distribution {self.distribution}")
         containers = self.model.get_agents_of_type(Container)
         for container in containers:
             for (idx,ai) in enumerate(self.action):
                 if ai == container.unique_id:
-                    print(f"{idx}, {ai}: {self.distribution[idx]}")
+                    if self.model.print: print(f"{idx}, {ai}: {self.distribution[idx]}")
                     container.used_by_s += 1
                     container.num_packages += self.distribution[idx]
 
         #PRINT:
-        print("current environment:")
-        print([container.num_packages for container in containers])
+        if self.model.print: print("current environment:")
+        if self.model.print: print([container.num_packages for container in containers])
 
     def common_features(self, c, cstar):
         containers = self.model.get_agents_of_type(Container)
@@ -235,11 +235,11 @@ class Smuggler(Agent):
                     if container.unique_id == ai:
                         if container.num_packages == 0: self.failed_actions.append(ai)
                         else: self.succes_actions.append(ai); self.successful_smuggled_packages += container.num_packages
-            print(f"smuggler successful actions are: {self.succes_actions}, and failed actions are {self.failed_actions}")
+            if self.model.print: print(f"smuggler successful actions are: {self.succes_actions}, and failed actions are {self.failed_actions}")
             
             # Update b0
-            print("smuggler is updating beliefs b0 from ... to ...:")
-            print(self.b0)
+            if self.model.print: print("smuggler is updating beliefs b0 from ... to ...:")
+            if self.model.print: print(self.b0)
             if len(self.failed_actions) > 0:
                 a = (self.learning_speed/f)/len(self.failed_actions)
                 for c in range(len(self.b0)):
@@ -251,12 +251,12 @@ class Smuggler(Agent):
                 b = self.learning_speed/2/(n-len(self.succes_actions))
                 for c in range(len(self.b0)):
                     self.b0[c] = (1 - self.learning_speed/2) * self.b0[c] + b * (c not in self.succes_actions)
-            print(self.b0)
+            if self.model.print: print(self.b0)
 
             if self.tom_order > 0:
                 # Update b1
-                print("smuggler is updating beliefs b1 from ... to ...:")
-                print(self.b1)
+                if self.model.print: print("smuggler is updating beliefs b1 from ... to ...:")
+                if self.model.print: print(self.b1)
                 if len(self.failed_actions) > 0:
                     a = (self.learning_speed/f)/len(self.failed_actions)
                     for c in range(len(self.b1)):
@@ -268,37 +268,20 @@ class Smuggler(Agent):
                     b = (self.learning_speed/(2*n))/len(self.succes_actions)
                     for c in range(len(self.b1)):
                         self.b1[c] = (1 - self.learning_speed/(2*n)) * self.b1[c] + b * (c in self.succes_actions)
-                else: print("stays the same...")
-                print(self.b1)
+                if self.model.print: print(self.b1)
 
                 # Update c1
-                update_speed = 0.2
-
-                print("smuggler is updating c1 from ... to ...:")
-                print(self.c1)
+                if self.model.print: print("smuggler is updating c1 from ... to ...:")
+                if self.model.print: print(self.c1)
                 for a in self.action:
                     action_index = self.possible_actions.index(a)
                     update = self.prediction_a1[action_index]
-                    # if a in self.failed_actions: self.c1 = (1 - update) * self.c1 + update; print(f"failed: {self.prediction_a1[action_index]}")
-                    # if a in self.succes_actions: self.c1 = (1 - update) * self.c1; print(f"succes: {self.prediction_a1[action_index]}")
                     if update < 0.25:
                         update = 0.25 - update
-                        if a in self.succes_actions: self.c1 = (1 - update) * self.c1 + update; print(f"succes: {self.prediction_a1[action_index]}")
-                        if a in self.failed_actions: self.c1 = (1 - update) * self.c1; print(f"failed: {self.prediction_a1[action_index]}")
+                        if a in self.succes_actions: self.c1 = (1 - update) * self.c1 + update;
+                        if a in self.failed_actions: self.c1 = (1 - update) * self.c1;
                     if update > 0.25:
                         update = update - 0.25
-                        if a in self.succes_actions: self.c1 = (1 - update) * self.c1; print(f"succes: {self.prediction_a1[action_index]}")
-                        if a in self.failed_actions: self.c1 = (1 - update) * self.c1 + update; print(f"failed: {self.prediction_a1[action_index]}")
-                print(self.c1)
-
-
-                # max_indexes_prediction = np.where(self.prediction_a1 == max(self.prediction_a1))[0]
-                # print(f"max indexes prediction to update from are: {max_indexes_prediction}")
-                # for c in max_indexes_prediction:
-                #     if c in self.succes_actions:
-                #         self.c1 = (1 - update_speed) * self.c1
-                #     elif c in self.failed_actions:
-                #         self.c1 = (1 - update_speed) * self.c1 + update_speed
-                # if (not any(c in self.action for c in max_indexes_prediction) and len(self.failed_actions) == 0):
-                #     self.c1 = (1 - update_speed/3) * self.c1 + update_speed/3
-                # print(self.c1)
+                        if a in self.succes_actions: self.c1 = (1 - update) * self.c1;
+                        if a in self.failed_actions: self.c1 = (1 - update) * self.c1 + update;
+                if self.model.print: print(self.c1)

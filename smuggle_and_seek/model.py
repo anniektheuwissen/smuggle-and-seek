@@ -36,6 +36,8 @@ class SmuggleAndSeekGame(mesa.Model):
         :param learning_speed: The learning speed of both the customs and smuggler
         """
         super().__init__()
+        self.print = False
+
         self.grid = mesa.space.SingleGrid(width, height, True)
         self.running_schedule = mesa.time.BaseScheduler(self)
         self.schedule = mesa.time.BaseScheduler(self)
@@ -104,13 +106,13 @@ class SmuggleAndSeekGame(mesa.Model):
                     none_preferences_used += (container.features["cargo"]!=smuggler.preferences["cargo"]) + (container.features["country"]!=smuggler.preferences["country"])
         # smuggler.points += smuggled_drugs - (self.packages_per_day - smuggled_drugs) - c_s*containers_used - f_s*none_preferences_used
         smuggler.points += 2*smuggled_drugs  - c_s*containers_used - f_s*none_preferences_used
-        print(f"smuggler's points:{smuggler.points}")
+        if self.print: print(f"smuggler's points:{smuggler.points}")
         
         # Distribute points to the customs based on the amount of succesfully caught drugs and the amount of
         # containers checked.
         caught_drugs = (self.packages_per_day - smuggled_drugs); containers_checked = len(customs.action)
         customs.points += 2*caught_drugs - c_c*containers_checked
-        print(f"customs points:{customs.points}")
+        if self.print: print(f"customs points:{customs.points}")
 
     def agents_update_beliefs(self):
         """
@@ -131,5 +133,6 @@ class SmuggleAndSeekGame(mesa.Model):
         self.empty_containers()
         self.day += 1
         self.datacollector.collect(self)
-        print("")
+        if self.day == 1000: self.running = False
+        if self.print: print("")
         
