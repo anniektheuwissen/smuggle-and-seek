@@ -124,7 +124,8 @@ class SmuggleAndSeekGame(mesa.Model):
         """
         Performs one step/round/day in which the agents take actions in turn: first the smuggler and then the customs,
         after which the points are distributed, both agents update their beliefs, and the containers are emptied.
-        """        
+        """ 
+        self.get_agents_of_type(Smuggler)[0].num_packages = self.packages_per_day    
         self.running_schedule.step()
         self.distribute_points()
         self.agents_update_beliefs()

@@ -29,19 +29,23 @@ class Customs(Agent):
         self.expected_preferences["country"] = self.random.randint(0,1)
         self.expected_preferences["cargo"] = self.random.randint(0,1)
     
-    def reward_function(self, c, action):
+    def reward_function(self, c, aj):
         """
         Returns the reward based on the reward function of customs
+        :param c: The container that customs use
+        :param aj: The action of the smuggler
         """
         c_c = self.container_costs
-        return (2*self.expected_amount_catch*(c in self.possible_actions[action]) - c_c*len(self.possible_actions[action]))
+        return (2*self.expected_amount_catch*(c in self.possible_actions[aj]) - c_c*len(self.possible_actions[aj]))
     
-    def simulation_reward_function(self, c, action):
+    def simulation_reward_function(self, c, aj):
         """
         Returns the reward based on the simulated reward function of the smuggler
+        :param c: The container that customs use
+        :param aj: The action of the smuggler
         """
-        non_pref = (self.model.get_agents_of_type(Container)[action].features["cargo"] != self.expected_preferences["cargo"]) + (self.model.get_agents_of_type(Container)[action].features["country"] != self.expected_preferences["country"])
-        return (-1*(action == c) +1*(action != c) - non_pref)
+        non_pref = (self.model.get_agents_of_type(Container)[aj].features["cargo"] != self.expected_preferences["cargo"]) + (self.model.get_agents_of_type(Container)[aj].features["country"] != self.expected_preferences["country"])
+        return (-1*(aj == c) +1*(aj != c) - non_pref)
 
     def calculate_phi(self, actions, beliefs, reward_function):
         """
@@ -70,15 +74,6 @@ class Customs(Agent):
         action_indexes = [i for i in range(0,len(self.possible_actions))]
         index_action = np.random.choice(action_indexes, 1, p=softmax_phi)[0]
         self.action = self.possible_actions[index_action]
-
-    def merge_prediction(self):
-        """
-        Merges prediction with its belief b0
-        """
-        W = np.zeros(len(self.b1))
-        for c in range(len(self.b1)):
-            W[c] = self.c1 * self.prediction_a1[c] + (1-self.c1) * self.b0[c]
-        return W
 
     def step_tom0(self):
         """
@@ -118,6 +113,7 @@ class Customs(Agent):
         """
         Performs action and find out succes/failure of action
         """
+        if self.model.print: print(f"checks containers {self.action}")
         self.failed_actions = []; self.succes_actions = []
         for ai in self.action:
             container = self.model.get_agents_of_type(Container)[ai]
@@ -141,13 +137,6 @@ class Customs(Agent):
         if self.successful_checks > 0:
             self.expected_amount_catch = self.catched_packages / self.successful_checks
             if self.model.print: print(f"expected amount catch is: {self.expected_amount_catch}")
-
-    def common_features(self, c, cstar):
-        """
-        Returns the amount of common features that container c and container cstar have
-        """
-        container_c = self.model.get_agents_of_type(Container)[c]; container_cstar = self.model.get_agents_of_type(Container)[cstar]
-        return 0 + (container_c.features["cargo"] == container_cstar.features["cargo"]) + (container_c.features["country"] == container_cstar.features["country"]) 
 
     def update_b0(self, f, n):
         """
@@ -223,7 +212,7 @@ class Customs(Agent):
 
     def update_beliefs(self):
         """
-        Updates its beliefs and expectations
+        Updates its beliefs, confidence and expectations
         """
         f = self.model.i_per_feat * self.model.num_features
         n = self.model.i_per_feat ** self.model.num_features
