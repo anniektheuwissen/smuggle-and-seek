@@ -32,6 +32,7 @@ class Agent(mesa.Agent):
         self.b0 = np.array([1/num_cont] * num_cont)
         self.b1 = np.array([1/num_cont] * num_cont)
         self.phi = np.zeros(2**num_cont-1)
+        self.simulation_phi = np.zeros(len(self.b1))
         self.prediction_a1 = np.zeros(num_cont)
         self.c1 = 0
 
@@ -52,16 +53,23 @@ class Agent(mesa.Agent):
         Chooses an action associated with second-order theory of mind reasoning
         """
         pass
+
+    def take_action(self):
+        """
+        Performs chosen action
+        """
+        pass
     
     def step(self):
         """
         Performs one step by choosing an action associated with its order of theory of mind reasoning,
         and taking this action
         """
-        pass
-        
-    def update_beliefs(self):
-        """
-        Updates its beliefs
-        """
-        pass
+        # Choose action based on order of tom reasoning
+        if self.tom_order == 0: self.step_tom0()
+        elif self.tom_order == 1: self.step_tom1()
+        elif self.tom_order == 2: self.step_tom2()
+        else: print("ERROR: Agent cannot have a theory of mind reasoning above the second order")
+
+        # Take action
+        self.take_action()

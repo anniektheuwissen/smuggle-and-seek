@@ -28,26 +28,63 @@ class Customs(Agent):
         self.expected_preferences = {}
         self.expected_preferences["country"] = self.random.randint(0,1)
         self.expected_preferences["cargo"] = self.random.randint(0,1)
-
-    def calculate_phi(self, beliefs):
+    
+    def reward_function(self, c, action):
+        """
+        Returns the reward based on the reward function of customs
+        """
         c_c = self.container_costs
-        for ai in range(len(self.possible_actions)):
-            self.phi[ai] = 0
+        return (2*self.expected_amount_catch*(c in self.possible_actions[action]) - c_c*len(self.possible_actions[action]))
+    
+    def simulation_reward_function(self, c, action):
+        """
+        Returns the reward based on the simulated reward function of the smuggler
+        """
+        non_pref = (self.model.get_agents_of_type(Container)[action].features["cargo"] != self.expected_preferences["cargo"]) + (self.model.get_agents_of_type(Container)[action].features["country"] != self.expected_preferences["country"])
+        return (-1*(action == c) +1*(action != c) - non_pref)
+
+    def calculate_phi(self, actions, beliefs, reward_function):
+        """
+        Calculates the subjective value phi of all possible actions
+        :param actions: The possible actions for which to calculate a phi value
+        :param beliefs: The beliefs based on which the phi values have to be calculated
+        :param reward_function: The reward function with which the phi values have to be calculated
+        """
+        phi = np.zeros(len(actions))
+        
+        for ai in range(len(actions)):
             for c in range(len(beliefs)):
-                self.phi[ai] += beliefs[c] * (2*self.expected_amount_catch*(c in self.possible_actions[ai]) - c_c*len(self.possible_actions[ai]))
+                if reward_function == "normal": reward = self.reward_function(c, ai)
+                elif reward_function == "simulation": reward = self.simulation_reward_function(c, ai)
+                phi[ai] += beliefs[c] * reward
+
+        if reward_function == "normal": self.phi = phi
+        elif reward_function == "simulation": self.simulation_phi = phi
 
     def choose_action_softmax(self):
+        """
+        Chooses an action to play based on the softmax over the subjective value phi
+        """
         softmax_phi = np.exp(self.phi) / np.sum(np.exp(self.phi))
         if self.model.print: print(f"customs softmax of phi is : {softmax_phi}")
         action_indexes = [i for i in range(0,len(self.possible_actions))]
         index_action = np.random.choice(action_indexes, 1, p=softmax_phi)[0]
         self.action = self.possible_actions[index_action]
 
+    def merge_prediction(self):
+        """
+        Merges prediction with its belief b0
+        """
+        W = np.zeros(len(self.b1))
+        for c in range(len(self.b1)):
+            W[c] = self.c1 * self.prediction_a1[c] + (1-self.c1) * self.b0[c]
+        return W
+
     def step_tom0(self):
         """
         Chooses an action associated with zero-order theory of mind reasoning
         """
-        self.calculate_phi(self.b0)
+        self.calculate_phi(self.possible_actions, self.b0, "normal")
         if self.model.print: print(f"custom's phi is : {self.phi}")
         self.choose_action_softmax()
 
@@ -55,39 +92,20 @@ class Customs(Agent):
         """
         Chooses an action associated with first-order theory of mind reasoning
         """
-        if self.model.print: print("I am a first order ToM customs")
-
-        c_c = self.container_costs
-
         # Make prediction about behavior of opponent
-        simulation_phi = np.zeros(len(self.b1))
-        for c in range(len(self.b1)):
-            non_pref = (self.model.get_agents_of_type(Container)[c].features["cargo"] != self.expected_preferences["cargo"]) + (self.model.get_agents_of_type(Container)[c].features["country"] != self.expected_preferences["country"])
-            for c_star in range(len(self.b1)):
-                simulation_phi[c] += self.b1[c_star] * (-1*(c == c_star) +1*(c != c_star) - non_pref)
-        if self.model.print: print(f"custom's simulation phi is : {simulation_phi}")
-        self.prediction_a1 = np.exp(simulation_phi) / np.sum(np.exp(simulation_phi))     
+        self.calculate_phi(self.b1, self.b1, "simulation")
+        if self.model.print: print(f"custom's simulation phi is : {self.simulation_phi}")
+        self.prediction_a1 = np.exp(self.simulation_phi) / np.sum(np.exp(self.simulation_phi))     
         if self.model.print: print(f"prediction a1 is : {self.prediction_a1}")
 
         # Merge prediction with zero-order belief
-        W = np.zeros(len(self.b1))
-        for c in range(len(self.b1)):
-            W[c] = self.c1 * self.prediction_a1[c] + (1-self.c1) * self.b0[c]
+        W = self.merge_prediction()
         if self.model.print: print(f"W is : {W}")
 
-        # Make decision
         # Calculate the subjective value phi for each action, and choose the action with the highest.
-        for ai in range(len(self.possible_actions)):
-            for c in range(len(W)):
-                self.phi[ai] += W[c] * (2*self.expected_amount_catch*(c in self.possible_actions[ai]) - c_c*len(self.possible_actions[ai]))
-            self.phi[ai] = round(self.phi[ai], 4)
+        self.calculate_phi(self.possible_actions, W, "normal")
         if self.model.print: print(f"custom's phi is : {self.phi}")
-        softmax_phi = np.exp(self.phi) / np.sum(np.exp(self.phi))
-        if self.model.print: print(f"customs softmax of phi is : {softmax_phi}")
-        action_indexes = [i for i in range(0,len(self.possible_actions))]
-        index_action = np.random.choice(action_indexes, 1, p=softmax_phi)[0]
-        self.action = self.possible_actions[index_action]
-
+        self.choose_action_softmax()
 
     def step_tom2(self):
         """
@@ -95,141 +113,125 @@ class Customs(Agent):
         """
         if self.model.print: print("I am a second order ToM customs")
         pass
-    
-    def step(self):
-        """
-        Performs one step by choosing an action associated with its order of theory of mind reasoning,
-        and taking this action
-        """
-        # Reset phi
-        for i in range(len(self.phi)): self.phi[i] = 0
-        # Choose action based on order of tom reasoning
-        if self.tom_order == 0: self.step_tom0()
-        elif self.tom_order == 1: self.step_tom1()
-        elif self.tom_order == 2: self.step_tom2()
-        else: print("ERROR: Customs cannot have a theory of mind reasoning above the second order")
 
-        # Take action
-        if self.model.print: print(f"checks containers {self.action}")
+    def take_action(self):
+        """
+        Performs action and find out succes/failure of action
+        """
         self.failed_actions = []; self.succes_actions = []
-        containers = self.model.get_agents_of_type(Container)
-        for container in containers:
-            for ai in self.action:
-                if ai == container.unique_id:
-                    container.used_by_c += 1
-                    if (container.num_packages != 0):
-                        if self.model.print: print(f"caught {container.num_packages} packages!!")
-                        self.catched_packages += container.num_packages
-                        container.num_packages = 0
-                        self.succes_actions.append(ai)
-                        container.used_succ_by_c += 1
-                    else:
-                        if self.model.print: print("wooops caught nothing")
-                        self.failed_actions.append(ai)
+        for ai in self.action:
+            container = self.model.get_agents_of_type(Container)[ai]
+            container.used_by_c += 1
+            if (container.num_packages != 0):
+                if self.model.print: print(f"caught {container.num_packages} packages!!")
+                self.catched_packages += container.num_packages
+                self.succes_actions.append(ai)
+                container.num_packages = 0
+                container.used_succ_by_c += 1
+            else:
+                if self.model.print: print("wooops caught nothing")
+                self.failed_actions.append(ai)
         if self.model.print: print(f"customs succesfull actions are: {self.succes_actions}, and failed actions are: {self.failed_actions}")
         self.num_checks += len(self.action); self.successful_checks += len(self.succes_actions)
-
-        #PRINT:
-        if self.model.print: print("current environment:")
-        if self.model.print: print([container.num_packages for container in containers])
         
-    def common_features(self, c, cstar):
-        containers = self.model.get_agents_of_type(Container)
-        for container in containers:
-            if container.unique_id == c:
-                feature1_c = container.features["cargo"]
-                feature2_c = container.features["country"]
-            if container.unique_id == cstar:
-                feature1_cstar = container.features["cargo"]
-                feature2_cstar = container.features["country"]
-        return 0 + (feature1_c == feature1_cstar) + (feature2_c == feature2_cstar)
-    
-    def uncommon_features(self, c, cstar):
-        containers = self.model.get_agents_of_type(Container)
-        for container in containers:
-            if container.unique_id == c:
-                feature1_c = container.features["cargo"]
-                feature2_c = container.features["country"]
-            if container.unique_id == cstar:
-                feature1_cstar = container.features["cargo"]
-                feature2_cstar = container.features["country"]
-        return 0 + (feature1_c != feature1_cstar) + (feature2_c != feature2_cstar)
-
-    def update_beliefs(self):
+    def update_expected_amount_catch(self):
         """
-        Updates its beliefs
+        Updates the expected amount of packages of one catch
         """
         if self.successful_checks > 0:
             self.expected_amount_catch = self.catched_packages / self.successful_checks
             if self.model.print: print(f"expected amount catch is: {self.expected_amount_catch}")
 
-        if self.action == []:
-            pass
-        else:
-            f = self.model.i_per_feat * self.model.num_features
-            n = self.model.i_per_feat ** self.model.num_features
-            # Update b0
-            if self.model.print: print("customs are updating beliefs b0 from ... to ...:")
-            if self.model.print: print(self.b0)
-            if len(self.succes_actions) > 0:
-                a = (self.learning_speed/f)/len(self.succes_actions)
-                for c in range(len(self.b0)):
-                    cf_succ = 0
-                    for c_star in self.succes_actions:
-                        cf_succ += self.common_features(c, c_star)
-                    self.b0[c] = (1 - self.learning_speed) * self.b0[c] + a * cf_succ
-            elif len(self.failed_actions) > 0:
-                b = self.learning_speed/2/(n-len(self.failed_actions))
-                for c in range(len(self.b0)):
-                    self.b0[c] = (1 - self.learning_speed/2) * self.b0[c] + b * (c not in self.failed_actions)
-            if self.model.print: print(self.b0)
+    def common_features(self, c, cstar):
+        """
+        Returns the amount of common features that container c and container cstar have
+        """
+        container_c = self.model.get_agents_of_type(Container)[c]; container_cstar = self.model.get_agents_of_type(Container)[cstar]
+        return 0 + (container_c.features["cargo"] == container_cstar.features["cargo"]) + (container_c.features["country"] == container_cstar.features["country"]) 
 
-            if self.tom_order > 0:
-                containers = self.model.get_agents_of_type(Container)
-                checked_country0 = 0; checked_country1 = 0; checked_cargo0 = 0; checked_cargo1 = 0
-                for container in containers:
-                    if container.features["country"] == 0:
-                        checked_country0 += container.used_succ_by_c
-                    if container.features["country"] == 1:
-                        checked_country1 += container.used_succ_by_c
-                    if container.features["cargo"] == 0:
-                        checked_cargo0 += container.used_succ_by_c
-                    if container.features["cargo"] == 1:
-                        checked_cargo1 += container.used_succ_by_c
-                if checked_country0 > checked_country1: self.expected_preferences["country"] = 0
-                else: self.expected_preferences["country"] = 1
-                if checked_cargo0 > checked_cargo1: self.expected_preferences["cargo"] = 0
-                else: self.expected_preferences["cargo"] = 1
-                if self.model.print: print(f"expected preferences are: {self.expected_preferences}")
+    def update_b0(self, f, n):
+        """
+        Updates b0
+        """
+        if self.model.print: print("customs are updating beliefs b0 from ... to ...:")
+        if self.model.print: print(self.b0)
+        if len(self.succes_actions) > 0:
+            a = (self.learning_speed/f)/len(self.succes_actions)
+            for c in range(len(self.b0)):
+                cf_succ = 0
+                for c_star in self.succes_actions: cf_succ += self.common_features(c, c_star)
+                self.b0[c] = (1 - self.learning_speed) * self.b0[c] + a * cf_succ
+        elif len(self.failed_actions) > 0:
+            b = self.learning_speed/2/(n-len(self.failed_actions))
+            for c in range(len(self.b0)):
+                self.b0[c] = (1 - self.learning_speed/2) * self.b0[c] + b * (c not in self.failed_actions)
+        if self.model.print: print(self.b0)
 
-                # Update b1
-                if self.model.print: print("customs are updating beliefs b1 from ... to ...:")
-                if self.model.print: print(self.b1)
-                if len(self.succes_actions) > 0:
-                    a = (self.learning_speed/f)/len(self.succes_actions)
-                    for c in range(len(self.b1)):
-                        cf_succ = 0
-                        for c_star in self.succes_actions:
-                            cf_succ += self.common_features(c, c_star)
-                        self.b1[c] = (1 - self.learning_speed) * self.b1[c] + a * cf_succ
-                elif len(self.failed_actions) > 0:
-                    b = (self.learning_speed/(2*n))/len(self.failed_actions)
-                    for c in range(len(self.b1)):
-                        self.b1[c] = (1 - self.learning_speed/(2*n)) * self.b1[c] + b * (c in self.failed_actions)
-                if self.model.print: print(self.b1)
+    def update_expected_preferences(self):
+        """
+        Updates the expected preferences of the smuggler
+        """
+        containers = self.model.get_agents_of_type(Container)
+        checked_country0 = 0; checked_country1 = 0; checked_cargo0 = 0; checked_cargo1 = 0
+        for container in containers:
+            if container.features["country"] == 0: checked_country0 += container.used_succ_by_c
+            if container.features["country"] == 1: checked_country1 += container.used_succ_by_c
+            if container.features["cargo"] == 0: checked_cargo0 += container.used_succ_by_c
+            if container.features["cargo"] == 1: checked_cargo1 += container.used_succ_by_c
+        if checked_country0 > checked_country1: self.expected_preferences["country"] = 0
+        else: self.expected_preferences["country"] = 1
+        if checked_cargo0 > checked_cargo1: self.expected_preferences["cargo"] = 0
+        else: self.expected_preferences["cargo"] = 1
+        if self.model.print: print(f"expected preferences are: {self.expected_preferences}")
 
-                # Update c1
-                if self.model.print: print("customs are updating c1 from ... to ...:")
-                if self.model.print: print(self.c1)
-                for a in self.action:
-                    action_index = self.possible_actions.index(a)
-                    update = self.prediction_a1[action_index]
-                    if update < 0.25:
-                        update = 0.25 - update
-                        if a in self.failed_actions: self.c1 = (1 - update) * self.c1 + update;
-                        if a in self.succes_actions: self.c1 = (1 - update) * self.c1;
-                    if update > 0.25:
-                        update = update - 0.25
-                        if a in self.failed_actions: self.c1 = (1 - update) * self.c1;
-                        if a in self.succes_actions: self.c1 = (1 - update) * self.c1 + update;
-                if self.model.print: print(self.c1)
+    def update_b1(self, f, n):
+        """
+        Updates b1
+        """
+        if self.model.print: print("customs are updating beliefs b1 from ... to ...:")
+        if self.model.print: print(self.b1)
+        if len(self.succes_actions) > 0:
+            a = (self.learning_speed/f)/len(self.succes_actions)
+            for c in range(len(self.b1)):
+                cf_succ = 0
+                for c_star in self.succes_actions: cf_succ += self.common_features(c, c_star)
+                self.b1[c] = (1 - self.learning_speed) * self.b1[c] + a * cf_succ
+        elif len(self.failed_actions) > 0:
+            b = (self.learning_speed/(2*n))/len(self.failed_actions)
+            for c in range(len(self.b1)):
+                self.b1[c] = (1 - self.learning_speed/(2*n)) * self.b1[c] + b * (c in self.failed_actions)
+        if self.model.print: print(self.b1)
+
+    def update_c1(self):
+        """
+        Updates c1
+        """
+        if self.model.print: print("customs are updating c1 from ... to ...:")
+        if self.model.print: print(self.c1)
+        for a in self.action:
+            action_index = self.possible_actions.index(a)
+            prediction = self.prediction_a1[action_index]
+            if prediction < 0.25:
+                update = 0.25 - prediction
+                if a in self.failed_actions: self.c1 = (1 - update) * self.c1 + update;
+                if a in self.succes_actions: self.c1 = (1 - update) * self.c1;
+            if prediction > 0.25:
+                update = prediction - 0.25
+                if a in self.failed_actions: self.c1 = (1 - update) * self.c1;
+                if a in self.succes_actions: self.c1 = (1 - update) * self.c1 + update;
+        if self.model.print: print(self.c1)
+
+    def update_beliefs(self):
+        """
+        Updates its beliefs and expectations
+        """
+        f = self.model.i_per_feat * self.model.num_features
+        n = self.model.i_per_feat ** self.model.num_features
+
+        self.update_expected_amount_catch()
+        self.update_b0(f, n)
+
+        if self.tom_order > 0:
+            self.update_expected_preferences()
+            self.update_b1(f, n)
+            self.update_c1()

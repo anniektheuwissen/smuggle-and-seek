@@ -36,7 +36,7 @@ class SmuggleAndSeekGame(mesa.Model):
         :param learning_speed: The learning speed of both the customs and smuggler
         """
         super().__init__()
-        self.print = True
+        self.print = False
 
         # Initialize grid and schedules
         self.grid = mesa.space.SingleGrid(width, height, True)
