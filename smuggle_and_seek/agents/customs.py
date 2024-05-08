@@ -29,19 +29,23 @@ class Customs(Agent):
         self.expected_preferences["country"] = self.random.randint(0,1)
         self.expected_preferences["cargo"] = self.random.randint(0,1)
     
-    def reward_function(self, c, action):
+    def reward_function(self, c, aj):
         """
         Returns the reward based on the reward function of customs
+        :param c: The container that customs use
+        :param aj: The action of the smuggler
         """
         c_c = self.container_costs
-        return (2*self.expected_amount_catch*(c in self.possible_actions[action]) - c_c*len(self.possible_actions[action]))
+        return (2*self.expected_amount_catch*(c in self.possible_actions[aj]) - c_c*len(self.possible_actions[aj]))
     
-    def simulation_reward_function(self, c, action):
+    def simulation_reward_function(self, c, aj):
         """
         Returns the reward based on the simulated reward function of the smuggler
+        :param c: The container that customs use
+        :param aj: The action of the smuggler
         """
-        non_pref = (self.model.get_agents_of_type(Container)[action].features["cargo"] != self.expected_preferences["cargo"]) + (self.model.get_agents_of_type(Container)[action].features["country"] != self.expected_preferences["country"])
-        return (-1*(action == c) +1*(action != c) - non_pref)
+        non_pref = (self.model.get_agents_of_type(Container)[aj].features["cargo"] != self.expected_preferences["cargo"]) + (self.model.get_agents_of_type(Container)[aj].features["country"] != self.expected_preferences["country"])
+        return (-1*(aj == c) +1*(aj != c) - non_pref)
 
     def calculate_phi(self, actions, beliefs, reward_function):
         """
@@ -118,6 +122,7 @@ class Customs(Agent):
         """
         Performs action and find out succes/failure of action
         """
+        if self.model.print: print(f"checks containers {self.action}")
         self.failed_actions = []; self.succes_actions = []
         for ai in self.action:
             container = self.model.get_agents_of_type(Container)[ai]
@@ -223,7 +228,7 @@ class Customs(Agent):
 
     def update_beliefs(self):
         """
-        Updates its beliefs and expectations
+        Updates its beliefs, confidence and expectations
         """
         f = self.model.i_per_feat * self.model.num_features
         n = self.model.i_per_feat ** self.model.num_features
