@@ -8,9 +8,9 @@ from .container import Container
 Agent class: the customs agent and smuggler agent inherit from this class
 """
 class Agent(mesa.Agent):
-    def __init__(self, unique_id, model, tom_order, learning_speed, exploration_exploitation):
+    def __init__(self, unique_id, model, tom_order, learning_speed):
         """
-        Initializes the agent Customs
+        Initializes the agent 
         :param unique_id: The unqiue id related to the agent
         :param model: The model in which the agent is placed
         :param tom_order: The order of ToM at which the agent reasons
@@ -22,20 +22,18 @@ class Agent(mesa.Agent):
         self.action = []
         self.failed_actions = []
         self.succes_actions = []
-        self.exploration_exploitation = exploration_exploitation
 
         # Define all possible actions
         num_cont = len(self.model.get_agents_of_type(Container))
         self.possible_actions = list(map(list, powerset(np.arange(num_cont))))[1:]
 
-        # Initialize learning speed, belief vectors and subjective value needed for tom_reasoning
+        # Initialize learning speed, belief vectors, value phi, prediction and confidence needed for tom_reasoning
         self.learning_speed = learning_speed
-        self.c1 = 0
         self.b0 = np.array([1/num_cont] * num_cont)
         self.b1 = np.array([1/num_cont] * num_cont)
         self.phi = np.zeros(2**num_cont-1)
-
         self.prediction_a1 = np.zeros(num_cont)
+        self.c1 = 0
 
     def step_tom0(self):
         """

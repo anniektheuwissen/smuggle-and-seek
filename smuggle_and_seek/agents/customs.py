@@ -1,9 +1,7 @@
-import random
 import numpy as np
 from more_itertools import powerset
 
 from .container import Container
-from .smuggler import Smuggler
 from .agent import Agent
 
 """
@@ -11,7 +9,7 @@ Customs class: the customs agent that tries to capture as many drugs as possible
 can have different levels of ToM reasoning.
 """
 class Customs(Agent):
-    def __init__(self, unique_id, model, tom_order, learning_speed, exploration_exploitation):
+    def __init__(self, unique_id, model, tom_order, learning_speed):
         """
         Initializes the agent Customs
         :param unique_id: The unqiue id related to the agent
@@ -19,8 +17,9 @@ class Customs(Agent):
         :param tom_order: The order of ToM at which the agent reasons
         :param learning_speed: The speed at which the agent learns
         """
-        super().__init__(unique_id, model, tom_order, learning_speed, exploration_exploitation)
+        super().__init__(unique_id, model, tom_order, learning_speed)
         self.container_costs = 4
+
         self.num_checks = 0
         self.successful_checks = 0
         self.catched_packages = 0
@@ -30,23 +29,27 @@ class Customs(Agent):
         self.expected_preferences["country"] = self.random.randint(0,1)
         self.expected_preferences["cargo"] = self.random.randint(0,1)
 
-    def step_tom0(self):
-        """
-        Chooses an action associated with zero-order theory of mind reasoning
-        """
+    def calculate_phi(self, beliefs):
         c_c = self.container_costs
-
-        # Calculate the subjective value phi for each action, and choose the action with the highest.
         for ai in range(len(self.possible_actions)):
-            for c in range(len(self.b0)):
-                self.phi[ai] += self.b0[c] * (2*self.expected_amount_catch*(c in self.possible_actions[ai]) - c_c*len(self.possible_actions[ai]))
-            self.phi[ai] = round(self.phi[ai], 4)
-        if self.model.print: print(f"custom's phi is : {self.phi}")
+            self.phi[ai] = 0
+            for c in range(len(beliefs)):
+                self.phi[ai] += beliefs[c] * (2*self.expected_amount_catch*(c in self.possible_actions[ai]) - c_c*len(self.possible_actions[ai]))
+
+    def choose_action_softmax(self):
         softmax_phi = np.exp(self.phi) / np.sum(np.exp(self.phi))
         if self.model.print: print(f"customs softmax of phi is : {softmax_phi}")
         action_indexes = [i for i in range(0,len(self.possible_actions))]
         index_action = np.random.choice(action_indexes, 1, p=softmax_phi)[0]
         self.action = self.possible_actions[index_action]
+
+    def step_tom0(self):
+        """
+        Chooses an action associated with zero-order theory of mind reasoning
+        """
+        self.calculate_phi(self.b0)
+        if self.model.print: print(f"custom's phi is : {self.phi}")
+        self.choose_action_softmax()
 
     def step_tom1(self):
         """
@@ -62,8 +65,6 @@ class Customs(Agent):
             non_pref = (self.model.get_agents_of_type(Container)[c].features["cargo"] != self.expected_preferences["cargo"]) + (self.model.get_agents_of_type(Container)[c].features["country"] != self.expected_preferences["country"])
             for c_star in range(len(self.b1)):
                 simulation_phi[c] += self.b1[c_star] * (-1*(c == c_star) +1*(c != c_star) - non_pref)
-                #CHEATMETHOD
-                # simulation_phi[c] += self.b1[c_star] * (2*5*(c != c_star) - non_pref)
         if self.model.print: print(f"custom's simulation phi is : {simulation_phi}")
         self.prediction_a1 = np.exp(simulation_phi) / np.sum(np.exp(simulation_phi))     
         if self.model.print: print(f"prediction a1 is : {self.prediction_a1}")
@@ -107,11 +108,6 @@ class Customs(Agent):
         elif self.tom_order == 1: self.step_tom1()
         elif self.tom_order == 2: self.step_tom2()
         else: print("ERROR: Customs cannot have a theory of mind reasoning above the second order")
-        
-        # Random checkups:
-        if self.exploration_exploitation:
-            if (random.randint(0,99) < 1):
-                self.action = random.choice(self.possible_actions)
 
         # Take action
         if self.model.print: print(f"checks containers {self.action}")
@@ -170,8 +166,8 @@ class Customs(Agent):
         if self.action == []:
             pass
         else:
-            f = self.model.num_c_per_feat * self.model.num_features
-            n = self.model.num_c_per_feat ** self.model.num_features
+            f = self.model.i_per_feat * self.model.num_features
+            n = self.model.i_per_feat ** self.model.num_features
             # Update b0
             if self.model.print: print("customs are updating beliefs b0 from ... to ...:")
             if self.model.print: print(self.b0)

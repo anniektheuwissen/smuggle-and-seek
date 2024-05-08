@@ -42,10 +42,6 @@ def portrayal_customs_grid(agent):
         else:
             portrayal["Color"] = "#D5F5E3"
 
-        #PRINT
-        if agent.model.day > 0:
-            if agent.model.print: print(f"customs grid: {agent.unique_id}, {agent.features["country"], agent.features["cargo"]} : {agent.used_by_c / total_containers_used}")
-        
     return portrayal
 
 def portrayal_smuggler_grid(agent):
@@ -74,10 +70,6 @@ def portrayal_smuggler_grid(agent):
         else:
             portrayal["Color"] = "#FADBD8"
 
-        #PRINT
-        if agent.model.day > 0:
-            if agent.model.print: print(f"smugglers grid: {agent.unique_id}, {agent.features["country"], agent.features["cargo"]} : {agent.used_by_s / total_containers_used}")
-        
     return portrayal
 
 def customs_grid_name(model):
@@ -101,7 +93,6 @@ def barchart_name(model):
     Display a text representing the name of the grid.
     """
     return f"Smuggler's and Customs distribution of actions:"
-
 
 def chart_name1(model):
     """

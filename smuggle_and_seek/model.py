@@ -22,7 +22,7 @@ def get_average_points_smuggler(model):
 
 """
 SmuggleAndSeekGame class: the game in which two agents: a smuggler and a customs can smuggle and seek drugs. The game
-environment contains different kinds of9 containers, each having 2 features, that the agents can use to hide drugs and 
+environment contains different kinds of containers, each having 2 features, that the agents can use to hide drugs and 
 seek for drugs.
 """
 class SmuggleAndSeekGame(mesa.Model):
@@ -36,8 +36,9 @@ class SmuggleAndSeekGame(mesa.Model):
         :param learning_speed: The learning speed of both the customs and smuggler
         """
         super().__init__()
-        self.print = False
+        self.print = True
 
+        # Initialize grid and schedules
         self.grid = mesa.space.SingleGrid(width, height, True)
         self.running_schedule = mesa.time.BaseScheduler(self)
         self.schedule = mesa.time.BaseScheduler(self)
@@ -46,23 +47,22 @@ class SmuggleAndSeekGame(mesa.Model):
         # Initialize day and packages that are smuggled per day
         self.day = 0
         self.packages_per_day = 5
-        self.exploration_exploitation = False
 
         # Add containers to the game, add features to these containers, and add container to the grid
-        self.num_features = 2; self.num_c_per_feat = 2
+        self.num_features = 2; self.i_per_feat = 2
         x = 0; y = 0
-        for i in range(self.num_c_per_feat**self.num_features):
+        for i in range(self.i_per_feat**self.num_features):
             container = Container(i, self)
+            container.add_features(x,y)
             self.grid.place_agent(container, (x, y))
             self.schedule.add(container)
-            container.add_features(x,y)
-            if x==self.num_c_per_feat-1: y+=1; x=0 
+            if x==self.i_per_feat-1: y+=1; x=0 
             else: x+=1
 
-        # Add agents to the game: one smuggler and one customs, and add both to the schedule
-        smuggler = Smuggler(i+1, self, tom_smuggler, learning_speed, self.exploration_exploitation)
+        # Add agents to the game: one smuggler and one customs, and add both to the running schedule
+        smuggler = Smuggler(i+1, self, tom_smuggler, learning_speed)
         self.running_schedule.add(smuggler)
-        customs = Customs(i+2, self, tom_customs, learning_speed, self.exploration_exploitation)
+        customs = Customs(i+2, self, tom_customs, learning_speed)
         self.running_schedule.add(customs)
 
         # Add data collector that collects the points and average points of both the customs and smuggler
@@ -104,7 +104,6 @@ class SmuggleAndSeekGame(mesa.Model):
                 if container.unique_id == used_containers:
                     smuggled_drugs += container.num_packages
                     none_preferences_used += (container.features["cargo"]!=smuggler.preferences["cargo"]) + (container.features["country"]!=smuggler.preferences["country"])
-        # smuggler.points += smuggled_drugs - (self.packages_per_day - smuggled_drugs) - c_s*containers_used - f_s*none_preferences_used
         smuggler.points += 2*smuggled_drugs  - c_s*containers_used - f_s*none_preferences_used
         if self.print: print(f"smuggler's points:{smuggler.points}")
         
@@ -118,21 +117,22 @@ class SmuggleAndSeekGame(mesa.Model):
         """
         Lets all agents of type Smuggler and Customs update their beliefs
         """
-        self.get_agents_of_type(Customs)[0].update_beliefs()
-        self.get_agents_of_type(Smuggler)[0].update_beliefs()
-
+        for agent in self.get_agents_of_type(Customs): agent.update_beliefs()
+        for agent in self.get_agents_of_type(Smuggler): agent.update_beliefs()
 
     def step(self):
         """
         Performs one step/round/day in which the agents take actions in turn: first the smuggler and then the customs,
-        after which both agents update their beliefs, the points are distributed and the containers are emptied.
+        after which the points are distributed, both agents update their beliefs, and the containers are emptied.
         """        
         self.running_schedule.step()
-        self.agents_update_beliefs()
         self.distribute_points()
+        self.agents_update_beliefs()
         self.empty_containers()
         self.day += 1
         self.datacollector.collect(self)
-        if self.day == 1000: self.running = False
         if self.print: print("")
+
+        # To be able to run a batch run:
+        if self.day == 1000: self.running = False
         
