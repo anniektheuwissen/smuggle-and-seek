@@ -54,12 +54,13 @@ class SmuggleAndSeekGame(mesa.Model):
             model_reporters= {
                 "customs points": lambda m: m.get_agents_of_type(Customs)[0].points,
                 "smuggler points": lambda m: m.get_agents_of_type(Smuggler)[0].points,
-                "customs points averaged": lambda m: sum(m.get_agents_of_type(Customs)[0].points_queue) / 50,
-                "smuggler points averaged": lambda m: sum(m.get_agents_of_type(Smuggler)[0].points_queue) / 50,
+                "customs points averaged": lambda m: sum(m.get_agents_of_type(Customs)[0].points_queue) / 10,
+                "smuggler points averaged": lambda m: sum(m.get_agents_of_type(Smuggler)[0].points_queue) / 10,
                 "successful checks": lambda m: m.get_agents_of_type(Customs)[0].successful_checks,
                 "successful smuggles": lambda m: m.get_agents_of_type(Smuggler)[0].successful_smuggles,
                 "caught packages": lambda m: m.get_agents_of_type(Customs)[0].catched_packages,
                 "smuggled packages": lambda m: m.get_agents_of_type(Smuggler)[0].successful_smuggled_packages,
+                "nonpreferences used": lambda m: m.get_agents_of_type(Smuggler)[0].nonpref_used,
                 }, 
             agent_reporters={
                 "used by smugglers": lambda a: getattr(a, "used_by_s", 0),

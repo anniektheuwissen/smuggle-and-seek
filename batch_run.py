@@ -14,25 +14,44 @@ params = {
 results = mesa.batch_run(
     SmuggleAndSeekGame,
     parameters=params,
-    iterations=10,
-    max_steps=1000,
+    iterations=1000,
     display_progress=True,
 )
 
 results_df = pd.DataFrame(results)
-print(results_df)
+# print(results_df)
 
-i = 0.2
-customspoints_tom0vs0 = results_df[(results_df.learning_speed == i) & (results_df.tom_customs == 0) & (results_df.tom_smuggler == 0)]["customs points"]
-smugglerspoints_tom0vs0 = results_df[(results_df.learning_speed == i) &(results_df.tom_customs == 0) & (results_df.tom_smuggler == 0)]["smuggler points"]
-print(f"customs points on average tom0 vs tom0 ({i}): {sum(customspoints_tom0vs0)/len(customspoints_tom0vs0)}")
-print(f"smugglers points on average tom0 vs tom0 ({i}): {sum(smugglerspoints_tom0vs0)/len(smugglerspoints_tom0vs0)}")
+results_0vs0 = []
+results_1vs0 = []
+results_0vs1 = []
 
-customspoints_tom1vs0 = results_df[(results_df.learning_speed == i) &(results_df.tom_customs == 1) & (results_df.tom_smuggler == 0)]["customs points"]
-smugglerspoints_tom0vs1 = results_df[(results_df.learning_speed == i) &(results_df.tom_customs == 1) & (results_df.tom_smuggler == 0)]["smuggler points"]
-print(f"customs points on average tom1 vs tom0 ({i}): {sum(customspoints_tom1vs0)/len(customspoints_tom1vs0)}")
-print(f"smugglers points on average tom1 vs tom0 ({i}): {sum(smugglerspoints_tom0vs1)/len(smugglerspoints_tom0vs1)}")
+for data in ["customs points","smuggler points", "successful checks", "successful smuggles", "caught packages", "smuggled packages", "nonpreferences used"]:
+    array = results_df[(results_df.tom_customs == 0) & (results_df.tom_smuggler == 0)][data]
+    print(f"{data} tom0 vs tom0: {sum(array)/len(array)}")
+    results_0vs0.append(sum(array)/len(array))
 
+print("\n")
 
+for data in ["customs points","smuggler points", "successful checks", "successful smuggles", "caught packages", "smuggled packages", "nonpreferences used"]:
+    array = results_df[(results_df.tom_customs == 1) & (results_df.tom_smuggler == 0)][data]
+    print(f"{data} tom1 vs tom0: {sum(array)/len(array)}")
+    results_1vs0.append(sum(array)/len(array))
 
+print("\n")
 
+for data in ["customs points","smuggler points", "successful checks", "successful smuggles", "caught packages", "smuggled packages", "nonpreferences used"]:
+    array = results_df[(results_df.tom_customs == 0) & (results_df.tom_smuggler == 1)][data]
+    print(f"{data} tom0 vs tom1: {sum(array)/len(array)*100}%")
+    results_0vs1.append(sum(array)/len(array))
+
+print("\n Results customs0 vs smuggler0 --> customs1 vs smuggler0")
+
+for (idx, data) in enumerate(["customs points","smuggler points", "successful checks", "successful smuggles", "caught packages", "smuggled packages", "nonpreferences used"]):
+    difference = results_1vs0[idx] - results_0vs0[idx]
+    print(f"{data}: {difference/abs(results_0vs0[idx])*100}%")
+
+print("\n Results customs0 vs smuggler0 --> customs0 vs smuggler1")
+
+for (idx, data) in enumerate(["customs points","smuggler points", "successful checks", "successful smuggles", "caught packages", "smuggled packages", "nonpreferences used"]):
+    difference = results_0vs1[idx] - results_0vs0[idx]
+    print(f"{data}: {difference/abs(results_0vs0[idx])*100}%")

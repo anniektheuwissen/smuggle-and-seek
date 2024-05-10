@@ -19,7 +19,7 @@ class Agent(mesa.Agent):
         super().__init__(unique_id, model)
         self.tom_order = tom_order
         self.points = 0
-        self.points_queue = [0] * 50
+        self.points_queue = [0] * 10
         self.action = []
         self.failed_actions = []
         self.succes_actions = []

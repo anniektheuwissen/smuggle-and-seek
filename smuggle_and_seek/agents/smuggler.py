@@ -30,6 +30,7 @@ class Smuggler(Agent):
         self.num_smuggles = 0
         self.successful_smuggles = 0
         self.successful_smuggled_packages = 0
+        self.nonpref_used = 0 
 
         # Define all possible distributions within the actions, and non preferences per actions
         num_cont = len(self.model.get_agents_of_type(Container))
@@ -151,6 +152,7 @@ class Smuggler(Agent):
             self.model.get_agents_of_type(Container)[ai].used_by_s += 1
             self.model.get_agents_of_type(Container)[ai].num_packages += self.distribution[idx]
             self.num_smuggles += 1
+            self.nonpref_used += self.actions_nonpref[ai]
 
     def check_result_actions(self):
         """
