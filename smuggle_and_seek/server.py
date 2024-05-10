@@ -117,23 +117,45 @@ def succesfull_checks(model):
     """
     Display a text representing the succesful checks
     """
-    successful_checks = model.get_agents_of_type(Customs)[0].successful_checks
+    successful_checks = model.datacollector.get_model_vars_dataframe()['successful checks'][model.day]
     num_checks = model.get_agents_of_type(Customs)[0].num_checks
     if (num_checks > 0): percentage = round(successful_checks/num_checks * 100,2)
     else: percentage = 0
-    tab = "&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp"  
-    return f"Number of successful checks: {successful_checks} {tab}{tab}{tab}&nbsp&nbsp percentage: {percentage} %"
+    tab = "&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp"  
+    return f"Number of successful checks: {successful_checks} {tab}{tab}{tab}{tab} percentage: {percentage} %"
 
 def succesfull_smuggles(model):
     """
-    Display a text representing the succesful smuggled packages
+    Display a text representing the succesful smuggles
     """
-    successful_smuggled_packages = model.get_agents_of_type(Smuggler)[0].successful_smuggled_packages
-    num_packages = model.packages_per_day * model.day
-    if (num_packages> 0): percentage = round(successful_smuggled_packages/num_packages * 100,2)
+    successful_smuggles = model.datacollector.get_model_vars_dataframe()['successful smuggles'][model.day]
+    num_smuggles = model.get_agents_of_type(Smuggler)[0].num_smuggles
+    if (num_smuggles > 0): percentage = round(successful_smuggles/num_smuggles * 100,2)
     else: percentage = 0
     tab = "&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp"  
-    return f"Number of successful smuggled packages: {successful_smuggled_packages} {tab}{tab} percentage: {percentage} %"
+    return f"Number of successful smuggles: {successful_smuggles} {tab}{tab}{tab}&nbsp &nbsp &nbsp &nbsp &nbsp&nbsp percentage: {percentage} %"
+
+def caught_packages(model):
+    """
+    Display a text representing the caught packages
+    """
+    amount = model.datacollector.get_model_vars_dataframe()['caught packages'][model.day]
+    num_packages = model.packages_per_day * model.day
+    if (num_packages> 0): percentage = round(amount/num_packages * 100,2)
+    else: percentage = 0
+    tab = "&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp"  
+    return f"Number of caught packages: {amount} {tab}{tab}{tab}{tab} percentage: {percentage} %"
+
+def smuggled_packages(model):
+    """
+    Display a text representing the smuggled packages
+    """
+    amount = model.datacollector.get_model_vars_dataframe()['smuggled packages'][model.day]
+    num_packages = model.packages_per_day * model.day
+    if (num_packages> 0): percentage = round(amount/num_packages * 100,2)
+    else: percentage = 0
+    tab = "&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp"  
+    return f"Number of smuggled packages: {amount} {tab}{tab}{tab}&nbsp &nbsp &nbsp &nbsp &nbsp&nbsp percentage: {percentage} %"
 
 
 """
@@ -159,8 +181,8 @@ chart1 = mesa.visualization.ChartModule(
 )
 chart2 = mesa.visualization.ChartModule(
     [
-        {"Label": "customs average points", "Color": "#a3c3b1"},
-        {"Label": "smuggler average points", "Color": "#c8a9a6"},
+        {"Label": "customs points averaged", "Color": "#a3c3b1"},
+        {"Label": "smuggler points averaged", "Color": "#c8a9a6"},
     ]
 )
 
@@ -187,7 +209,7 @@ model_params = {
 }
 
 server = mesa.visualization.ModularServer(SmuggleAndSeekGame, 
-                           [smuggler_grid_name, grid2, customs_grid_name, grid1, barchart_name, barchart, preferences, succesfull_smuggles, succesfull_checks, chart_name1, chart1, chart_name2, chart2], 
+                           [smuggler_grid_name, grid2, customs_grid_name, grid1, barchart_name, barchart, preferences, succesfull_smuggles, succesfull_checks, smuggled_packages, caught_packages, chart_name1, chart1, chart_name2, chart2], 
                            "Smuggle and Seek Game", 
                            model_params)
 server.port = 8521

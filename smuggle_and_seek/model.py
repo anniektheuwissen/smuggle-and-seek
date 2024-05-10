@@ -4,22 +4,6 @@ from .agents.customs import Customs
 from .agents.smuggler import Smuggler
 from .agents.container import Container
 
-def get_average_points_customs(model):
-    """
-    Returns the average points that customs obtained per day
-    """
-    if model.day > 0:
-        return model.get_agents_of_type(Customs)[0].points / model.day,
-    return 0
-
-def get_average_points_smuggler(model):
-    """
-    Returns the average points that the smuggler obtained per day
-    """
-    if model.day > 0:
-        return model.get_agents_of_type(Smuggler)[0].points / model.day,
-    return 0
-
 """
 SmuggleAndSeekGame class: the game in which two agents: a smuggler and a customs can smuggle and seek drugs. The game
 environment contains different kinds of containers, each having 2 features, that the agents can use to hide drugs and 
@@ -69,9 +53,13 @@ class SmuggleAndSeekGame(mesa.Model):
         self.datacollector = mesa.DataCollector(
             model_reporters= {
                 "customs points": lambda m: m.get_agents_of_type(Customs)[0].points,
-                "customs average points": get_average_points_customs,
                 "smuggler points": lambda m: m.get_agents_of_type(Smuggler)[0].points,
-                "smuggler average points": get_average_points_smuggler,
+                "customs points averaged": lambda m: sum(m.get_agents_of_type(Customs)[0].points_queue) / 50,
+                "smuggler points averaged": lambda m: sum(m.get_agents_of_type(Smuggler)[0].points_queue) / 50,
+                "successful checks": lambda m: m.get_agents_of_type(Customs)[0].successful_checks,
+                "successful smuggles": lambda m: m.get_agents_of_type(Smuggler)[0].successful_smuggles,
+                "caught packages": lambda m: m.get_agents_of_type(Customs)[0].catched_packages,
+                "smuggled packages": lambda m: m.get_agents_of_type(Smuggler)[0].successful_smuggled_packages,
                 }, 
             agent_reporters={
                 "used by smugglers": lambda a: getattr(a, "used_by_s", 0),
@@ -105,12 +93,14 @@ class SmuggleAndSeekGame(mesa.Model):
                     smuggled_drugs += container.num_packages
                     none_preferences_used += (container.features["cargo"]!=smuggler.preferences["cargo"]) + (container.features["country"]!=smuggler.preferences["country"])
         smuggler.points += 2*smuggled_drugs  - c_s*containers_used - f_s*none_preferences_used
+        smuggler.points_queue.pop(0); smuggler.points_queue.append(2*smuggled_drugs  - c_s*containers_used - f_s*none_preferences_used)
         if self.print: print(f"smuggler's points:{smuggler.points}")
         
         # Distribute points to the customs based on the amount of succesfully caught drugs and the amount of
         # containers checked.
         caught_drugs = (self.packages_per_day - smuggled_drugs); containers_checked = len(customs.action)
         customs.points += 2*caught_drugs - c_c*containers_checked
+        customs.points_queue.pop(0); customs.points_queue.append(2*caught_drugs - c_c*containers_checked)
         if self.print: print(f"customs points:{customs.points}")
 
     def agents_update_beliefs(self):

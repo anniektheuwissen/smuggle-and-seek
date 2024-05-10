@@ -27,6 +27,8 @@ class Smuggler(Agent):
         self.add_preferences()
         self.num_packages = 0
 
+        self.num_smuggles = 0
+        self.successful_smuggles = 0
         self.successful_smuggled_packages = 0
 
         # Define all possible distributions within the actions, and non preferences per actions
@@ -148,6 +150,7 @@ class Smuggler(Agent):
         for (idx, ai) in enumerate(self.action):
             self.model.get_agents_of_type(Container)[ai].used_by_s += 1
             self.model.get_agents_of_type(Container)[ai].num_packages += self.distribution[idx]
+            self.num_smuggles += 1
 
     def check_result_actions(self):
         """
@@ -159,7 +162,7 @@ class Smuggler(Agent):
             for container in containers:
                 if container.unique_id == ai:
                     if container.num_packages == 0: self.failed_actions.append(ai)
-                    else: self.succes_actions.append(ai); self.successful_smuggled_packages += container.num_packages
+                    else: self.succes_actions.append(ai); self.successful_smuggled_packages += container.num_packages; self.successful_smuggles += 1
         if self.model.print: print(f"smuggler successful actions are: {self.succes_actions}, and failed actions are {self.failed_actions}")
         
     def update_b0(self, f, n):
