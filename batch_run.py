@@ -14,12 +14,11 @@ params = {
 results = mesa.batch_run(
     SmuggleAndSeekGame,
     parameters=params,
-    iterations=1000,
+    iterations=100,
     display_progress=True,
 )
 
 results_df = pd.DataFrame(results)
-# print(results_df)
 
 results_0vs0 = []
 results_1vs0 = []
