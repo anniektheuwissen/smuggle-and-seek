@@ -1,6 +1,7 @@
 import mesa
 import pandas as pd
 import numpy as np
+from scipy import stats
 import matplotlib.pyplot as plt
 from smuggle_and_seek.model import SmuggleAndSeekGame
 
@@ -21,6 +22,7 @@ results = mesa.batch_run(
 
 results_df = pd.DataFrame(results)
 print(results_df)
+results_df.to_csv('results.csv')
 
 results_0vs0 = results_df[(results_df["tom_customs"] == 0) & (results_df["tom_smuggler"] == 0)]
 results_1vs0 = results_df[(results_df["tom_customs"] == 1) & (results_df["tom_smuggler"] == 0)]
@@ -29,18 +31,37 @@ print(results_0vs0)
 print(results_1vs0)
 print(results_0vs1)
 
-for data in ["customs points","smuggler points", "successful checks", "successful smuggles", "caught packages", "smuggled packages", "nonpreferences used"]:
-    fig, ax = plt.subplots()
-    plt.hist(results_0vs0[data], bins=20, alpha=0.5, label='0vs0')
-    plt.hist(results_1vs0[data], bins=20, alpha=0.5, label='1vs0')
-    plt.hist(results_0vs1[data], bins=20, alpha=0.5, label='0vs1')
-    plt.legend()
-    plt.show()
+# for data in ["customs points","smuggler points", "successful checks", "successful smuggles", "caught packages", "smuggled packages", "nonpreferences used"]:
+#     fig, ax = plt.subplots()
+#     plt.hist(results_0vs0[data], bins=20, alpha=0.5, label='0vs0')
+#     plt.hist(results_1vs0[data], bins=20, alpha=0.5, label='1vs0')
+#     plt.hist(results_0vs1[data], bins=20, alpha=0.5, label='0vs1')
+#     plt.legend()
+#     plt.show()
 
-# fig, ax = plt.subplots()
-# plt.violinplot([results_0vs0["customs points"], results_1vs0["customs points"], results_0vs1["customs points"]])
-# ax.set_xticklabels(['0vs0', '1vs0', '0vs1'])
-# plt.show()
+
+for data in ["customs points", "smuggler points", "successful checks", "successful smuggles", "caught packages", "smuggled packages", "features used by smuggler that are not preferred"]:
+    print(data)
+    t_stat_1vs0, p_val_1vs0 = stats.ttest_ind(results_0vs0[data], results_1vs0[data])
+    print(f"0vs0 against 1vs0: {t_stat_1vs0}, {p_val_1vs0}")
+
+    t_stat_0vs1, p_val_0vs1 = stats.ttest_ind(results_0vs0[data], results_0vs1[data])
+    print(f"0vs0 against 0vs1: {t_stat_0vs1}, {p_val_0vs1}")
+    
+    fig, ax = plt.subplots(figsize=(8,5))
+    boxplot = ax.boxplot([results_0vs0[data], results_1vs0[data], results_0vs1[data]], 
+                            labels=['ToM0 customs vs\n ToM0 smuggler', 'ToM1 customs vs\n ToM0 smuggler', 'ToM0 customs vs\n ToM1 smuggler'], patch_artist=True, medianprops={'color': 'black'}
+                            )
+    colors = ['#A8A9AD', '#728FCE', '#728FCE']
+    for box, color in zip(boxplot['boxes'], colors):
+        box.set_facecolor(color)
+    plt.ylabel(data)
+    plt.title(f"Number of {data} after 1000 days")
+
+    plt.text(2.2, np.median(results_1vs0[data]-2), f'p-value: {"{:.1e}".format(p_val_1vs0)}')
+    plt.text(2.25, np.median(results_0vs1[data]-2), f'p-value: {"{:.1e}".format(p_val_0vs1)}')
+
+    plt.show()
 
 
 

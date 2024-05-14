@@ -60,7 +60,7 @@ class SmuggleAndSeekGame(mesa.Model):
                 "successful smuggles": lambda m: m.get_agents_of_type(Smuggler)[0].successful_smuggles,
                 "caught packages": lambda m: m.get_agents_of_type(Customs)[0].catched_packages,
                 "smuggled packages": lambda m: m.get_agents_of_type(Smuggler)[0].successful_smuggled_packages,
-                "nonpreferences used": lambda m: m.get_agents_of_type(Smuggler)[0].nonpref_used,
+                "features used by smuggler that are not preferred": lambda m: m.get_agents_of_type(Smuggler)[0].nonpref_used,
                 }, 
             agent_reporters={
                 "used by smugglers": lambda a: getattr(a, "used_by_s", 0),
