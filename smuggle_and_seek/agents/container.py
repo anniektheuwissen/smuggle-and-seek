@@ -13,8 +13,10 @@ class Container(mesa.Agent):
         super().__init__(unique_id, model)
         self.features = {}
         self.num_packages = 0
-        self.used_s = 0
-        self.used_c = 0
+
+        self.used_by_s = 0
+        self.used_by_c = 0
+        self.used_succ_by_c = 0 
 
     def add_features(self, x, y):
         """
@@ -22,15 +24,3 @@ class Container(mesa.Agent):
         """
         self.features["country"] = x
         self.features["cargo"] = y
-
-    def country_feature(self):
-        """
-        Returns the feature 'country' of the container
-        """
-        return self.features["country"]
-
-    def cargo_feature(self):
-        """
-        Returns the feature 'cargo' of the container
-        """
-        return self.features["cargo"]
