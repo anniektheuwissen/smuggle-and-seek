@@ -133,7 +133,7 @@ class Smuggler(Agent):
         if self.model.print: print(f"prediction a1 is : {self.prediction_a1}")
 
         # Merge prediction with zero-order belief
-        W = self.merge_prediction()
+        W = self.merge_prediction(self.prediction_a1, self.b0, self.c1)
         if self.model.print: print(f"W is : {W}")
 
         # Make decision

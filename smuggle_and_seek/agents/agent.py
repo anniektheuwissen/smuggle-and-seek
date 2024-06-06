@@ -37,13 +37,13 @@ class Agent(mesa.Agent):
         self.prediction_a1 = np.zeros(num_cont)
         self.c1 = 0
 
-    def merge_prediction(self):
+    def merge_prediction(self, prediction, belief, confidence):
         """
         Merges prediction with its belief b0
         """
-        W = np.zeros(len(self.b1))
-        for c in range(len(self.b1)):
-            W[c] = self.c1 * self.prediction_a1[c] + (1-self.c1) * self.b0[c]
+        W = np.zeros(len(belief))
+        for c in range(len(belief)):
+            W[c] = confidence * prediction[c] + (1-confidence) * belief[c]
         return W
 
     def common_features(self, c, cstar):

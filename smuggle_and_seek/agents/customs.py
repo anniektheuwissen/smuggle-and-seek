@@ -28,6 +28,12 @@ class Customs(Agent):
         self.expected_preferences = {}
         self.expected_preferences["country"] = self.random.randint(0,1)
         self.expected_preferences["cargo"] = self.random.randint(0,1)
+
+        num_cont = len(self.model.get_agents_of_type(Container))
+        self.prediction_a2 = np.zeros(len(self.prediction_a1))
+        self.b2 = np.array([1/num_cont] * num_cont)
+        self.c1_sim = 0.8
+        self.c2 = 0
     
     def reward_function(self, c, aj):
         """
@@ -47,6 +53,9 @@ class Customs(Agent):
         non_pref = (self.model.get_agents_of_type(Container)[aj].features["cargo"] != self.expected_preferences["cargo"]) + (self.model.get_agents_of_type(Container)[aj].features["country"] != self.expected_preferences["country"])
         return (-1*(aj == c) +1*(aj != c) - non_pref)
 
+    def smugglers_simulation_reward_function(self, c, ai):
+        return (1*(ai == c) -1*(ai != c))
+
     def calculate_phi(self, actions, beliefs, reward_function):
         """
         Calculates the subjective value phi of all possible actions
@@ -60,10 +69,11 @@ class Customs(Agent):
             for c in range(len(beliefs)):
                 if reward_function == "normal": reward = self.reward_function(c, ai)
                 elif reward_function == "simulation": reward = self.simulation_reward_function(c, ai)
+                elif reward_function == "simulation2": reward = self.smugglers_simulation_reward_function(c, ai)
                 phi[ai] += beliefs[c] * reward
 
         if reward_function == "normal": self.phi = phi
-        elif reward_function == "simulation": self.simulation_phi = phi
+        elif reward_function == "simulation" or reward_function == "simulation2": self.simulation_phi = phi
 
     def choose_action_softmax(self):
         """
@@ -94,7 +104,7 @@ class Customs(Agent):
         if self.model.print: print(f"prediction a1 is : {self.prediction_a1}")
 
         # Merge prediction with zero-order belief
-        W = self.merge_prediction()
+        W = self.merge_prediction(self.prediction_a1, self.b0, self.c1)
         if self.model.print: print(f"W is : {W}")
 
         # Calculate the subjective value phi for each action, and choose the action with the highest.
@@ -106,8 +116,41 @@ class Customs(Agent):
         """
         Chooses an action associated with second-order theory of mind reasoning
         """
-        if self.model.print: print("I am a second order ToM customs")
-        pass
+        # Make prediction about behavior of opponent
+        #   First make prediction about prediction that tom1 smuggler would make about behavior customs
+        self.calculate_phi(self.b2, self.b2, "simulation2")
+        if self.model.print: print(f"custom's prediction of smuggler's simulation phi is : {self.simulation_phi}")
+        self.prediction_a1 = np.exp(self.simulation_phi) / np.sum(np.exp(self.simulation_phi)) 
+        if self.model.print: print(f"custom's prediction of smuggler's prediction a1 is : {self.prediction_a1}")
+        #   Merge this prediction that tom1 smuggler would make with b1 (represents b0 of smuggler) 
+        W = self.merge_prediction(self.prediction_a1, self.b1, self.c1_sim)
+        if self.model.print: print(f"W is : {W}")
+
+        #   Then use this prediction of integrated beliefs of the opponent to predict the behavior of the opponent
+        self.calculate_phi(W, W, "simulation")
+        if self.model.print: print(f"custom's simulation phi is : {self.simulation_phi}")
+        self.prediction_a2 = np.exp(self.simulation_phi) / np.sum(np.exp(self.simulation_phi))     
+        if self.model.print: print(f"prediction a2 is : {self.prediction_a2}")
+
+        # Merge prediction with integrated beliefs of first-order prediction and zero-order beliefs
+        # Make first-order prediction about behavior of opponent
+        if self.model.print: print(f"customs are calculating first-order prediction.....")
+        self.calculate_phi(self.b1, self.b1, "simulation")
+        if self.model.print: print(f"custom's simulation phi is : {self.simulation_phi}")
+        self.prediction_a1 = np.exp(self.simulation_phi) / np.sum(np.exp(self.simulation_phi))     
+        if self.model.print: print(f"prediction a1 is : {self.prediction_a1}")
+        # Merge first-order prediction with zero-order belief
+        W = self.merge_prediction(self.prediction_a1, self.b0, self.c1)
+        if self.model.print: print(f"W is : {W}")
+        # Merge second-order prediction with integrated belief
+        W2 = self.merge_prediction(self.prediction_a2, W, self.c2)
+        if self.model.print: print(f"W2 is : {W}2")
+
+        # Calculate the subjective value phi for each action, and choose the action with the highest.
+        self.calculate_phi(self.possible_actions, W2, "normal")
+        if self.model.print: print(f"custom's phi is : {self.phi}")
+        self.choose_action_softmax()
+
 
     def take_action(self):
         """
@@ -190,25 +233,45 @@ class Customs(Agent):
             for c in range(len(self.b1)):
                 self.b1[c] = (1 - self.learning_speed/(2*n)) * self.b1[c] + b * (c in self.failed_actions)
         if self.model.print: print(self.b1)
+    
+    def update_b2(self, f, n):
+        """
+        Updates b2
+        """
+        if self.model.print: print("customs are updating beliefs b2 from ... to ...:")
+        if self.model.print: print(self.b2)
+        if len(self.succes_actions) > 0:
+            a = (self.learning_speed/f)/len(self.succes_actions)
+            for c in range(len(self.b2)):
+                cf_succ = 0
+                for c_star in self.succes_actions: cf_succ += self.common_features(c, c_star)
+                self.b2[c] = (1 - self.learning_speed) * self.b2[c] + a * cf_succ
+        elif len(self.failed_actions) > 0:
+            b = (self.learning_speed/(2*n))/(n - len(self.failed_actions))
+            for c in range(len(self.b1)):
+                self.b2[c] = (1 - self.learning_speed/(2*n)) * self.b2[c] + b * (c not in self.failed_actions)
+        if self.model.print: print(self.b2)
 
-    def update_c1(self):
+    def update_confidence(self, confidence):
         """
-        Updates c1
+        Updates confidence (c1 or c2)
         """
-        if self.model.print: print("customs are updating c1 from ... to ...:")
-        if self.model.print: print(self.c1)
+        if self.model.print: print("customs are updating confidence from ... to ...:")
+        if self.model.print: print(confidence)
         for a in self.action:
             action_index = self.possible_actions.index(a)
-            prediction = self.prediction_a1[action_index]
+            if confidence == self.c1: prediction = self.prediction_a1[action_index]
+            elif confidence == self.c2: prediction = self.prediction_a2[action_index]
             if prediction < 0.25:
                 update = 0.25 - prediction
-                if a in self.failed_actions: self.c1 = (1 - update) * self.c1 + update;
-                if a in self.succes_actions: self.c1 = (1 - update) * self.c1;
+                if a in self.failed_actions: confidence = (1 - update) * confidence + update;
+                if a in self.succes_actions: confidence = (1 - update) * confidence;
             if prediction > 0.25:
                 update = prediction - 0.25
-                if a in self.failed_actions: self.c1 = (1 - update) * self.c1;
-                if a in self.succes_actions: self.c1 = (1 - update) * self.c1 + update;
-        if self.model.print: print(self.c1)
+                if a in self.failed_actions: confidence = (1 - update) * confidence;
+                if a in self.succes_actions: confidence = (1 - update) * confidence + update;
+        if self.model.print: print(confidence)
+        return confidence
 
     def update_beliefs(self):
         """
@@ -223,4 +286,8 @@ class Customs(Agent):
         if self.tom_order > 0:
             self.update_expected_preferences()
             self.update_b1(f, n)
-            self.update_c1()
+            self.c1 = self.update_confidence(self.c1)
+
+        if self.tom_order > 1:
+            self.update_b2(f,n)
+            self.c2 = self.update_confidence(self.c2)
