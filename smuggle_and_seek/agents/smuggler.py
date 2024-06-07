@@ -30,7 +30,10 @@ class Smuggler(Agent):
         self.num_smuggles = 0
         self.successful_smuggles = 0
         self.successful_smuggled_packages = 0
+        self.failed_smuggles = 0
+        self.failed_packages = 0
         self.nonpref_used = 0 
+        self.average_amount_catch = 5
 
         # Define all possible distributions within the actions, and non preferences per actions
         num_cont = len(self.model.get_agents_of_type(Container))
@@ -98,9 +101,10 @@ class Smuggler(Agent):
         """
         Calculates the subjective value phi of customs by using beliefs b1 and a simulated reward function
         """
+        self.simulation_phi = np.zeros(len(self.b0))
         for c in range(len(self.b1)):
             for c_star in range(len(self.b1)):
-                self.simulation_phi[c] += self.b1[c_star] * (1*(c == c_star) -1*(c != c_star))
+                self.simulation_phi[c] += self.b1[c_star] * (1*self.average_amount_catch*(c == c_star) -1*self.average_amount_catch*(c != c_star))
     
     def choose_action_softmax(self):
         """
@@ -163,9 +167,13 @@ class Smuggler(Agent):
         for ai in self.action:
             for container in containers:
                 if container.unique_id == ai:
-                    if container.num_packages == 0: self.failed_actions.append(ai)
+                    if container.num_packages == 0: self.failed_actions.append(ai); self.failed_packages += self.distribution[self.action.index(ai)]; self.failed_smuggles += 1
                     else: self.succes_actions.append(ai); self.successful_smuggled_packages += container.num_packages; self.successful_smuggles += 1
         if self.model.print: print(f"smuggler successful actions are: {self.succes_actions}, and failed actions are {self.failed_actions}")
+    
+    def update_average_amount_per_catch(self):
+        if (self.num_smuggles - self.successful_smuggles) > 0:
+            self.average_amount_catch = self.failed_packages / self.failed_smuggles
         
     def update_b0(self, f, n):
         """
@@ -230,6 +238,7 @@ class Smuggler(Agent):
         n = self.model.i_per_feat ** self.model.num_features
 
         self.check_result_actions()
+        self.update_average_amount_per_catch()
         self.update_b0(f, n)
 
         if self.tom_order > 0:

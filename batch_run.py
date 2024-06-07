@@ -16,7 +16,7 @@ params = {
 results = mesa.batch_run(
     SmuggleAndSeekGame,
     parameters=params,
-    iterations=100,
+    iterations=1000,
     display_progress=True,
 )
 
@@ -28,11 +28,13 @@ results_0vs0 = results_df[(results_df["tom_customs"] == 0) & (results_df["tom_sm
 results_1vs0 = results_df[(results_df["tom_customs"] == 1) & (results_df["tom_smuggler"] == 0)]
 results_0vs1 = results_df[(results_df["tom_customs"] == 0) & (results_df["tom_smuggler"] == 1)]
 results_1vs1 = results_df[(results_df["tom_customs"] == 1) & (results_df["tom_smuggler"] == 1)]
+results_2vs0 = results_df[(results_df["tom_customs"] == 2) & (results_df["tom_smuggler"] == 0)]
 results_2vs1 = results_df[(results_df["tom_customs"] == 2) & (results_df["tom_smuggler"] == 1)]
 print(results_0vs0)
 print(results_1vs0)
 print(results_0vs1)
 print(results_1vs1)
+print(results_2vs0)
 print(results_2vs1)
 
 # for data in ["customs points","smuggler points", "successful checks", "successful smuggles", "caught packages", "smuggled packages", "nonpreferences used"]:
@@ -52,14 +54,14 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     t_stat_0vs1, p_val_0vs1 = stats.ttest_ind(results_0vs0[data], results_0vs1[data])
     print(f"0vs0 against 0vs1: {t_stat_0vs1}, {p_val_0vs1}")
 
-    t_stat_2vs1, p_val_2vs1 = stats.ttest_ind(results_1vs1[data], results_2vs1[data])
-    print(f"1vs1 against 2vs1: {t_stat_2vs1}, {p_val_2vs1}")
+    # t_stat_2vs1, p_val_2vs1 = stats.ttest_ind(results_1vs1[data], results_2vs1[data])
+    # print(f"1vs1 against 2vs1: {t_stat_2vs1}, {p_val_2vs1}")
     
-    fig, ax = plt.subplots(figsize=(8,5))
-    boxplot = ax.boxplot([results_0vs0[data], results_1vs0[data], results_0vs1[data], results_1vs1[data], results_2vs1[data]],
-                            labels=['ToM0 customs vs\n ToM0 smuggler', 'ToM1 customs vs\n ToM0 smuggler', 'ToM0 customs vs\n ToM1 smuggler', 'ToM1 customs vs\n ToM1 smuggler', 'ToM2 customs vs\n ToM1 smuggler'], patch_artist=True, medianprops={'color': 'black'}
+    fig, ax = plt.subplots(figsize=(16,8))
+    boxplot = ax.boxplot([results_0vs0[data], results_1vs0[data], results_0vs1[data], results_2vs0[data], results_1vs1[data], results_2vs1[data]],
+                            labels=['ToM0 customs vs\n ToM0 smuggler', 'ToM1 customs vs\n ToM0 smuggler', 'ToM0 customs vs\n ToM1 smuggler', 'ToM2 customs vs\n ToM0 smuggler', 'ToM1 customs vs\n ToM1 smuggler', 'ToM2 customs vs\n ToM1 smuggler'], patch_artist=True, medianprops={'color': 'black'}
                             )
-    colors = ['#A8A9AD', '#728FCE', '#728FCE', '#A8A9AD', '#728FCE']
+    colors = ['#A8A9AD', '#728FCE', '#728FCE', '#728FCE', '#A8A9AD', '#728FCE']
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
     plt.ylabel(data)

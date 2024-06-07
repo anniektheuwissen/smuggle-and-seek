@@ -51,10 +51,10 @@ class Customs(Agent):
         :param aj: The action of the smuggler
         """
         non_pref = (self.model.get_agents_of_type(Container)[aj].features["cargo"] != self.expected_preferences["cargo"]) + (self.model.get_agents_of_type(Container)[aj].features["country"] != self.expected_preferences["country"])
-        return (-1*(aj == c) +1*(aj != c) - non_pref)
+        return (-1*self.expected_amount_catch*(aj == c) +1*self.expected_amount_catch*(aj != c) - non_pref)
 
     def smugglers_simulation_reward_function(self, c, ai):
-        return (1*(ai == c) -1*(ai != c))
+        return (1*self.expected_amount_catch*(ai == c) -1*self.expected_amount_catch*(ai != c))
 
     def calculate_phi(self, actions, beliefs, reward_function):
         """
@@ -116,6 +116,15 @@ class Customs(Agent):
         """
         Chooses an action associated with second-order theory of mind reasoning
         """
+        if self.model.print:
+            print("")
+            print("Customs' TOM2 state:")
+            print(f"b0 is : {self.b0}")
+            print(f"b1 is : {self.b1}")
+            print(f"b2 is : {self.b2}")
+            print(f"bp is : {self.expected_preferences}")
+            print(f"c1 is : {self.c1}")
+            print(f"c2 is : {self.c2}")
         # Make prediction about behavior of opponent
         #   First make prediction about prediction that tom1 smuggler would make about behavior customs
         self.calculate_phi(self.b2, self.b2, "simulation2")
@@ -144,7 +153,7 @@ class Customs(Agent):
         if self.model.print: print(f"W is : {W}")
         # Merge second-order prediction with integrated belief
         W2 = self.merge_prediction(self.prediction_a2, W, self.c2)
-        if self.model.print: print(f"W2 is : {W}2")
+        if self.model.print: print(f"W2 is : {W2}")
 
         # Calculate the subjective value phi for each action, and choose the action with the highest.
         self.calculate_phi(self.possible_actions, W2, "normal")
