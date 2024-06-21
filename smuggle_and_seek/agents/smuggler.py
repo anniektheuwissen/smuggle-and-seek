@@ -182,15 +182,26 @@ class Smuggler(Agent):
         if self.model.print: print("smuggler is updating beliefs b0 from ... to ...:")
         if self.model.print: print(self.b0)
         if len(self.failed_actions) > 0:
-            a = (self.learning_speed/f)/len(self.failed_actions)
             for c in range(len(self.b0)):
-                cf_fail = 0
-                for c_star in self.failed_actions: cf_fail += self.common_features(c, c_star)
-                self.b0[c] = (1 - self.learning_speed) * self.b0[c] + a * cf_fail
+                if c in self.failed_actions:
+                    self.b0[c] = (1 - self.learning_speed) * self.b0[c] + self.learning_speed
+                else: 
+                    similarity = 0
+                    for cstar in self.failed_actions:
+                        similarity += self.similarity(c,cstar)
+                    similarity /= len(self.failed_actions)
+                    self.b0[c] = (1 - self.learning_speed) * self.b0[c] + similarity * self.learning_speed
+            # a = (self.learning_speed/f)/len(self.failed_actions)
+            # for c in range(len(self.b0)):
+            #     cf_fail = 0
+            #     for c_star in self.failed_actions: cf_fail += self.common_features(c, c_star)
+            #     self.b0[c] = (1 - self.learning_speed) * self.b0[c] + a * cf_fail
         elif len(self.succes_actions) > 0:
-            b = self.learning_speed/2/(n-len(self.succes_actions))
             for c in range(len(self.b0)):
-                self.b0[c] = (1 - self.learning_speed/2) * self.b0[c] + b * (c not in self.succes_actions)
+                self.b0[c] = (1 - self.learning_speed/2) * self.b0[c] + (c not in self.succes_actions) * self.learning_speed/2
+            # b = self.learning_speed/2/(n-len(self.succes_actions))
+            # for c in range(len(self.b0)):
+            #     self.b0[c] = (1 - self.learning_speed/2) * self.b0[c] + b * (c not in self.succes_actions)
         if self.model.print: print(self.b0)
 
     def update_b1(self, f, n):
@@ -200,15 +211,26 @@ class Smuggler(Agent):
         if self.model.print: print("smuggler is updating beliefs b1 from ... to ...:")
         if self.model.print: print(self.b1)
         if len(self.failed_actions) > 0:
-            a = (self.learning_speed/f)/len(self.failed_actions)
             for c in range(len(self.b1)):
-                cf_fail = 0
-                for c_star in self.failed_actions: cf_fail += self.common_features(c, c_star)
-                self.b1[c] = (1 - self.learning_speed) * self.b1[c] + a * cf_fail
+                if c in self.failed_actions:
+                    self.b1[c] = (1 - self.learning_speed) * self.b1[c] + self.learning_speed
+                else: 
+                    similarity = 0
+                    for cstar in self.failed_actions:
+                        similarity += self.similarity(c,cstar)
+                    similarity /= len(self.failed_actions)
+                    self.b1[c] = (1 - self.learning_speed) * self.b1[c] + similarity * self.learning_speed
+            # a = (self.learning_speed/f)/len(self.failed_actions)
+            # for c in range(len(self.b1)):
+            #     cf_fail = 0
+            #     for c_star in self.failed_actions: cf_fail += self.common_features(c, c_star)
+            #     self.b1[c] = (1 - self.learning_speed) * self.b1[c] + a * cf_fail
         elif len(self.succes_actions) > 0:
-            b = (self.learning_speed/(2*n))/len(self.succes_actions)
             for c in range(len(self.b1)):
-                self.b1[c] = (1 - self.learning_speed/(2*n)) * self.b1[c] + b * (c in self.succes_actions)
+                self.b1[c] = (1 - self.learning_speed/2) * self.b1[c] + (c in self.succes_actions) * self.learning_speed/2
+            # b = (self.learning_speed/(2*n))/len(self.succes_actions)
+            # for c in range(len(self.b1)):
+            #     self.b1[c] = (1 - self.learning_speed/(2*n)) * self.b1[c] + b * (c in self.succes_actions)
         if self.model.print: print(self.b1)
     
     def update_c1(self):

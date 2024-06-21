@@ -8,7 +8,7 @@ from smuggle_and_seek.model import SmuggleAndSeekGame
 params = {
     "width": 2,
     "height": 2,
-    "tom_customs": range(0,3,1),
+    "tom_customs": range(0,2,1),
     "tom_smuggler": range(0,2,1),
     "learning_speed": 0.2
 }
@@ -16,7 +16,7 @@ params = {
 results = mesa.batch_run(
     SmuggleAndSeekGame,
     parameters=params,
-    iterations=1000,
+    iterations=100,
     display_progress=True,
 )
 
@@ -54,8 +54,11 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     t_stat_0vs1, p_val_0vs1 = stats.ttest_ind(results_0vs0[data], results_0vs1[data])
     print(f"0vs0 against 0vs1: {t_stat_0vs1}, {p_val_0vs1}")
 
-    # t_stat_2vs1, p_val_2vs1 = stats.ttest_ind(results_1vs1[data], results_2vs1[data])
-    # print(f"1vs1 against 2vs1: {t_stat_2vs1}, {p_val_2vs1}")
+    t_stat_2vs0, p_val_2vs0 = stats.ttest_ind(results_0vs0[data], results_2vs0[data])
+    print(f"0vs0 against 2vs0: {t_stat_2vs0}, {p_val_2vs0}")
+
+    t_stat_2vs1, p_val_2vs1 = stats.ttest_ind(results_1vs1[data], results_2vs1[data])
+    print(f"1vs1 against 2vs1: {t_stat_2vs1}, {p_val_2vs1}")
     
     fig, ax = plt.subplots(figsize=(16,8))
     boxplot = ax.boxplot([results_0vs0[data], results_1vs0[data], results_0vs1[data], results_2vs0[data], results_1vs1[data], results_2vs1[data]],
@@ -67,8 +70,10 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     plt.ylabel(data)
     plt.title(f"Number of {data} after 1000 days")
 
-    plt.text(2.2, np.median(results_1vs0[data]-2), f'p-value: {"{:.1e}".format(p_val_1vs0)}')
-    plt.text(2.25, np.median(results_0vs1[data]-2), f'p-value: {"{:.1e}".format(p_val_0vs1)}')
+    plt.text(2.27, np.median(results_1vs0[data]-2), f'p-value: {"{:.1e}".format(p_val_1vs0)}')
+    plt.text(2.18, np.median(results_0vs1[data]-2), f'p-value: {"{:.1e}".format(p_val_0vs1)}')
+    plt.text(3.19, np.median(results_2vs0[data]-2), f'p-value: {"{:.1e}".format(p_val_2vs0)}')
+    plt.text(5.19, np.median(results_2vs1[data]-2), f'p-value: {"{:.1e}".format(p_val_2vs1)}')
 
     plt.show()
 
