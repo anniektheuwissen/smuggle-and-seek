@@ -5,7 +5,7 @@ from more_itertools import powerset
 from .container import Container
 
 """
-Agent class: the customs agent and smuggler agent inherit from this class
+Agent class: the police agent and smuggler agent inherit from this class
 """
 class Agent(mesa.Agent):
     def __init__(self, unique_id, model, tom_order, learning_speed):

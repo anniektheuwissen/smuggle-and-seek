@@ -5,13 +5,13 @@ from .container import Container
 from .agent import Agent
 
 """
-Customs class: the customs agent that tries to capture as many drugs as possible from the containers. They
+police class: the police agent that tries to capture as many drugs as possible from the containers. They
 can have different levels of ToM reasoning.
 """
-class Customs(Agent):
+class Police(Agent):
     def __init__(self, unique_id, model, tom_order, learning_speed):
         """
-        Initializes the agent Customs
+        Initializes the agent police
         :param unique_id: The unqiue id related to the agent
         :param model: The model in which the agent is placed
         :param tom_order: The order of ToM at which the agent reasons
@@ -37,8 +37,8 @@ class Customs(Agent):
     
     def reward_function(self, c, aj):
         """
-        Returns the reward based on the reward function of customs
-        :param c: The container that customs use
+        Returns the reward based on the reward function of police
+        :param c: The container that police use
         :param aj: The action of the smuggler
         """
         c_c = self.container_costs
@@ -47,7 +47,7 @@ class Customs(Agent):
     def simulation_reward_function(self, c, aj):
         """
         Returns the reward based on the simulated reward function of the smuggler
-        :param c: The container that customs use
+        :param c: The container that police use
         :param aj: The action of the smuggler
         """
         non_pref = (self.model.get_agents_of_type(Container)[aj].features["cargo"] != self.expected_preferences["cargo"]) + (self.model.get_agents_of_type(Container)[aj].features["country"] != self.expected_preferences["country"])
@@ -80,7 +80,7 @@ class Customs(Agent):
         Chooses an action to play based on the softmax over the subjective value phi
         """
         softmax_phi = np.exp(self.phi) / np.sum(np.exp(self.phi))
-        if self.model.print: print(f"customs softmax of phi is : {softmax_phi}")
+        if self.model.print: print(f"police softmax of phi is : {softmax_phi}")
         action_indexes = [i for i in range(0,len(self.possible_actions))]
         index_action = np.random.choice(action_indexes, 1, p=softmax_phi)[0]
         self.action = self.possible_actions[index_action]
@@ -118,7 +118,7 @@ class Customs(Agent):
         """
         if self.model.print:
             print("")
-            print("Customs' TOM2 state:")
+            print("police' TOM2 state:")
             print(f"b0 is : {self.b0}")
             print(f"b1 is : {self.b1}")
             print(f"b2 is : {self.b2}")
@@ -126,7 +126,7 @@ class Customs(Agent):
             print(f"c1 is : {self.c1}")
             print(f"c2 is : {self.c2}")
         # Make prediction about behavior of opponent
-        #   First make prediction about prediction that tom1 smuggler would make about behavior customs
+        #   First make prediction about prediction that tom1 smuggler would make about behavior police
         self.calculate_phi(self.b2, self.b2, "simulation2")
         if self.model.print: print(f"custom's prediction of smuggler's simulation phi is : {self.simulation_phi}")
         self.prediction_a1 = np.exp(self.simulation_phi) / np.sum(np.exp(self.simulation_phi)) 
@@ -143,7 +143,7 @@ class Customs(Agent):
 
         # Merge prediction with integrated beliefs of first-order prediction and zero-order beliefs
         # Make first-order prediction about behavior of opponent
-        if self.model.print: print(f"customs are calculating first-order prediction.....")
+        if self.model.print: print(f"police are calculating first-order prediction.....")
         self.calculate_phi(self.b1, self.b1, "simulation")
         if self.model.print: print(f"custom's simulation phi is : {self.simulation_phi}")
         self.prediction_a1 = np.exp(self.simulation_phi) / np.sum(np.exp(self.simulation_phi))     
@@ -179,7 +179,7 @@ class Customs(Agent):
             else:
                 if self.model.print: print("wooops caught nothing")
                 self.failed_actions.append(ai)
-        if self.model.print: print(f"customs succesfull actions are: {self.succes_actions}, and failed actions are: {self.failed_actions}")
+        if self.model.print: print(f"police succesfull actions are: {self.succes_actions}, and failed actions are: {self.failed_actions}")
         self.num_checks += len(self.action); self.successful_checks += len(self.succes_actions)
         
     def update_expected_amount_catch(self):
@@ -194,7 +194,7 @@ class Customs(Agent):
         """
         Updates b0
         """
-        if self.model.print: print("customs are updating beliefs b0 from ... to ...:")
+        if self.model.print: print("police are updating beliefs b0 from ... to ...:")
         if self.model.print: print(self.b0)
         if len(self.succes_actions) > 0:
             for c in range(len(self.b0)):
@@ -240,7 +240,7 @@ class Customs(Agent):
         """
         Updates b1
         """
-        if self.model.print: print("customs are updating beliefs b1 from ... to ...:")
+        if self.model.print: print("police are updating beliefs b1 from ... to ...:")
         if self.model.print: print(self.b1)
         if len(self.succes_actions) > 0:
             for c in range(len(self.b1)):
@@ -269,7 +269,7 @@ class Customs(Agent):
         """
         Updates b2
         """
-        if self.model.print: print("customs are updating beliefs b2 from ... to ...:")
+        if self.model.print: print("police are updating beliefs b2 from ... to ...:")
         if self.model.print: print(self.b2)
         if len(self.succes_actions) > 0:
             a = (self.learning_speed/f)/len(self.succes_actions)
@@ -287,7 +287,7 @@ class Customs(Agent):
         """
         Updates confidence (c1 or c2)
         """
-        if self.model.print: print("customs are updating confidence from ... to ...:")
+        if self.model.print: print("police are updating confidence from ... to ...:")
         if self.model.print: print(confidence)
         for a in self.action:
             action_index = self.possible_actions.index(a)

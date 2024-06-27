@@ -10,7 +10,7 @@ Smuggler class: the smuggler agent that tries to smuggle as many drugs as possib
 have preferences for certain containers, and they can have different levels of ToM reasoning.
 """
 class Smuggler(Agent):
-    def __init__(self, unique_id, model, tom_order, learning_speed):
+    def __init__(self, unique_id, model, tom_order, learning_speed, packages):
         """
         Initializes the agent Smuggler
         :param unique_id: The unqiue id related to the agent
@@ -25,7 +25,7 @@ class Smuggler(Agent):
         self.distribution = []
         self.preferences = {}
         self.add_preferences()
-        self.num_packages = 0
+        self.num_packages = packages
 
         self.num_smuggles = 0
         self.successful_smuggles = 0
@@ -34,6 +34,10 @@ class Smuggler(Agent):
         self.failed_packages = 0
         self.nonpref_used = 0 
         self.average_amount_catch = 5
+
+        # Redefine possible actions and phi
+        self.possible_actions = list(filter(lambda x: len(x) <= packages, self.possible_actions))
+        self.phi = self.phi[:len(self.possible_actions)]
 
         # Define all possible distributions within the actions, and non preferences per actions
         num_cont = len(self.model.get_agents_of_type(Container))
@@ -99,7 +103,7 @@ class Smuggler(Agent):
 
     def calculate_simulation_phi(self):
         """
-        Calculates the subjective value phi of customs by using beliefs b1 and a simulated reward function
+        Calculates the subjective value phi of police by using beliefs b1 and a simulated reward function
         """
         self.simulation_phi = np.zeros(len(self.b0))
         for c in range(len(self.b1)):
