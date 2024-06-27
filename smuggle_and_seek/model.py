@@ -10,14 +10,15 @@ environment contains different kinds of containers, each having 2 features, that
 seek for drugs.
 """
 class SmuggleAndSeekGame(mesa.Model):
-    def __init__(self, k, l, m, tom_police, tom_smuggler, learning_speed):
+    def __init__(self, k, l, m, tom_police, tom_smuggler, learning_speed1, learning_speed2):
         """
         Initializes the Game
         :param width: The width of the interface
         :param height: The height of the interface
         :param tom_police: The order of theory of mind at which the police reason
         :param tom_smuggler: The order of theory of mind at which the smuggler reasons
-        :param learning_speed: The learning speed of both the police and smuggler
+        :param learning_speed1: The learning speed at which both the police and smuggler learn in most situations
+        :param learning_speed2: The learning speed at which both the police and smuggler learn in less informative situations
         """
         super().__init__()
         self.print = False
@@ -45,9 +46,9 @@ class SmuggleAndSeekGame(mesa.Model):
             else: x+=1
 
         # Add agents to the game: one smuggler and one police, and add both to the running schedule
-        smuggler = Smuggler(i+1, self, tom_smuggler, learning_speed, m)
+        smuggler = Smuggler(i+1, self, tom_smuggler, learning_speed1, learning_speed2, m)
         self.running_schedule.add(smuggler)
-        police = Police(i+2, self, tom_police, learning_speed)
+        police = Police(i+2, self, tom_police, learning_speed1, learning_speed2)
         self.running_schedule.add(police)
 
         # Add data collector that collects the points and average points of both the police and smuggler

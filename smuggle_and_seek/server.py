@@ -93,19 +93,19 @@ def smuggler_grid_name(model):
     tab = "&nbsp &nbsp &nbsp &nbsp"   
     return f"Smuggler's distribution of actions: {tab}{tab}&nbsp &nbsp last action:{last_action}"
 
-def barchart_name(model):
+def barchart_name():
     """
     Display a text representing the name of the grid.
     """
     return f"Smuggler's and police distribution of actions:"
 
-def chart_name1(model):
+def chart_name1():
     """
     Display a text representing the name of the chart.
     """
     return f"Points:"
 
-def chart_name2(model):
+def chart_name2():
     """
     Display a text representing the name of the chart.
     """
@@ -210,7 +210,7 @@ model_params = {
         value=0,
         choices=[0,1],
     ),
-    "learning_speed": mesa.visualization.Slider(
+    "learning_speed1": mesa.visualization.Slider(
         "Learning speed",
         value=0.2,
         min_value=0,

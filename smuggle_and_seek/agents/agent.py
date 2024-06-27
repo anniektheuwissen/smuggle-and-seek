@@ -8,13 +8,14 @@ from .container import Container
 Agent class: the police agent and smuggler agent inherit from this class
 """
 class Agent(mesa.Agent):
-    def __init__(self, unique_id, model, tom_order, learning_speed):
+    def __init__(self, unique_id, model, tom_order, learning_speed1, learning_speed2):
         """
         Initializes the agent 
         :param unique_id: The unqiue id related to the agent
         :param model: The model in which the agent is placed
         :param tom_order: The order of ToM at which the agent reasons
-        :param learning_speed: The speed at which the agent learns
+        :param learning_speed1: The speed at which the agent learns in most situations
+        :param learning_speed2: The speed at which the agent learns in less informative situations
         """
         super().__init__(unique_id, model)
         self.tom_order = tom_order
@@ -29,7 +30,8 @@ class Agent(mesa.Agent):
         self.possible_actions = list(map(list, powerset(np.arange(num_cont))))[1:]
 
         # Initialize learning speed, belief vectors, value phi, prediction and confidence needed for tom_reasoning
-        self.learning_speed = learning_speed
+        self.learning_speed1 = learning_speed1
+        self.learning_speed2 = learning_speed2
         self.b0 = np.array([1/num_cont] * num_cont)
         self.b1 = np.array([1/num_cont] * num_cont)
         self.phi = np.zeros(2**num_cont-1)

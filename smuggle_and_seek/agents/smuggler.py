@@ -10,15 +10,16 @@ Smuggler class: the smuggler agent that tries to smuggle as many drugs as possib
 have preferences for certain containers, and they can have different levels of ToM reasoning.
 """
 class Smuggler(Agent):
-    def __init__(self, unique_id, model, tom_order, learning_speed, packages):
+    def __init__(self, unique_id, model, tom_order, learning_speed1, learning_speed2, packages):
         """
         Initializes the agent Smuggler
         :param unique_id: The unqiue id related to the agent
         :param model: The model in which the agent is placed
         :param tom_order: The order of ToM at which the agent reasons
-        :param learning_speed: The speed at which the agent learns
+        :param learning_speed1: The speed at which the agent learns in most situations
+        :param learning_speed2: The speed at which the agent learns in less informative situations
         """
-        super().__init__(unique_id, model, tom_order, learning_speed)
+        super().__init__(unique_id, model, tom_order, learning_speed1, learning_speed2)
         self.container_costs = 3
         self.feature_costs = 1
 
@@ -188,24 +189,16 @@ class Smuggler(Agent):
         if len(self.failed_actions) > 0:
             for c in range(len(self.b0)):
                 if c in self.failed_actions:
-                    self.b0[c] = (1 - self.learning_speed) * self.b0[c] + self.learning_speed
+                    self.b0[c] = (1 - self.learning_speed1) * self.b0[c] + self.learning_speed1
                 else: 
                     similarity = 0
                     for cstar in self.failed_actions:
                         similarity += self.similarity(c,cstar)
                     similarity /= len(self.failed_actions)
-                    self.b0[c] = (1 - self.learning_speed) * self.b0[c] + similarity * self.learning_speed
-            # a = (self.learning_speed/f)/len(self.failed_actions)
-            # for c in range(len(self.b0)):
-            #     cf_fail = 0
-            #     for c_star in self.failed_actions: cf_fail += self.common_features(c, c_star)
-            #     self.b0[c] = (1 - self.learning_speed) * self.b0[c] + a * cf_fail
+                    self.b0[c] = (1 - self.learning_speed1) * self.b0[c] + similarity * self.learning_speed1
         elif len(self.succes_actions) > 0:
             for c in range(len(self.b0)):
-                self.b0[c] = (1 - self.learning_speed/2) * self.b0[c] + (c not in self.succes_actions) * self.learning_speed/2
-            # b = self.learning_speed/2/(n-len(self.succes_actions))
-            # for c in range(len(self.b0)):
-            #     self.b0[c] = (1 - self.learning_speed/2) * self.b0[c] + b * (c not in self.succes_actions)
+                self.b0[c] = (1 - self.learning_speed2) * self.b0[c] + (c not in self.succes_actions) * self.learning_speed2
         if self.model.print: print(self.b0)
 
     def update_b1(self, f, n):
@@ -217,24 +210,16 @@ class Smuggler(Agent):
         if len(self.failed_actions) > 0:
             for c in range(len(self.b1)):
                 if c in self.failed_actions:
-                    self.b1[c] = (1 - self.learning_speed) * self.b1[c] + self.learning_speed
+                    self.b1[c] = (1 - self.learning_speed1) * self.b1[c] + self.learning_speed1
                 else: 
                     similarity = 0
                     for cstar in self.failed_actions:
                         similarity += self.similarity(c,cstar)
                     similarity /= len(self.failed_actions)
-                    self.b1[c] = (1 - self.learning_speed) * self.b1[c] + similarity * self.learning_speed
-            # a = (self.learning_speed/f)/len(self.failed_actions)
-            # for c in range(len(self.b1)):
-            #     cf_fail = 0
-            #     for c_star in self.failed_actions: cf_fail += self.common_features(c, c_star)
-            #     self.b1[c] = (1 - self.learning_speed) * self.b1[c] + a * cf_fail
+                    self.b1[c] = (1 - self.learning_speed1) * self.b1[c] + similarity * self.learning_speed1
         elif len(self.succes_actions) > 0:
             for c in range(len(self.b1)):
-                self.b1[c] = (1 - self.learning_speed/2) * self.b1[c] + (c in self.succes_actions) * self.learning_speed/2
-            # b = (self.learning_speed/(2*n))/len(self.succes_actions)
-            # for c in range(len(self.b1)):
-            #     self.b1[c] = (1 - self.learning_speed/(2*n)) * self.b1[c] + b * (c in self.succes_actions)
+                self.b1[c] = (1 - self.learning_speed2) * self.b1[c] + (c in self.succes_actions) * self.learning_speed2
         if self.model.print: print(self.b1)
     
     def update_c1(self):

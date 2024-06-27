@@ -9,15 +9,16 @@ police class: the police agent that tries to capture as many drugs as possible f
 can have different levels of ToM reasoning.
 """
 class Police(Agent):
-    def __init__(self, unique_id, model, tom_order, learning_speed):
+    def __init__(self, unique_id, model, tom_order, learning_speed1, learning_speed2):
         """
         Initializes the agent police
         :param unique_id: The unqiue id related to the agent
         :param model: The model in which the agent is placed
         :param tom_order: The order of ToM at which the agent reasons
-        :param learning_speed: The speed at which the agent learns
+        :param learning_speed1: The speed at which the agent learns in most situations
+        :param learning_speed2: The speed at which the agent learns in less informative situations
         """
-        super().__init__(unique_id, model, tom_order, learning_speed)
+        super().__init__(unique_id, model, tom_order, learning_speed1, learning_speed2)
         self.container_costs = 4
 
         self.num_checks = 0
@@ -199,24 +200,16 @@ class Police(Agent):
         if len(self.succes_actions) > 0:
             for c in range(len(self.b0)):
                 if c in self.succes_actions:
-                    self.b0[c] = (1 - self.learning_speed) * self.b0[c] + self.learning_speed
+                    self.b0[c] = (1 - self.learning_speed1) * self.b0[c] + self.learning_speed1
                 else: 
                     similarity = 0
                     for cstar in self.succes_actions:
                         similarity += self.similarity(c,cstar)
                     similarity /= len(self.succes_actions)
-                    self.b0[c] = (1 - self.learning_speed) * self.b0[c] + similarity * self.learning_speed
-            # a = (self.learning_speed/f)/len(self.succes_actions)
-            # for c in range(len(self.b0)):
-            #     cf_succ = 0
-            #     for c_star in self.succes_actions: cf_succ += self.common_features(c, c_star)
-            #     self.b0[c] = (1 - self.learning_speed) * self.b0[c] + a * cf_succ
+                    self.b0[c] = (1 - self.learning_speed1) * self.b0[c] + similarity * self.learning_speed1
         elif len(self.failed_actions) > 0:
             for c in range(len(self.b0)):
-                self.b0[c] = (1 - self.learning_speed/2) * self.b0[c] + (c not in self.failed_actions) * self.learning_speed/2
-            # b = self.learning_speed/2/(n-len(self.failed_actions))
-            # for c in range(len(self.b0)):
-            #     self.b0[c] = (1 - self.learning_speed/2) * self.b0[c] + b * (c not in self.failed_actions)
+                self.b0[c] = (1 - self.learning_speed2) * self.b0[c] + (c not in self.failed_actions) * self.learning_speed2
         if self.model.print: print(self.b0)
 
     def update_expected_preferences(self):
@@ -245,24 +238,16 @@ class Police(Agent):
         if len(self.succes_actions) > 0:
             for c in range(len(self.b1)):
                 if c in self.succes_actions:
-                    self.b1[c] = (1 - self.learning_speed) * self.b1[c] + self.learning_speed
+                    self.b1[c] = (1 - self.learning_speed1) * self.b1[c] + self.learning_speed1
                 else: 
                     similarity = 0
                     for cstar in self.succes_actions:
                         similarity += self.similarity(c,cstar)
                     similarity /= len(self.succes_actions)
-                    self.b1[c] = (1 - self.learning_speed) * self.b1[c] + similarity * self.learning_speed
-            # a = (self.learning_speed/f)/len(self.succes_actions)
-            # for c in range(len(self.b1)):
-            #     cf_succ = 0
-            #     for c_star in self.succes_actions: cf_succ += self.common_features(c, c_star)
-            #     self.b1[c] = (1 - self.learning_speed) * self.b1[c] + a * cf_succ
+                    self.b1[c] = (1 - self.learning_speed1) * self.b1[c] + similarity * self.learning_speed1
         elif len(self.failed_actions) > 0:
             for c in range(len(self.b1)):
-                self.b1[c] = (1 - self.learning_speed/2) * self.b1[c] + (c in self.failed_actions) * self.learning_speed/2
-            # b = (self.learning_speed/(2*n))/len(self.failed_actions)
-            # for c in range(len(self.b1)):
-            #     self.b1[c] = (1 - self.learning_speed/(2*n)) * self.b1[c] + b * (c in self.failed_actions)
+                self.b1[c] = (1 - self.learning_speed2) * self.b1[c] + (c in self.failed_actions) * self.learning_speed2
         if self.model.print: print(self.b1)
     
     def update_b2(self, f, n):
@@ -272,15 +257,15 @@ class Police(Agent):
         if self.model.print: print("police are updating beliefs b2 from ... to ...:")
         if self.model.print: print(self.b2)
         if len(self.succes_actions) > 0:
-            a = (self.learning_speed/f)/len(self.succes_actions)
+            a = (self.learning_speed1/f)/len(self.succes_actions)
             for c in range(len(self.b2)):
                 cf_succ = 0
                 for c_star in self.succes_actions: cf_succ += self.common_features(c, c_star)
-                self.b2[c] = (1 - self.learning_speed) * self.b2[c] + a * cf_succ
+                self.b2[c] = (1 - self.learning_speed1) * self.b2[c] + a * cf_succ
         elif len(self.failed_actions) > 0:
-            b = (self.learning_speed/(2*n))/(n - len(self.failed_actions))
+            b = (self.learning_speed1/(2*n))/(n - len(self.failed_actions))
             for c in range(len(self.b1)):
-                self.b2[c] = (1 - self.learning_speed/(2*n)) * self.b2[c] + b * (c not in self.failed_actions)
+                self.b2[c] = (1 - self.learning_speed1/(2*n)) * self.b2[c] + b * (c not in self.failed_actions)
         if self.model.print: print(self.b2)
 
     def update_confidence(self, confidence):

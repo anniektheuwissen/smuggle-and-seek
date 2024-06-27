@@ -6,12 +6,12 @@ import matplotlib.pyplot as plt
 from smuggle_and_seek.model import SmuggleAndSeekGame
 
 params = {
-    "k": 3,
-    "l": 2,
+    "k": 2,
+    "l": 3,
     "m": 5,
     "tom_police": range(0,2,1),
     "tom_smuggler": range(0,2,1),
-    "learning_speed": 0.2
+    "learning_speed1": 0.2
 }
 
 results = mesa.batch_run(
