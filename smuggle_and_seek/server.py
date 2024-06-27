@@ -33,7 +33,7 @@ def portrayal_police_grid(agent):
         portrayal["h"] = 1
         portrayal["Filled"] = "False"
         portrayal["Layer"] = 0
-        portrayal["text"] = f"{agent.unique_id}: (country:{agent.features["country"]}, cargo:{agent.features["cargo"]})"
+        portrayal["text"] = f"{agent.unique_id}: (country:{agent.features[0]}, cargo:{agent.features[1]})"
         portrayal["text_color"] = "black"
         portrayal["size"] = 100
 
@@ -62,7 +62,7 @@ def portrayal_smuggler_grid(agent):
         portrayal["h"] = 1
         portrayal["Filled"] = "False"
         portrayal["Layer"] = 0
-        portrayal["text"] = f"{agent.unique_id}: (country:{agent.features["country"]}, cargo:{agent.features["cargo"]})"
+        portrayal["text"] = f"{agent.unique_id}: (country:{agent.features[0]}, cargo:{agent.features[1]})"
         portrayal["text_color"] = "black"
 
         total_containers_used = 0
@@ -93,19 +93,19 @@ def smuggler_grid_name(model):
     tab = "&nbsp &nbsp &nbsp &nbsp"   
     return f"Smuggler's distribution of actions: {tab}{tab}&nbsp &nbsp last action:{last_action}"
 
-def barchart_name():
+def barchart_name(model):
     """
     Display a text representing the name of the grid.
     """
     return f"Smuggler's and police distribution of actions:"
 
-def chart_name1():
+def chart_name1(model):
     """
     Display a text representing the name of the chart.
     """
     return f"Points:"
 
-def chart_name2():
+def chart_name2(model):
     """
     Display a text representing the name of the chart.
     """
@@ -116,7 +116,7 @@ def preferences(model):
     Display a text representing the preffered features of the smuggler
     """
     preferences = model.get_agents_of_type(Smuggler)[0].preferences
-    return f"Preferences: (country: {preferences["country"]}, cargo: {preferences["cargo"]})"
+    return f"Preferences: (country: {preferences[0]}, cargo: {preferences[1]})"
 
 def succesfull_checks(model):
     """
@@ -213,6 +213,13 @@ model_params = {
     "learning_speed1": mesa.visualization.Slider(
         "Learning speed",
         value=0.2,
+        min_value=0,
+        max_value=1,
+        step=0.1
+    ),
+    "learning_speed2": mesa.visualization.Slider(
+        "Learning speed",
+        value=0.1,
         min_value=0,
         max_value=1,
         step=0.1

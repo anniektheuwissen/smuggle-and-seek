@@ -18,9 +18,9 @@ class Container(mesa.Agent):
         self.used_by_c = 0
         self.used_succ_by_c = 0 
 
-    def add_features(self, x, y):
+    def add_features(self, features):
         """
         Assigns features to the container
         """
-        self.features["country"] = x
-        self.features["cargo"] = y
+        for i in range(len(features)):
+            self.features[i] = features[i]

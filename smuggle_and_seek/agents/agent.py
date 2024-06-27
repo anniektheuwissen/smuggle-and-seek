@@ -53,11 +53,11 @@ class Agent(mesa.Agent):
         Returns the amount of common features that container c and container cstar have
         """
         container_c = self.model.get_agents_of_type(Container)[c]; container_cstar = self.model.get_agents_of_type(Container)[cstar]
-        return 0 + (container_c.features["cargo"] == container_cstar.features["cargo"]) + (container_c.features["country"] == container_cstar.features["country"]) 
+        return 0 + (container_c.features[1] == container_cstar.features[1]) + (container_c.features[0] == container_cstar.features[0]) 
     
     def similarity(self, c1, c2):
         container_c1 = self.model.get_agents_of_type(Container)[c1]; container_c2 = self.model.get_agents_of_type(Container)[c2]
-        return (0 + (container_c1.features["cargo"] == container_c2.features["cargo"]) + (container_c1.features["country"] == container_c2.features["country"])) / 2
+        return (0 + (container_c1.features[1] == container_c2.features[1]) + (container_c1.features[0] == container_c2.features[0])) / 2
 
     def step_tom0(self):
         """

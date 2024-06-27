@@ -35,15 +35,17 @@ class SmuggleAndSeekGame(mesa.Model):
 
         # Add containers to the game, add features to these containers, and add container to the grid
         self.num_features = k; self.i_per_feat = l
-        x = 0; y = 0
+        features = [0]*self.num_features
         for i in range(self.i_per_feat**self.num_features):
             container = Container(i, self)
-            container.add_features(x,y)
-            self.grid.place_agent(container, (x, y))
+            container.add_features(features)
+            self.grid.place_agent(container, (features[-1], features[-2]))
             self.schedule.add(container)
-            if x==self.i_per_feat-1: y+=1; x=0 
-            if y==self.num_features-1: y=0
-            else: x+=1
+            if features[-1] == (self.i_per_feat-1):
+                for j in range(0,self.num_features):
+                    if features[-(1+j)] != (self.i_per_feat-1): features[-(1+j)] += 1; features[-(j):] = [0] * len(features[-(j):])
+            else: features[-1] += 1
+            
 
         # Add agents to the game: one smuggler and one police, and add both to the running schedule
         smuggler = Smuggler(i+1, self, tom_smuggler, learning_speed1, learning_speed2, m)
@@ -94,7 +96,7 @@ class SmuggleAndSeekGame(mesa.Model):
             for container in self.get_agents_of_type(Container):
                 if container.unique_id == used_containers:
                     smuggled_drugs += container.num_packages
-                    none_preferences_used += (container.features["cargo"]!=smuggler.preferences["cargo"]) + (container.features["country"]!=smuggler.preferences["country"])
+                    none_preferences_used += (container.features[0]!=smuggler.preferences[0]) + (container.features[1]!=smuggler.preferences[1])
         smuggler.points += 2*smuggled_drugs  - c_s*containers_used - f_s*none_preferences_used
         smuggler.points_queue.pop(0); smuggler.points_queue.append(2*smuggled_drugs  - c_s*containers_used - f_s*none_preferences_used)
         if self.print: print(f"smuggler's points:{smuggler.points}")

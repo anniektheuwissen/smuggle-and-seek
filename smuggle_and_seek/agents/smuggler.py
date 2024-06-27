@@ -52,9 +52,9 @@ class Smuggler(Agent):
         """
         Assigns random preferences to the smuggler
         """
-        self.preferences["country"] = self.random.randint(0,self.model.num_features-1)
-        self.preferences["cargo"] = self.random.randint(0,self.model.num_features-1)
-        if self.model.print: print(f"preferences: {self.preferences["country"],self.preferences["cargo"]}")
+        self.preferences[0] = self.random.randint(0,self.model.num_features-1)
+        self.preferences[1] = self.random.randint(0,self.model.num_features-1)
+        if self.model.print: print(f"preferences: {self.preferences[0],self.preferences[1]}")
 
     def possible_distributions(self, n, m):
         """
@@ -76,8 +76,8 @@ class Smuggler(Agent):
         not_pref = [0] * len(self.possible_actions)
         for (idx,action) in enumerate(self.possible_actions):
             for i in action:
-                if self.model.get_agents_of_type(Container)[i].features["cargo"] != self.preferences["cargo"]: not_pref[idx] +=1
-                if self.model.get_agents_of_type(Container)[i].features["country"] != self.preferences["country"]: not_pref[idx] +=1
+                if self.model.get_agents_of_type(Container)[i].features[0] != self.preferences[0]: not_pref[idx] +=1
+                if self.model.get_agents_of_type(Container)[i].features[1] != self.preferences[1]: not_pref[idx] +=1
         return not_pref
     
     def calculate_phi(self, beliefs):
