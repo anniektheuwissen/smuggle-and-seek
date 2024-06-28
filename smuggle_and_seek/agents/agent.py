@@ -48,16 +48,24 @@ class Agent(mesa.Agent):
             W[c] = confidence * prediction[c] + (1-confidence) * belief[c]
         return W
 
+    ###########################################################################################
+    ################### DEZE FUNCTIE KAN WEG ALS TOM2 OOK IS AANGEPAST! #######################
+    ###########################################################################################
     def common_features(self, c, cstar):
         """
         Returns the amount of common features that container c and container cstar have
         """
         container_c = self.model.get_agents_of_type(Container)[c]; container_cstar = self.model.get_agents_of_type(Container)[cstar]
         return 0 + (container_c.features[1] == container_cstar.features[1]) + (container_c.features[0] == container_cstar.features[0]) 
+    ##########################################################################################
     
     def similarity(self, c1, c2):
         container_c1 = self.model.get_agents_of_type(Container)[c1]; container_c2 = self.model.get_agents_of_type(Container)[c2]
-        return (0 + (container_c1.features[1] == container_c2.features[1]) + (container_c1.features[0] == container_c2.features[0])) / 2
+        similarity = 0
+        for i in range(len(container_c1.features)):
+            similarity += (container_c1.features[i] == container_c2.features[i])
+        similarity /= len(container_c1.features)
+        return similarity
 
     def step_tom0(self):
         """

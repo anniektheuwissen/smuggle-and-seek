@@ -27,8 +27,8 @@ class Police(Agent):
 
         self.expected_amount_catch = 1
         self.expected_preferences = {}
-        self.expected_preferences[0] = self.random.randint(0,1)
-        self.expected_preferences[1] = self.random.randint(0,1)
+        for i in range(self.model.num_features):
+            self.expected_preferences[i] = self.random.randint(0,self.model.i_per_feat-1)
 
         num_cont = len(self.model.get_agents_of_type(Container))
         self.prediction_a2 = np.zeros(len(self.prediction_a1))
@@ -51,7 +51,9 @@ class Police(Agent):
         :param c: The container that police use
         :param aj: The action of the smuggler
         """
-        non_pref = (self.model.get_agents_of_type(Container)[aj].features[0] != self.expected_preferences[0]) + (self.model.get_agents_of_type(Container)[aj].features[1] != self.expected_preferences[1])
+        non_pref = 0
+        for i in range(len(self.expected_preferences)):
+            non_pref += (self.model.get_agents_of_type(Container)[aj].features[i] != self.expected_preferences[i])
         return (-1*self.expected_amount_catch*(aj == c) +1*self.expected_amount_catch*(aj != c) - non_pref)
 
     def smugglers_simulation_reward_function(self, c, ai):
@@ -191,7 +193,7 @@ class Police(Agent):
             self.expected_amount_catch = self.catched_packages / self.successful_checks
             if self.model.print: print(f"expected amount catch is: {self.expected_amount_catch}")
 
-    def update_b0(self, f, n):
+    def update_b0(self):
         """
         Updates b0
         """
@@ -217,19 +219,25 @@ class Police(Agent):
         Updates the expected preferences of the smuggler
         """
         containers = self.model.get_agents_of_type(Container)
-        checked_country0 = 0; checked_country1 = 0; checked_cargo0 = 0; checked_cargo1 = 0
+        checked = [[0]*self.model.i_per_feat]*self.model.num_features
         for container in containers:
-            if container.features[0] == 0: checked_country0 += container.used_succ_by_c
-            if container.features[0] == 1: checked_country1 += container.used_succ_by_c
-            if container.features[1] == 0: checked_cargo0 += container.used_succ_by_c
-            if container.features[1] == 1: checked_cargo1 += container.used_succ_by_c
-        if checked_country0 > checked_country1: self.expected_preferences[0] = 0
-        else: self.expected_preferences[0] = 1
-        if checked_cargo0 > checked_cargo1: self.expected_preferences[1] = 0
-        else: self.expected_preferences[1] = 1
+            for feat in range(len(container.features)):
+                checked[feat][container.features[feat]] += container.used_succ_by_c
+        for i in range(len(self.expected_preferences)):
+            self.expected_preferences[i] = checked[i].index(max(checked[i]))
+        # checked_country0 = 0; checked_country1 = 0; checked_cargo0 = 0; checked_cargo1 = 0
+        # for container in containers:
+        #     if container.features[0] == 0: checked_country0 += container.used_succ_by_c
+        #     if container.features[0] == 1: checked_country1 += container.used_succ_by_c
+        #     if container.features[1] == 0: checked_cargo0 += container.used_succ_by_c
+        #     if container.features[1] == 1: checked_cargo1 += container.used_succ_by_c
+        # if checked_country0 > checked_country1: self.expected_preferences[0] = 0
+        # else: self.expected_preferences[0] = 1
+        # if checked_cargo0 > checked_cargo1: self.expected_preferences[1] = 0
+        # else: self.expected_preferences[1] = 1
         if self.model.print: print(f"expected preferences are: {self.expected_preferences}")
 
-    def update_b1(self, f, n):
+    def update_b1(self):
         """
         Updates b1
         """

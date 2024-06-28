@@ -52,9 +52,9 @@ class Smuggler(Agent):
         """
         Assigns random preferences to the smuggler
         """
-        self.preferences[0] = self.random.randint(0,self.model.num_features-1)
-        self.preferences[1] = self.random.randint(0,self.model.num_features-1)
-        if self.model.print: print(f"preferences: {self.preferences[0],self.preferences[1]}")
+        for i in range(self.model.num_features):
+            self.preferences[i] = self.random.randint(0,self.model.i_per_feat-1)
+        if self.model.print: print(f"preferences: {self.preferences}")
 
     def possible_distributions(self, n, m):
         """
@@ -73,12 +73,12 @@ class Smuggler(Agent):
         """
         Determines per action how many features the used containers have that are not preferred ones
         """
-        not_pref = [0] * len(self.possible_actions)
+        non_pref = [0] * len(self.possible_actions)
         for (idx,action) in enumerate(self.possible_actions):
             for i in action:
-                if self.model.get_agents_of_type(Container)[i].features[0] != self.preferences[0]: not_pref[idx] +=1
-                if self.model.get_agents_of_type(Container)[i].features[1] != self.preferences[1]: not_pref[idx] +=1
-        return not_pref
+                for feat in range(len(self.preferences)):
+                    if self.model.get_agents_of_type(Container)[i].features[feat] != self.preferences[feat]: non_pref[idx] +=1
+        return non_pref
     
     def calculate_phi(self, beliefs):
         """
