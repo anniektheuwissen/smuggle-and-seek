@@ -305,11 +305,11 @@ class Police(Agent):
         n = self.model.i_per_feat ** self.model.num_features
 
         self.update_expected_amount_catch()
-        self.update_b0(f, n)
+        self.update_b0()
 
         if self.tom_order > 0:
             self.update_expected_preferences()
-            self.update_b1(f, n)
+            self.update_b1()
             self.c1 = self.update_confidence(self.c1)
 
         if self.tom_order > 1:

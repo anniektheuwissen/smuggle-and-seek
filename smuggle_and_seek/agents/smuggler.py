@@ -180,7 +180,7 @@ class Smuggler(Agent):
         if (self.num_smuggles - self.successful_smuggles) > 0:
             self.average_amount_catch = self.failed_packages / self.failed_smuggles
         
-    def update_b0(self, f, n):
+    def update_b0(self):
         """
         Updates b0
         """
@@ -201,7 +201,7 @@ class Smuggler(Agent):
                 self.b0[c] = (1 - self.learning_speed2) * self.b0[c] + (c not in self.succes_actions) * self.learning_speed2
         if self.model.print: print(self.b0)
 
-    def update_b1(self, f, n):
+    def update_b1(self):
         """
         Updates b1
         """
@@ -250,8 +250,8 @@ class Smuggler(Agent):
 
         self.check_result_actions()
         self.update_average_amount_per_catch()
-        self.update_b0(f, n)
+        self.update_b0()
 
         if self.tom_order > 0:
-            self.update_b1(f, n)
+            self.update_b1()
             self.update_c1()
