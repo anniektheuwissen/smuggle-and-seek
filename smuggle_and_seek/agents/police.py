@@ -219,22 +219,12 @@ class Police(Agent):
         Updates the expected preferences of the smuggler
         """
         containers = self.model.get_agents_of_type(Container)
-        checked = [[0]*self.model.i_per_feat]*self.model.num_features
+        checked = [[0 for _ in range(self.model.i_per_feat)] for _ in range(self.model.num_features)]
         for container in containers:
             for feat in range(len(container.features)):
                 checked[feat][container.features[feat]] += container.used_succ_by_c
         for i in range(len(self.expected_preferences)):
             self.expected_preferences[i] = checked[i].index(max(checked[i]))
-        # checked_country0 = 0; checked_country1 = 0; checked_cargo0 = 0; checked_cargo1 = 0
-        # for container in containers:
-        #     if container.features[0] == 0: checked_country0 += container.used_succ_by_c
-        #     if container.features[0] == 1: checked_country1 += container.used_succ_by_c
-        #     if container.features[1] == 0: checked_cargo0 += container.used_succ_by_c
-        #     if container.features[1] == 1: checked_cargo1 += container.used_succ_by_c
-        # if checked_country0 > checked_country1: self.expected_preferences[0] = 0
-        # else: self.expected_preferences[0] = 1
-        # if checked_cargo0 > checked_cargo1: self.expected_preferences[1] = 0
-        # else: self.expected_preferences[1] = 1
         if self.model.print: print(f"expected preferences are: {self.expected_preferences}")
 
     def update_b1(self):

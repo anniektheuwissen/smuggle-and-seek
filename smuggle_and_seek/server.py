@@ -4,7 +4,7 @@ from .model import SmuggleAndSeekGame, Smuggler, Police, Container
 
 # Adjust this variable when you want to adjust the grid size:
 ############################################################
-num_items_per_feature = 3
+num_items_per_feature = 2
 ############################################################
 
 def color_variant(hex_color, brightness_offset=1):

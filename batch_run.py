@@ -18,7 +18,7 @@ params = {
 results = mesa.batch_run(
     SmuggleAndSeekGame,
     parameters=params,
-    iterations=1000,
+    iterations=100,
     display_progress=True,
 )
 

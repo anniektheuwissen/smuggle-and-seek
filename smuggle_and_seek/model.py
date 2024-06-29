@@ -96,7 +96,6 @@ class SmuggleAndSeekGame(mesa.Model):
             for container in self.get_agents_of_type(Container):
                 if container.unique_id == used_containers:
                     smuggled_drugs += container.num_packages
-                    non_preferences_used = 0
                     for i in range(len(container.features)):
                         non_preferences_used += (container.features[i] != smuggler.preferences[i])
         smuggler.points += 2*smuggled_drugs  - c_s*containers_used - f_s*non_preferences_used
