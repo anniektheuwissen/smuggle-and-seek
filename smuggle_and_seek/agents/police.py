@@ -255,15 +255,18 @@ class Police(Agent):
         if self.model.print: print("police are updating beliefs b2 from ... to ...:")
         if self.model.print: print(self.b2)
         if len(self.succes_actions) > 0:
-            a = (self.learning_speed1/f)/len(self.succes_actions)
             for c in range(len(self.b2)):
-                cf_succ = 0
-                for c_star in self.succes_actions: cf_succ += self.common_features(c, c_star)
-                self.b2[c] = (1 - self.learning_speed1) * self.b2[c] + a * cf_succ
+                if c in self.succes_actions:
+                    self.b2[c] = (1 - self.learning_speed1) * self.b2[c] + self.learning_speed1
+                else: 
+                    similarity = 0
+                    for cstar in self.succes_actions:
+                        similarity += self.similarity(c,cstar)
+                    similarity /= len(self.succes_actions)
+                    self.b2[c] = (1 - self.learning_speed1) * self.b2[c] + similarity * self.learning_speed1
         elif len(self.failed_actions) > 0:
-            b = (self.learning_speed1/(2*n))/(n - len(self.failed_actions))
-            for c in range(len(self.b1)):
-                self.b2[c] = (1 - self.learning_speed1/(2*n)) * self.b2[c] + b * (c not in self.failed_actions)
+            for c in range(len(self.b2)):
+                self.b2[c] = (1 - self.learning_speed2) * self.b1[c] - (c in self.failed_actions) * self.learning_speed2
         if self.model.print: print(self.b2)
 
     def update_confidence(self, confidence):
