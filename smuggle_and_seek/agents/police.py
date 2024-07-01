@@ -248,7 +248,7 @@ class Police(Agent):
                 self.b1[c] = (1 - self.learning_speed2) * self.b1[c] + (c in self.failed_actions) * self.learning_speed2
         if self.model.print: print(self.b1)
     
-    def update_b2(self, f, n):
+    def update_b2(self):
         """
         Updates b2
         """
@@ -294,8 +294,6 @@ class Police(Agent):
         """
         Updates its beliefs, confidence and expectations
         """
-        f = self.model.i_per_feat * self.model.num_features
-        n = self.model.i_per_feat ** self.model.num_features
 
         self.update_expected_amount_catch()
         self.update_b0()
@@ -306,5 +304,5 @@ class Police(Agent):
             self.c1 = self.update_confidence(self.c1)
 
         if self.tom_order > 1:
-            self.update_b2(f,n)
+            self.update_b2()
             self.c2 = self.update_confidence(self.c2)
