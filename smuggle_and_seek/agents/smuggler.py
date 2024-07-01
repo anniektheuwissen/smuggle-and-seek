@@ -245,8 +245,6 @@ class Smuggler(Agent):
         """
         Updates its beliefs and confidence
         """
-        f = self.model.i_per_feat * self.model.num_features
-        n = self.model.i_per_feat ** self.model.num_features
 
         self.check_result_actions()
         self.update_average_amount_per_catch()

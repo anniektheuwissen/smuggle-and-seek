@@ -43,9 +43,8 @@ class SmuggleAndSeekGame(mesa.Model):
             self.schedule.add(container)
             if features[-1] == (self.i_per_feat-1):
                 for j in range(0,self.num_features):
-                    if features[-(1+j)] != (self.i_per_feat-1): features[-(1+j)] += 1; features[-(j):] = [0] * len(features[-(j):])
-            else: features[-1] += 1
-            
+                    if features[-(1+j)] != (self.i_per_feat-1): features[-(1+j)] += 1; features[-(j):] = [0] * len(features[-(j):]); break
+            else: features[-1] += 1  
 
         # Add agents to the game: one smuggler and one police, and add both to the running schedule
         smuggler = Smuggler(i+1, self, tom_smuggler, learning_speed1, learning_speed2, m)
