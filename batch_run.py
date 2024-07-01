@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from smuggle_and_seek.model import SmuggleAndSeekGame
 
 params = {
-    "k": 2,
+    "k": 3,
     "l": 2,
     "m": 5,
     "tom_police": range(0,3,1),
