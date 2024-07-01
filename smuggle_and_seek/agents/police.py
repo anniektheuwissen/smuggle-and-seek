@@ -225,7 +225,7 @@ class Police(Agent):
                 checked[feat][container.features[feat]] += container.used_succ_by_c
         for i in range(len(self.expected_preferences)):
             self.expected_preferences[i] = checked[i].index(max(checked[i]))
-        print(f"expected preferences are: {self.expected_preferences}")
+        if self.model.print: print(f"expected preferences are: {self.expected_preferences}")
 
     def update_b1(self):
         """
