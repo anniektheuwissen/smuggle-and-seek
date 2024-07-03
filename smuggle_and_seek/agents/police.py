@@ -119,15 +119,6 @@ class Police(Agent):
         """
         Chooses an action associated with second-order theory of mind reasoning
         """
-        if self.model.print:
-            print("")
-            print("police' TOM2 state:")
-            print(f"b0 is : {self.b0}")
-            print(f"b1 is : {self.b1}")
-            print(f"b2 is : {self.b2}")
-            print(f"bp is : {self.expected_preferences}")
-            print(f"c1 is : {self.c1}")
-            print(f"c2 is : {self.c2}")
         # Make prediction about behavior of opponent
         #   First make prediction about prediction that tom1 smuggler would make about behavior police
         self.calculate_phi(self.b2, self.b2, "simulation2")
@@ -218,6 +209,7 @@ class Police(Agent):
         """
         Updates the expected preferences of the smuggler
         """
+        if self.model.print: print("police are updating expected preferences beliefs bp to ...:")
         containers = self.model.get_agents_of_type(Container)
         checked = [[0 for _ in range(self.model.i_per_feat)] for _ in range(self.model.num_features)]
         for container in containers:

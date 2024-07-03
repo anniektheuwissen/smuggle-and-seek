@@ -97,7 +97,7 @@ class Smuggler(Agent):
                 for aj in range(len(beliefs)):
                     if aj in action_ai: temp_phi[idx] += beliefs[aj] * (2*(self.num_packages - dist[action_ai.index(aj)]) - c_s*len(action_ai) - f*self.actions_nonpref[ai])
                     else: temp_phi[idx] += beliefs[aj] * (2*self.num_packages - c_s*len(action_ai) - f*self.actions_nonpref[ai])
-            if self.model.print: print(f"{ai}, {action_ai}: {temp_phi}")
+            # if self.model.print: print(f"{ai}, {action_ai}: {temp_phi}")
             self.phi[ai] = max(temp_phi)
             self.phi[ai] = round(self.phi[ai], 4)
             self.best_distributions_per_ai[ai] = self.possible_dist[len(action_ai)-1][random.choice(np.where(temp_phi == max(temp_phi))[0])]
@@ -127,7 +127,7 @@ class Smuggler(Agent):
         Chooses an action associated with zero-order theory of mind reasoning
         """
         self.calculate_phi(self.b0)
-        if self.model.print: print(f"best distributions per ai : {self.best_distributions_per_ai}")
+        # if self.model.print: print(f"best distributions per ai : {self.best_distributions_per_ai}")
         if self.model.print: print(f"smugglers phi is : {self.phi}")
         self.choose_action_softmax()
 
@@ -148,7 +148,7 @@ class Smuggler(Agent):
         # Make decision
         # Calculate the subjective value phi for each action, and choose the action with the highest.
         self.calculate_phi(W)
-        if self.model.print: print(f"best distributions per ai : {self.best_distributions_per_ai}")
+        # if self.model.print: print(f"best distributions per ai : {self.best_distributions_per_ai}")
         if self.model.print: print(f"smugglers phi is : {self.phi}")
         self.choose_action_softmax()
 

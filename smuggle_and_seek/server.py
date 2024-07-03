@@ -4,7 +4,7 @@ from .model import SmuggleAndSeekGame, Smuggler, Police, Container
 
 # Adjust this variable when you want to adjust the grid size:
 ############################################################
-num_items_per_feature = 3
+num_items_per_feature = 2
 ############################################################
 
 def color_variant(hex_color, brightness_offset=1):
@@ -211,18 +211,18 @@ model_params = {
         choices=[0,1],
     ),
     "learning_speed1": mesa.visualization.Slider(
-        "Learning speed",
+        "Learning speed1",
         value=0.2,
         min_value=0,
         max_value=1,
         step=0.1
     ),
     "learning_speed2": mesa.visualization.Slider(
-        "Learning speed",
-        value=0.1,
+        "Learning speed2",
+        value=0.05,
         min_value=0,
         max_value=1,
-        step=0.1
+        step=0.01
     ),
 }
 
