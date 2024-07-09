@@ -181,13 +181,14 @@ chart1 = mesa.visualization.ChartModule(
     [
         {"Label": "police points", "Color": "#a3c3b1"},
         {"Label": "smuggler points", "Color": "#c8a9a6"},
-    ]
+    ],
 )
+
 chart2 = mesa.visualization.ChartModule(
     [
         {"Label": "police points averaged", "Color": "#a3c3b1"},
         {"Label": "smuggler points averaged", "Color": "#c8a9a6"},
-    ]
+    ],
 )
 
 model_params = {

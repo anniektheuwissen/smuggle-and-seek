@@ -1,4 +1,5 @@
 import mesa
+import numpy as np
 
 from .agents.police import Police
 from .agents.smuggler import Smuggler
@@ -22,7 +23,7 @@ class SmuggleAndSeekGame(mesa.Model):
         """
         super().__init__()
         self.print = False
-
+        
         # Initialize grid and schedules
         self.grid = mesa.space.MultiGrid(l, l, True)
         self.running_schedule = mesa.time.BaseScheduler(self)
@@ -63,7 +64,6 @@ class SmuggleAndSeekGame(mesa.Model):
                 "successful smuggles": lambda m: m.get_agents_of_type(Smuggler)[0].successful_smuggles,
                 "caught packages": lambda m: m.get_agents_of_type(Police)[0].catched_packages,
                 "smuggled packages": lambda m: m.get_agents_of_type(Smuggler)[0].successful_smuggled_packages,
-                "features used by smuggler that are not preferred": lambda m: m.get_agents_of_type(Smuggler)[0].nonpref_used,
                 }, 
             agent_reporters={
                 "used by smugglers": lambda a: getattr(a, "used_by_s", 0),
@@ -86,27 +86,16 @@ class SmuggleAndSeekGame(mesa.Model):
         # Retrieve the smuggler and police and their costs parameters
         smuggler = self.get_agents_of_type(Smuggler)[0]
         police = self.get_agents_of_type(Police)[0]
-        c_s = smuggler.container_costs; f_s = smuggler.feature_costs; c_c = police.container_costs
 
-        # Distribute points to the smuggler based on the amount of successfully smuggled drugs, the amount of 
-        # containers used and the amount of features of used containers that were not preferred ones.
-        smuggled_drugs = 0; containers_used = len(smuggler.action); non_preferences_used = 0
-        for used_containers in smuggler.action:
-            for container in self.get_agents_of_type(Container):
-                if container.unique_id == used_containers:
-                    smuggled_drugs += container.num_packages
-                    for i in range(len(container.features)):
-                        non_preferences_used += (container.features[i] != smuggler.preferences[i])
-        smuggler.points += 2*smuggled_drugs  - c_s*containers_used - f_s*non_preferences_used
-        smuggler.points_queue.pop(0); smuggler.points_queue.append(2*smuggled_drugs  - c_s*containers_used - f_s*non_preferences_used)
+        smuggler_reward = smuggler.reward_value * (self.packages_per_day - np.dot(smuggler.action, police.action)) - np.dot(smuggler.costs_vector,[int(c>0) for c in smuggler.action])
+        smuggler.points += int(smuggler_reward)
+        smuggler.points_queue.pop(0); smuggler.points_queue.append(smuggler_reward)
         if self.print: print(f"smuggler's points:{smuggler.points}")
         
-        # Distribute points to the police based on the amount of succesfully caught drugs and the amount of
-        # containers checked.
-        caught_drugs = (self.packages_per_day - smuggled_drugs); containers_checked = len(police.action)
-        police.points += 2*caught_drugs - c_c*containers_checked
-        police.points_queue.pop(0); police.points_queue.append(2*caught_drugs - c_c*containers_checked)
-        if self.print: print(f"police points:{police.points}")
+        police_reward = (police.reward_value/police.expected_amount_catch) * np.dot(police.action, smuggler.action) - np.dot(police.costs_vector,police.action)
+        police.points += int(police_reward)
+        police.points_queue.pop(0); police.points_queue.append(police_reward)
+        if self.print: print(f"police's points:{police.points}")
 
     def agents_update_beliefs(self):
         """
@@ -127,8 +116,9 @@ class SmuggleAndSeekGame(mesa.Model):
         self.empty_containers()
         self.day += 1
         self.datacollector.collect(self)
+
         if self.print: print("")
 
         # To be able to run a batch run:
-        if self.day == 1000: self.running = False
+        if self.day == 365: self.running = False
         

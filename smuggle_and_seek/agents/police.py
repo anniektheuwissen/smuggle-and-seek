@@ -1,14 +1,14 @@
-import numpy as np
 from more_itertools import powerset
+import itertools
 
 from .container import Container
-from .agent import Agent
+from .agent import SmuggleAndSeekAgent
 
 """
 police class: the police agent that tries to capture as many drugs as possible from the containers. They
 can have different levels of ToM reasoning.
 """
-class Police(Agent):
+class Police(SmuggleAndSeekAgent):
     def __init__(self, unique_id, model, tom_order, learning_speed1, learning_speed2):
         """
         Initializes the agent police
@@ -19,162 +19,61 @@ class Police(Agent):
         :param learning_speed2: The speed at which the agent learns in less informative situations
         """
         super().__init__(unique_id, model, tom_order, learning_speed1, learning_speed2)
-        self.container_costs = 4
 
         self.num_checks = 0
         self.successful_checks = 0
         self.catched_packages = 0
 
         self.expected_amount_catch = 1
-        self.expected_preferences = {}
-        for i in range(self.model.num_features):
-            self.expected_preferences[i] = self.random.randint(0,self.model.i_per_feat-1)
+        self.expected_preferences = self.initialize_expected_preferences()
 
         num_cont = len(self.model.get_agents_of_type(Container))
-        self.prediction_a2 = np.zeros(len(self.prediction_a1))
-        self.b2 = np.array([1/num_cont] * num_cont)
-        self.c1_sim = 0.8
-        self.c2 = 0
+        # Define possible actions, and reward and costs vectors
+        self.possible_actions = list(map(list, itertools.product([0, 1], repeat=num_cont)))
+        self.possible_actions.remove([0]*num_cont)
+        self.reward_value = 2 * self.expected_amount_catch
+        self.costs_vector = [4] * num_cont
+
+        self.simulationpayoff_o = self.create_simulationpayoff_vector()
+        self.simulationpayoff_a = [[-1*self.expected_amount_catch, 1*self.expected_amount_catch]] * num_cont
+
+
+    def initialize_expected_preferences(self):
+        expected_preferences = {}
+        for i in range(self.model.num_features):
+            expected_preferences[i] = self.random.randint(0,self.model.i_per_feat-1)
+        return expected_preferences
     
-    def reward_function(self, c, aj):
-        """
-        Returns the reward based on the reward function of police
-        :param c: The container that police use
-        :param aj: The action of the smuggler
-        """
-        c_c = self.container_costs
-        return (2*self.expected_amount_catch*(c in self.possible_actions[aj]) - c_c*len(self.possible_actions[aj]))
-    
-    def simulation_reward_function(self, c, aj):
-        """
-        Returns the reward based on the simulated reward function of the smuggler
-        :param c: The container that police use
-        :param aj: The action of the smuggler
-        """
-        non_pref = 0
-        for i in range(len(self.expected_preferences)):
-            non_pref += (self.model.get_agents_of_type(Container)[aj].features[i] != self.expected_preferences[i])
-        return (-1*self.expected_amount_catch*(aj == c) +1*self.expected_amount_catch*(aj != c) - non_pref)
-
-    def smugglers_simulation_reward_function(self, c, ai):
-        return (1*self.expected_amount_catch*(ai == c) -1*self.expected_amount_catch*(ai != c))
-
-    def calculate_phi(self, actions, beliefs, reward_function):
-        """
-        Calculates the subjective value phi of all possible actions
-        :param actions: The possible actions for which to calculate a phi value
-        :param beliefs: The beliefs based on which the phi values have to be calculated
-        :param reward_function: The reward function with which the phi values have to be calculated
-        """
-        phi = np.zeros(len(actions))
-        
-        for ai in range(len(actions)):
-            for c in range(len(beliefs)):
-                if reward_function == "normal": reward = self.reward_function(c, ai)
-                elif reward_function == "simulation": reward = self.simulation_reward_function(c, ai)
-                elif reward_function == "simulation2": reward = self.smugglers_simulation_reward_function(c, ai)
-                phi[ai] += beliefs[c] * reward
-
-        if reward_function == "normal": self.phi = phi
-        elif reward_function == "simulation" or reward_function == "simulation2": self.simulation_phi = phi
-
-    def choose_action_softmax(self):
-        """
-        Chooses an action to play based on the softmax over the subjective value phi
-        """
-        softmax_phi = np.exp(self.phi) / np.sum(np.exp(self.phi))
-        if self.model.print: print(f"police softmax of phi is : {softmax_phi}")
-        action_indexes = [i for i in range(0,len(self.possible_actions))]
-        index_action = np.random.choice(action_indexes, 1, p=softmax_phi)[0]
-        self.action = self.possible_actions[index_action]
-
-    def step_tom0(self):
-        """
-        Chooses an action associated with zero-order theory of mind reasoning
-        """
-        self.calculate_phi(self.possible_actions, self.b0, "normal")
-        if self.model.print: print(f"custom's phi is : {self.phi}")
-        self.choose_action_softmax()
-
-    def step_tom1(self):
-        """
-        Chooses an action associated with first-order theory of mind reasoning
-        """
-        # Make prediction about behavior of opponent
-        self.calculate_phi(self.b1, self.b1, "simulation")
-        if self.model.print: print(f"custom's simulation phi is : {self.simulation_phi}")
-        self.prediction_a1 = np.exp(self.simulation_phi) / np.sum(np.exp(self.simulation_phi))     
-        if self.model.print: print(f"prediction a1 is : {self.prediction_a1}")
-
-        # Merge prediction with zero-order belief
-        W = self.merge_prediction(self.prediction_a1, self.b0, self.c1)
-        if self.model.print: print(f"W is : {W}")
-
-        # Calculate the subjective value phi for each action, and choose the action with the highest.
-        self.calculate_phi(self.possible_actions, W, "normal")
-        if self.model.print: print(f"custom's phi is : {self.phi}")
-        self.choose_action_softmax()
-
-    def step_tom2(self):
-        """
-        Chooses an action associated with second-order theory of mind reasoning
-        """
-        # Make prediction about behavior of opponent
-        #   First make prediction about prediction that tom1 smuggler would make about behavior police
-        self.calculate_phi(self.b2, self.b2, "simulation2")
-        if self.model.print: print(f"custom's prediction of smuggler's simulation phi is : {self.simulation_phi}")
-        self.prediction_a1 = np.exp(self.simulation_phi) / np.sum(np.exp(self.simulation_phi)) 
-        if self.model.print: print(f"custom's prediction of smuggler's prediction a1 is : {self.prediction_a1}")
-        #   Merge this prediction that tom1 smuggler would make with b1 (represents b0 of smuggler) 
-        W = self.merge_prediction(self.prediction_a1, self.b1, self.c1_sim)
-        if self.model.print: print(f"W is : {W}")
-
-        #   Then use this prediction of integrated beliefs of the opponent to predict the behavior of the opponent
-        self.calculate_phi(W, W, "simulation")
-        if self.model.print: print(f"custom's simulation phi is : {self.simulation_phi}")
-        self.prediction_a2 = np.exp(self.simulation_phi) / np.sum(np.exp(self.simulation_phi))     
-        if self.model.print: print(f"prediction a2 is : {self.prediction_a2}")
-
-        # Merge prediction with integrated beliefs of first-order prediction and zero-order beliefs
-        # Make first-order prediction about behavior of opponent
-        if self.model.print: print(f"police are calculating first-order prediction.....")
-        self.calculate_phi(self.b1, self.b1, "simulation")
-        if self.model.print: print(f"custom's simulation phi is : {self.simulation_phi}")
-        self.prediction_a1 = np.exp(self.simulation_phi) / np.sum(np.exp(self.simulation_phi))     
-        if self.model.print: print(f"prediction a1 is : {self.prediction_a1}")
-        # Merge first-order prediction with zero-order belief
-        W = self.merge_prediction(self.prediction_a1, self.b0, self.c1)
-        if self.model.print: print(f"W is : {W}")
-        # Merge second-order prediction with integrated belief
-        W2 = self.merge_prediction(self.prediction_a2, W, self.c2)
-        if self.model.print: print(f"W2 is : {W2}")
-
-        # Calculate the subjective value phi for each action, and choose the action with the highest.
-        self.calculate_phi(self.possible_actions, W2, "normal")
-        if self.model.print: print(f"custom's phi is : {self.phi}")
-        self.choose_action_softmax()
-
+    def create_simulationpayoff_vector(self):
+        containers = self.model.get_agents_of_type(Container)
+        simulationpayoff = [[1 * self.expected_amount_catch, -1 * self.expected_amount_catch]] * len(containers)
+        for idx in range(len(simulationpayoff)):
+            for i in range(len(simulationpayoff[idx])):
+                simulationpayoff[idx][i] -= sum([(containers[idx].features[j] != self.expected_preferences[j]) for j in range(len(self.expected_preferences))])
+        return simulationpayoff
 
     def take_action(self):
         """
         Performs action and find out succes/failure of action
         """
-        if self.model.print: print(f"checks containers {self.action}")
+        if self.model.print: print(f"takes action {self.action}")
         self.failed_actions = []; self.succes_actions = []
-        for ai in self.action:
-            container = self.model.get_agents_of_type(Container)[ai]
-            container.used_by_c += 1
-            if (container.num_packages != 0):
-                if self.model.print: print(f"caught {container.num_packages} packages!!")
-                self.catched_packages += container.num_packages
-                self.succes_actions.append(ai)
-                container.num_packages = 0
-                container.used_succ_by_c += 1
-            else:
-                if self.model.print: print("wooops caught nothing")
-                self.failed_actions.append(ai)
+        containers = self.model.get_agents_of_type(Container)
+        for (c,ai) in enumerate(self.action):
+            if ai>0:
+                self.num_checks += 1
+                containers[c].used_by_c += 1
+                if (containers[c].num_packages != 0):
+                    if self.model.print: print(f"caught {containers[c].num_packages} packages!!")
+                    self.catched_packages += containers[c].num_packages
+                    self.succes_actions.append(c)
+                    containers[c].num_packages = 0
+                    containers[c].used_succ_by_c += 1
+                else:
+                    if self.model.print: print("wooops caught nothing")
+                    self.failed_actions.append(c)
         if self.model.print: print(f"police succesfull actions are: {self.succes_actions}, and failed actions are: {self.failed_actions}")
-        self.num_checks += len(self.action); self.successful_checks += len(self.succes_actions)
+        self.successful_checks += len(self.succes_actions)
         
     def update_expected_amount_catch(self):
         """
@@ -183,6 +82,9 @@ class Police(Agent):
         if self.successful_checks > 0:
             self.expected_amount_catch = self.catched_packages / self.successful_checks
             if self.model.print: print(f"expected amount catch is: {self.expected_amount_catch}")
+
+        for i in range(len(self.simulationpayoff_a)): self.simulationpayoff_a[i] = [-1*self.expected_amount_catch, 1*self.expected_amount_catch]
+        self.reward_value = 2 * self.expected_amount_catch
 
     def update_b0(self):
         """
@@ -267,18 +169,18 @@ class Police(Agent):
         """
         if self.model.print: print("police are updating confidence from ... to ...:")
         if self.model.print: print(confidence)
-        for a in self.action:
-            action_index = self.possible_actions.index(a)
-            if confidence == self.c1: prediction = self.prediction_a1[action_index]
-            elif confidence == self.c2: prediction = self.prediction_a2[action_index]
-            if prediction < 0.25:
-                update = 0.25 - prediction
-                if a in self.failed_actions: confidence = (1 - update) * confidence + update;
-                if a in self.succes_actions: confidence = (1 - update) * confidence;
-            if prediction > 0.25:
-                update = prediction - 0.25
-                if a in self.failed_actions: confidence = (1 - update) * confidence;
-                if a in self.succes_actions: confidence = (1 - update) * confidence + update;
+        for (c,a) in enumerate(self.action):
+            if a>0:
+                if confidence == self.conf1: prediction = self.strategy.prediction_a1[c]
+                elif confidence == self.conf2: prediction = self.strategy.prediction_a2[c]
+                if prediction < 0.25:
+                    update = 0.25 - prediction
+                    if c in self.failed_actions: confidence = (1 - update) * confidence + update;
+                    if c in self.succes_actions: confidence = (1 - update) * confidence;
+                if prediction > 0.25:
+                    update = prediction - 0.25
+                    if c in self.failed_actions: confidence = (1 - update) * confidence;
+                    if c in self.succes_actions: confidence = (1 - update) * confidence + update;
         if self.model.print: print(confidence)
         return confidence
 
@@ -290,11 +192,23 @@ class Police(Agent):
         self.update_expected_amount_catch()
         self.update_b0()
 
-        if self.tom_order > 0:
+        if self.strategy.strategy == "tom1" or self.strategy.strategy == "tom2":
             self.update_expected_preferences()
             self.update_b1()
-            self.c1 = self.update_confidence(self.c1)
+            self.conf1 = self.update_confidence(self.conf1)
 
-        if self.tom_order > 1:
+        if self.strategy.strategy == "tom2":
             self.update_b2()
-            self.c2 = self.update_confidence(self.c2)
+            self.conf2 = self.update_confidence(self.conf2)
+    
+    def step(self):
+        """
+        Performs one step by choosing an action associated with its order of theory of mind reasoning,
+        and taking this action
+        """
+        # Choose action based on order of tom reasoning
+        self.action = self.strategy.choose_action(self.possible_actions, self.b0, self.b1, self.b2, self.conf1, self.conf2, 
+                                                  self.reward_value, self.costs_vector, self.simulationpayoff_o, self.simulationpayoff_a)
+
+        # Take action
+        self.take_action()

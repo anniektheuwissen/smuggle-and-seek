@@ -3,11 +3,14 @@ import numpy as np
 from more_itertools import powerset
 
 from .container import Container
+from .strategies.tom0 import Tom0
+from .strategies.tom1 import Tom1
+from .strategies.tom2 import Tom2
 
 """
-Agent class: the police agent and smuggler agent inherit from this class
+SmuggleAndSeekAgent class: the police agent and smuggler agent inherit from this class
 """
-class Agent(mesa.Agent):
+class SmuggleAndSeekAgent(mesa.Agent):
     def __init__(self, unique_id, model, tom_order, learning_speed1, learning_speed2):
         """
         Initializes the agent 
@@ -18,35 +21,27 @@ class Agent(mesa.Agent):
         :param learning_speed2: The speed at which the agent learns in less informative situations
         """
         super().__init__(unique_id, model)
-        self.tom_order = tom_order
+        match tom_order:
+            case 0: self.strategy = Tom0()
+            case 1: self.strategy = Tom1()
+            case 2: self.strategy = Tom2()
+
         self.points = 0
         self.points_queue = [0] * 10
         self.action = []
         self.failed_actions = []
         self.succes_actions = []
 
-        # Define all possible actions
-        num_cont = len(self.model.get_agents_of_type(Container))
-        self.possible_actions = list(map(list, powerset(np.arange(num_cont))))[1:]
-
-        # Initialize learning speed, belief vectors, value phi, prediction and confidence needed for tom_reasoning
         self.learning_speed1 = learning_speed1
         self.learning_speed2 = learning_speed2
+
+        num_cont = len(self.model.get_agents_of_type(Container))
+        # Initialize belief vectors and confidence needed for tom_reasoning
         self.b0 = np.array([1/num_cont] * num_cont)
         self.b1 = np.array([1/num_cont] * num_cont)
-        self.phi = np.zeros(2**num_cont-1)
-        self.simulation_phi = np.zeros(len(self.b1))
-        self.prediction_a1 = np.zeros(num_cont)
-        self.c1 = 0
-
-    def merge_prediction(self, prediction, belief, confidence):
-        """
-        Merges prediction with its belief b0
-        """
-        W = np.zeros(len(belief))
-        for c in range(len(belief)):
-            W[c] = confidence * prediction[c] + (1-confidence) * belief[c]
-        return W
+        self.b2 = np.array([1/num_cont] * num_cont)
+        self.conf1 = 0
+        self.conf2 = 0
 
     def similarity(self, c1, c2):
         container_c1 = self.model.get_agents_of_type(Container)[c1]; container_c2 = self.model.get_agents_of_type(Container)[c2]
@@ -55,41 +50,3 @@ class Agent(mesa.Agent):
             similarity += (container_c1.features[i] == container_c2.features[i])
         similarity /= len(container_c1.features)
         return similarity
-
-    def step_tom0(self):
-        """
-        Chooses an action associated with zero-order theory of mind reasoning
-        """
-        pass
-
-    def step_tom1(self):
-        """
-        Chooses an action associated with first-order theory of mind reasoning
-        """
-        pass
-
-    def step_tom2(self):
-        """
-        Chooses an action associated with second-order theory of mind reasoning
-        """
-        pass
-
-    def take_action(self):
-        """
-        Performs chosen action
-        """
-        pass
-    
-    def step(self):
-        """
-        Performs one step by choosing an action associated with its order of theory of mind reasoning,
-        and taking this action
-        """
-        # Choose action based on order of tom reasoning
-        if self.tom_order == 0: self.step_tom0()
-        elif self.tom_order == 1: self.step_tom1()
-        elif self.tom_order == 2: self.step_tom2()
-        else: print("ERROR: Agent cannot have a theory of mind reasoning above the second order")
-
-        # Take action
-        self.take_action()

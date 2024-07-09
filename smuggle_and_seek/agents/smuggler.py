@@ -1,15 +1,14 @@
-import random
-import numpy as np
 from more_itertools import powerset
+import itertools
 
 from .container import Container
-from .agent import Agent
+from .agent import SmuggleAndSeekAgent
 
 """
 Smuggler class: the smuggler agent that tries to smuggle as many drugs as possible through the containers. They
 have preferences for certain containers, and they can have different levels of ToM reasoning.
 """
-class Smuggler(Agent):
+class Smuggler(SmuggleAndSeekAgent):
     def __init__(self, unique_id, model, tom_order, learning_speed1, learning_speed2, packages):
         """
         Initializes the agent Smuggler
@@ -20,12 +19,7 @@ class Smuggler(Agent):
         :param learning_speed2: The speed at which the agent learns in less informative situations
         """
         super().__init__(unique_id, model, tom_order, learning_speed1, learning_speed2)
-        self.container_costs = 3
-        self.feature_costs = 1
-
-        self.distribution = []
-        self.preferences = {}
-        self.add_preferences()
+        self.preferences = self.add_preferences()
         self.num_packages = packages
 
         self.num_smuggles = 0
@@ -33,135 +27,45 @@ class Smuggler(Agent):
         self.successful_smuggled_packages = 0
         self.failed_smuggles = 0
         self.failed_packages = 0
-        self.nonpref_used = 0 
+
         self.average_amount_catch = 5
 
-        # Redefine possible actions and phi
-        self.possible_actions = list(filter(lambda x: len(x) <= packages, self.possible_actions))
-        self.phi = self.phi[:len(self.possible_actions)]
-
-        # Define all possible distributions within the actions, and non preferences per actions
         num_cont = len(self.model.get_agents_of_type(Container))
-        self.possible_dist = []
-        for i in range(1, num_cont+1):
-            self.possible_dist.append(self.possible_distributions(self.model.packages_per_day,i))
-        self.actions_nonpref = self.preferences_actions()
-        self.best_distributions_per_ai = [0] * len(self.possible_actions)
+        # Define possible actions, and reward and costs vectors
+        self.possible_actions = list(map(list, [tuple for tuple in itertools.product(range(packages + 1), repeat=num_cont) if sum(tuple) == packages]))
+        self.reward_value = 2
+        self.costs_vector = self.create_costs_vector(3, 1)
+
+        self.simulationpayoff = [[-1*self.average_amount_catch, 1*self.average_amount_catch]] * num_cont
+
+
+    def create_costs_vector(self, container_cost, feature_cost):
+        containers = self.model.get_agents_of_type(Container)
+        costs_vector = [container_cost] * len(containers)
+        for i in range(len(costs_vector)):
+            costs_vector[i] += feature_cost * sum([(containers[i].features[j] != self.preferences[j]) for j in range(len(self.preferences))])
+        return costs_vector
 
     def add_preferences(self):
         """
         Assigns random preferences to the smuggler
         """
+        preferences = {}
         for i in range(self.model.num_features):
-            self.preferences[i] = self.random.randint(0,self.model.i_per_feat-1)
-        if self.model.print: print(f"preferences: {self.preferences}")
-
-    def possible_distributions(self, n, m):
-        """
-        Determines all possible distributions of distributing n packages over m containers
-        :param n The number of packages
-        :param m The number of containers
-        """
-        if m==1: return [[n]]
-        distributions = []
-        for i in range(1, n-m+2):
-            for subcombo in self.possible_distributions(n-i, m-1):
-                distributions.append([i]+subcombo)
-        return distributions
-    
-    def preferences_actions(self):
-        """
-        Determines per action how many features the used containers have that are not preferred ones
-        """
-        non_pref = [0] * len(self.possible_actions)
-        for (idx,action) in enumerate(self.possible_actions):
-            for i in action:
-                for feat in range(len(self.preferences)):
-                    if self.model.get_agents_of_type(Container)[i].features[feat] != self.preferences[feat]: non_pref[idx] +=1
-        return non_pref
-    
-    def calculate_phi(self, beliefs):
-        """
-        Calculates the subjective value phi of all possible actions and all their distributions
-        :param beliefs: The beliefs based on which the phi values have to be calculated
-        """
-        c_s = self.container_costs; f = self.feature_costs
-        self.best_distributions_per_ai = [0] * len(self.possible_actions)
-
-        for ai in range(len(self.possible_actions)):
-            action_ai = self.possible_actions[ai]
-            # Determine the highest phi that can be reached with this action_ai based on different distributions
-            temp_phi = [0] * len(self.possible_dist[len(action_ai)-1])
-            for (idx, dist) in enumerate(self.possible_dist[len(action_ai)-1]):
-                # Loop over all possible actions of the opponent
-                for aj in range(len(beliefs)):
-                    if aj in action_ai: temp_phi[idx] += beliefs[aj] * (2*(self.num_packages - dist[action_ai.index(aj)]) - c_s*len(action_ai) - f*self.actions_nonpref[ai])
-                    else: temp_phi[idx] += beliefs[aj] * (2*self.num_packages - c_s*len(action_ai) - f*self.actions_nonpref[ai])
-            # if self.model.print: print(f"{ai}, {action_ai}: {temp_phi}")
-            self.phi[ai] = max(temp_phi)
-            self.phi[ai] = round(self.phi[ai], 4)
-            self.best_distributions_per_ai[ai] = self.possible_dist[len(action_ai)-1][random.choice(np.where(temp_phi == max(temp_phi))[0])]
-
-    def calculate_simulation_phi(self):
-        """
-        Calculates the subjective value phi of police by using beliefs b1 and a simulated reward function
-        """
-        self.simulation_phi = np.zeros(len(self.b0))
-        for c in range(len(self.b1)):
-            for c_star in range(len(self.b1)):
-                self.simulation_phi[c] += self.b1[c_star] * (1*self.average_amount_catch*(c == c_star) -1*self.average_amount_catch*(c != c_star))
-    
-    def choose_action_softmax(self):
-        """
-        Chooses an action to play based on the softmax over the subjective value phi
-        """
-        softmax_phi = np.exp(self.phi) / np.sum(np.exp(self.phi))
-        if self.model.print: print(f"smugglers softmax of phi is : {softmax_phi}")
-        action_indexes = [i for i in range(0,len(self.possible_actions))]
-        index_action = np.random.choice(action_indexes, 1, p=softmax_phi)[0]
-        self.action = self.possible_actions[index_action]
-        self.distribution = self.best_distributions_per_ai[index_action]
-
-    def step_tom0(self):
-        """
-        Chooses an action associated with zero-order theory of mind reasoning
-        """
-        self.calculate_phi(self.b0)
-        # if self.model.print: print(f"best distributions per ai : {self.best_distributions_per_ai}")
-        if self.model.print: print(f"smugglers phi is : {self.phi}")
-        self.choose_action_softmax()
-
-    def step_tom1(self):
-        """
-        Chooses an action associated with first-order theory of mind reasoning
-        """
-        # Make prediction about behavior of opponent
-        self.calculate_simulation_phi()
-        if self.model.print: print(f"smugglers simulation phi is : {self.simulation_phi}")   
-        self.prediction_a1 = np.exp(self.simulation_phi) / np.sum(np.exp(self.simulation_phi))       
-        if self.model.print: print(f"prediction a1 is : {self.prediction_a1}")
-
-        # Merge prediction with zero-order belief
-        W = self.merge_prediction(self.prediction_a1, self.b0, self.c1)
-        if self.model.print: print(f"W is : {W}")
-
-        # Make decision
-        # Calculate the subjective value phi for each action, and choose the action with the highest.
-        self.calculate_phi(W)
-        # if self.model.print: print(f"best distributions per ai : {self.best_distributions_per_ai}")
-        if self.model.print: print(f"smugglers phi is : {self.phi}")
-        self.choose_action_softmax()
+            preferences[i] = self.random.randint(0,self.model.i_per_feat-1)
+        if self.model.print: print(f"preferences: {preferences}")
+        return preferences
 
     def take_action(self):
         """
         Performs action
         """
-        if self.model.print: print(f"hides in container {self.action} with distribution {self.distribution}")
-        for (idx, ai) in enumerate(self.action):
-            self.model.get_agents_of_type(Container)[ai].used_by_s += 1
-            self.model.get_agents_of_type(Container)[ai].num_packages += self.distribution[idx]
-            self.num_smuggles += 1
-            self.nonpref_used += self.actions_nonpref[ai]
+        if self.model.print: print(f"takes action {self.action}")
+        for (c, ai) in enumerate(self.action):
+            if ai > 0:
+                self.model.get_agents_of_type(Container)[c].used_by_s += 1
+                self.model.get_agents_of_type(Container)[c].num_packages += ai
+                self.num_smuggles += 1
 
     def check_result_actions(self):
         """
@@ -169,16 +73,17 @@ class Smuggler(Agent):
         """
         self.succes_actions = []; self.failed_actions = []
         containers = self.model.get_agents_of_type(Container)
-        for ai in self.action:
-            for container in containers:
-                if container.unique_id == ai:
-                    if container.num_packages == 0: self.failed_actions.append(ai); self.failed_packages += self.distribution[self.action.index(ai)]; self.failed_smuggles += 1
-                    else: self.succes_actions.append(ai); self.successful_smuggled_packages += container.num_packages; self.successful_smuggles += 1
+        for (c,ai) in enumerate(self.action):
+            if ai>0:
+                if containers[c].num_packages == 0: self.failed_actions.append(c); self.failed_packages += ai; self.failed_smuggles += 1
+                else: self.succes_actions.append(c); self.successful_smuggled_packages += ai ; self.successful_smuggles += 1
         if self.model.print: print(f"smuggler successful actions are: {self.succes_actions}, and failed actions are {self.failed_actions}")
     
     def update_average_amount_per_catch(self):
         if (self.num_smuggles - self.successful_smuggles) > 0:
             self.average_amount_catch = self.failed_packages / self.failed_smuggles
+
+        for i in range(len(self.simulationpayoff)): self.simulationpayoff[i] = [-1*self.average_amount_catch, 1*self.average_amount_catch]
         
     def update_b0(self):
         """
@@ -227,19 +132,19 @@ class Smuggler(Agent):
         Updates c1
         """
         if self.model.print: print("smuggler is updating c1 from ... to ...:")
-        if self.model.print: print(self.c1)
-        for a in self.action:
-            action_index = self.possible_actions.index(a)
-            prediction = self.prediction_a1[action_index]
-            if prediction < 0.25:
-                update = 0.25 - prediction
-                if a in self.succes_actions: self.c1 = (1 - update) * self.c1 + update;
-                if a in self.failed_actions: self.c1 = (1 - update) * self.c1;
-            if prediction > 0.25:
-                update = prediction - 0.25
-                if a in self.succes_actions: self.c1 = (1 - update) * self.c1;
-                if a in self.failed_actions: self.c1 = (1 - update) * self.c1 + update;
-        if self.model.print: print(self.c1)
+        if self.model.print: print(self.conf1)
+        for (c,ai) in enumerate(self.action):
+            if ai>0:
+                prediction = self.strategy.prediction_a1[c]
+                if prediction < 0.25:
+                    update = 0.25 - prediction
+                    if c in self.succes_actions: self.conf1 = (1 - update) * self.conf1 + update;
+                    if c in self.failed_actions: self.conf1 = (1 - update) * self.conf1;
+                if prediction > 0.25:
+                    update = prediction - 0.25
+                    if c in self.succes_actions: self.conf1 = (1 - update) * self.conf1;
+                    if c in self.failed_actions: self.conf1 = (1 - update) * self.conf1 + update;
+        if self.model.print: print(self.conf1)
 
     def update_beliefs(self):
         """
@@ -250,6 +155,18 @@ class Smuggler(Agent):
         self.update_average_amount_per_catch()
         self.update_b0()
 
-        if self.tom_order > 0:
+        if self.strategy.strategy == "tom1":
             self.update_b1()
             self.update_c1()
+
+    def step(self):
+        """
+        Performs one step by choosing an action associated with its order of theory of mind reasoning,
+        and taking this action
+        """
+        # Choose action based on order of tom reasoning
+        self.action = self.strategy.choose_action(self.possible_actions, self.b0, self.b1, self.b2, self.conf1, self.conf2, 
+                                                  self.reward_value, self.costs_vector, self.simulationpayoff, None)
+
+        # Take action
+        self.take_action()
