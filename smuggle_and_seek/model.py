@@ -62,6 +62,8 @@ class SmuggleAndSeekGame(mesa.Model):
                 "smuggler points averaged": lambda m: sum(m.get_agents_of_type(Smuggler)[0].points_queue) / 10,
                 "successful checks": lambda m: m.get_agents_of_type(Police)[0].successful_checks,
                 "successful smuggles": lambda m: m.get_agents_of_type(Smuggler)[0].successful_smuggles,
+                "total checks": lambda m: m.get_agents_of_type(Police)[0].failed_checks + m.get_agents_of_type(Police)[0].successful_checks,
+                "total smuggles": lambda m: m.get_agents_of_type(Smuggler)[0].failed_smuggles + m.get_agents_of_type(Smuggler)[0].successful_smuggles,
                 "caught packages": lambda m: m.get_agents_of_type(Police)[0].catched_packages,
                 "smuggled packages": lambda m: m.get_agents_of_type(Smuggler)[0].successful_smuggled_packages,
                 }, 

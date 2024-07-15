@@ -22,6 +22,7 @@ class Police(SmuggleAndSeekAgent):
 
         self.num_checks = 0
         self.successful_checks = 0
+        self.failed_checks = 0
         self.catched_packages = 0
 
         self.expected_amount_catch = 1
@@ -74,6 +75,7 @@ class Police(SmuggleAndSeekAgent):
                     self.failed_actions.append(c)
         if self.model.print: print(f"police succesfull actions are: {self.succes_actions}, and failed actions are: {self.failed_actions}")
         self.successful_checks += len(self.succes_actions)
+        self.failed_checks += len(self.failed_actions)
         
     def update_expected_amount_catch(self):
         """
@@ -97,11 +99,14 @@ class Police(SmuggleAndSeekAgent):
                 if c in self.succes_actions:
                     self.b0[c] = (1 - self.learning_speed1) * self.b0[c] + self.learning_speed1
                 else: 
-                    similarity = 0
-                    for cstar in self.succes_actions:
-                        similarity += self.similarity(c,cstar)
-                    similarity /= len(self.succes_actions)
-                    self.b0[c] = (1 - self.learning_speed1) * self.b0[c] + similarity * self.learning_speed1
+                    if c not in self.failed_actions:
+                        similarity = 0
+                        for cstar in self.succes_actions:
+                            similarity += self.similarity(c,cstar)
+                        similarity /= len(self.succes_actions)
+                        self.b0[c] = (1 - self.learning_speed1) * self.b0[c] + similarity * self.learning_speed1
+                    else:
+                        self.b0[c] = (1 - self.learning_speed1) * self.b0[c]
         elif len(self.failed_actions) > 0:
             for c in range(len(self.b0)):
                 self.b0[c] = (1 - self.learning_speed2) * self.b0[c] + (c not in self.failed_actions) * self.learning_speed2

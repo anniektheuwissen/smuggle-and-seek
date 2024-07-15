@@ -19,12 +19,17 @@ class Tom2(Strategy):
         :param beliefs: The beliefs based on which the phi values have to be calculated
         """
         phi = np.zeros(len(possible_actions))
+
         for (idx,aa) in enumerate(possible_actions):
-            for c in range(len(b0)):
-                ao = [0] * len(b0); ao[c] = 1
-                if len(possible_actions) == (2**len(b0) - 1):
-                    phi[idx] += b0[c] * (reward_value * np.dot(aa, ao) - np.dot(costs_vector,[int(c>0) for c in aa]))
-                else: phi[idx] += b0[c] * (reward_value * (max(possible_actions[0]) - np.dot(aa, ao)) - np.dot(costs_vector,[int(c>0) for c in aa])) #MAX IS PACKAGES MOET MOOIER DAN DIT
+            # for c in range(len(b0)):
+            #     ao = [0] * len(b0); ao[c] = 1
+            #     if len(possible_actions) == (2**len(b0) - 1):
+            #         phi[idx] += b0[c] * (reward_value * np.dot(aa, ao) - np.dot(costs_vector,[int(c>0) for c in aa]))
+            #     else: phi[idx] += b0[c] * (reward_value * (max(possible_actions[0]) - np.dot(aa, ao)) - np.dot(costs_vector,[int(c>0) for c in aa])) #MAX IS PACKAGES MOET MOOIER DAN DIT
+            # ANDERE METHODE (MAKKELIJKER OP TE SCHRIJVEN), OM DIT WERKEND TE KRIJGEN ALLE PREDICTIONS GESCHAALD NAAR INITIAL BELIEFS
+            if len(possible_actions) == (2**len(b0) - 1):
+                phi[idx] = reward_value * np.dot(aa, b0) - np.dot(costs_vector,[int(c>0) for c in aa])
+            else: phi[idx] = reward_value * (max(possible_actions[0]) - np.dot(aa, b0)) - np.dot(costs_vector,[int(c>0) for c in aa])
 
         return phi
     
@@ -66,7 +71,8 @@ class Tom2(Strategy):
         #   First make prediction about prediction that tom1 smuggler would make about behavior police        
         simulation_phi = self.calculate_simulation_phi(b2, simulation_rewardo)
         if self.print: print(f"custom's prediction of smuggler's simulation phi is : {simulation_phi}")
-        prediction_a1 = np.exp(simulation_phi) / np.sum(np.exp(simulation_phi)) 
+        prediction_a1 = np.exp(simulation_phi) / np.sum(np.exp(simulation_phi))
+        prediction_a1 *= np.sum(b1)
         if self.print: print(f"custom's prediction of smuggler's prediction a1 is : {prediction_a1}")
         #   Merge this prediction that tom1 smuggler would make with b1 (represents b0 of smuggler) 
         W = self.merge_prediction(prediction_a1, b1, 0.8)
@@ -75,7 +81,8 @@ class Tom2(Strategy):
         #   Then use this prediction of integrated beliefs of the opponent to predict the behavior of the opponent
         simulation_phi = self.calculate_simulation_phi(W, simulation_rewarda)
         if self.print: print(f"custom's simulation phi is : {simulation_phi}")
-        self.prediction_a2 = np.exp(simulation_phi) / np.sum(np.exp(simulation_phi))     
+        self.prediction_a2 = np.exp(simulation_phi) / np.sum(np.exp(simulation_phi))   
+        self.prediction_a2 *= np.sum(b0)  
         if self.print: print(f"prediction a2 is : {self.prediction_a2}")
 
         # Merge prediction with integrated beliefs of first-order prediction and zero-order beliefs
@@ -83,7 +90,8 @@ class Tom2(Strategy):
         if self.print: print(f"police are calculating first-order prediction.....")
         simulation_phi = self.calculate_simulation_phi(b1, simulation_rewardo)
         if self.print: print(f"custom's simulation phi is : {simulation_phi}")
-        self.prediction_a1 = np.exp(simulation_phi) / np.sum(np.exp(simulation_phi))     
+        self.prediction_a1 = np.exp(simulation_phi) / np.sum(np.exp(simulation_phi))
+        self.prediction_a1 *= np.sum(b0)     
         if self.print: print(f"prediction a1 is : {self.prediction_a1}")
         # Merge first-order prediction with zero-order belief
         W = self.merge_prediction(self.prediction_a1, b0, conf1)

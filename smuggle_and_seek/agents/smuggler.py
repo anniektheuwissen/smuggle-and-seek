@@ -96,11 +96,14 @@ class Smuggler(SmuggleAndSeekAgent):
                 if c in self.failed_actions:
                     self.b0[c] = (1 - self.learning_speed1) * self.b0[c] + self.learning_speed1
                 else: 
-                    similarity = 0
-                    for cstar in self.failed_actions:
-                        similarity += self.similarity(c,cstar)
-                    similarity /= len(self.failed_actions)
-                    self.b0[c] = (1 - self.learning_speed1) * self.b0[c] + similarity * self.learning_speed1
+                    if c not in self.succes_actions:
+                        similarity = 0
+                        for cstar in self.failed_actions:
+                            similarity += self.similarity(c,cstar)
+                        similarity /= len(self.failed_actions)
+                        self.b0[c] = (1 - self.learning_speed1) * self.b0[c] + similarity * self.learning_speed1
+                    else:
+                        self.b0[c] = (1 - self.learning_speed1) * self.b0[c]
         elif len(self.succes_actions) > 0:
             for c in range(len(self.b0)):
                 self.b0[c] = (1 - self.learning_speed2) * self.b0[c] + (c not in self.succes_actions) * self.learning_speed2

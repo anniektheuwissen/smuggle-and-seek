@@ -18,11 +18,15 @@ class Tom0(Strategy):
         phi = np.zeros(len(possible_actions))
 
         for (idx,aa) in enumerate(possible_actions):
-            for c in range(len(b0)):
-                ao = [0] * len(b0); ao[c] = 1
-                if len(possible_actions) == (2**len(b0) - 1):
-                    phi[idx] += b0[c] * (reward_value * np.dot(aa, ao) - np.dot(costs_vector,[int(c>0) for c in aa]))
-                else: phi[idx] += b0[c] * (reward_value * (max(possible_actions[0]) - np.dot(aa, ao)) - np.dot(costs_vector,[int(c>0) for c in aa])) #MAX IS PACKAGES MOET MOOIER DAN DIT
+            # for c in range(len(b0)):
+            #     ao = [0] * len(b0); ao[c] = 1
+            #     if len(possible_actions) == (2**len(b0) - 1):
+            #         phi[idx] += b0[c] * (reward_value * np.dot(aa, ao) - np.dot(costs_vector,[int(c>0) for c in aa]))
+            #     else: phi[idx] += b0[c] * (reward_value * (max(possible_actions[0]) - np.dot(aa, ao)) - np.dot(costs_vector,[int(c>0) for c in aa])) #MAX IS PACKAGES MOET MOOIER DAN DIT
+            # ANDERE METHODE (MAKKELIJKER OP TE SCHRIJVEN), OM DIT WERKEND TE KRIJGEN ALLE PREDICTIONS GESCHAALD NAAR INITIAL BELIEFS
+            if len(possible_actions) == (2**len(b0) - 1):
+                phi[idx] = reward_value * np.dot(aa, b0) - np.dot(costs_vector,[int(c>0) for c in aa])
+            else: phi[idx] = reward_value * (max(possible_actions[0]) - np.dot(aa, b0)) - np.dot(costs_vector,[int(c>0) for c in aa])
 
         return phi
     
