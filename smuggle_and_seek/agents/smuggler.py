@@ -20,6 +20,7 @@ class Smuggler(SmuggleAndSeekAgent):
         """
         super().__init__(unique_id, model, tom_order, learning_speed1, learning_speed2)
         self.preferences = self.add_preferences()
+        if self.model.print: print("hi???")
         self.num_packages = packages
 
         self.num_smuggles = 0
@@ -32,12 +33,28 @@ class Smuggler(SmuggleAndSeekAgent):
 
         num_cont = len(self.model.get_agents_of_type(Container))
         # Define possible actions, and reward and costs vectors
-        self.possible_actions = list(map(list, [tuple for tuple in itertools.product(range(packages + 1), repeat=num_cont) if sum(tuple) == packages]))
+        if self.model.print: print("hi???")
+        self.possible_actions = list(self.generate_combinations(packages, num_cont))
+        # self.possible_actions = list(map(list, [tuple for tuple in itertools.product(range(packages + 1), repeat=num_cont) if sum(tuple) == packages]))
+        if self.model.print: print("hi???")
         self.reward_value = 2
         self.costs_vector = self.create_costs_vector(3, 1)
 
         self.simulationpayoff = [[-1*self.average_amount_catch, 1*self.average_amount_catch]] * num_cont
-
+        if self.model.print: print("hi???")
+    
+    def generate_combinations(self, packages, num_cont):
+        def backtrack(remaining, containers):
+            if self.model.print: print("in function")
+            if len(containers) == num_cont:
+                if remaining == 0:
+                    yield containers
+                return
+            for i in range(remaining + 1):
+                if len(containers) + 1 <= num_cont:
+                    yield from backtrack(remaining - i, containers + [i])
+        
+        return list(backtrack(packages, []))
 
     def create_costs_vector(self, container_cost, feature_cost):
         containers = self.model.get_agents_of_type(Container)

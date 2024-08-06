@@ -65,7 +65,7 @@ def barplot_annotate_brackets(num1, num2, data, center, height, dh=.05, barh=.02
 
 params = {
     "k": 2,
-    "l": 2,
+    "l": 3,
     "m": 5,
     "tom_police": range(0,3,1),
     "tom_smuggler": range(0,2,1),
@@ -76,7 +76,7 @@ params = {
 results = mesa.batch_run(
     SmuggleAndSeekGame,
     parameters=params,
-    iterations=100,
+    iterations=10,
     display_progress=True,
 )
 
@@ -91,9 +91,6 @@ results_0vs1 = results_df[(results_df["tom_police"] == 0) & (results_df["tom_smu
 results_1vs1 = results_df[(results_df["tom_police"] == 1) & (results_df["tom_smuggler"] == 1)]
 results_2vs0 = results_df[(results_df["tom_police"] == 2) & (results_df["tom_smuggler"] == 0)]
 results_2vs1 = results_df[(results_df["tom_police"] == 2) & (results_df["tom_smuggler"] == 1)]
-
-# save_dir = "../../Results/k="+str(params["k"])+" l="+str(params["l"])+" m="+str(params["m"])+"/"
-# os.mkdir(save_dir)
 
 for data in ["police points", "smuggler points", "successful checks", "successful smuggles", "caught packages", "smuggled packages", "total checks", "total smuggles"]:
     
@@ -115,5 +112,5 @@ for data in ["police points", "smuggler points", "successful checks", "successfu
     height = max([max(results_0vs0[data]), max(results_1vs0[data]), max(results_0vs1[data]), max(results_2vs0[data]), max(results_1vs1[data]), max(results_2vs1[data])])
     barplot_annotate_brackets([0,0,0,4], [1,2,3,5], [p_val_1vs0, p_val_0vs1, p_val_2vs0, p_val_2vs1], [1,2,3,4,5,6], [height]*6, dh=[.05, .1, .15, .05])
 
-    # plt.savefig(save_dir+str(data)+".png")
+    # plt.savefig("results/k="+str(params["k"])+" l="+str(params["l"])+" m="+str(params["m"])+" "+str(data)+".png")
     plt.show()
