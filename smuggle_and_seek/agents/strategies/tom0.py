@@ -7,8 +7,8 @@ from .strategy import Strategy
 Tom0 class: the tom0 strategy
 """
 class Tom0(Strategy):
-    def __init__(self):
-        super().__init__("tom0")
+    def __init__(self, agent):
+        super().__init__("tom0", agent)
         
     def calculate_phi(self, b0, possible_actions, reward_value, costs_vector):
         """

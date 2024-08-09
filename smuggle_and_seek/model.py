@@ -94,7 +94,7 @@ class SmuggleAndSeekGame(mesa.Model):
         smuggler.points_queue.pop(0); smuggler.points_queue.append(smuggler_reward)
         if self.print: print(f"smuggler's points:{smuggler.points}")
         
-        police_reward = (police.reward_value/police.expected_amount_catch) * np.dot(police.action, smuggler.action) - np.dot(police.costs_vector,police.action)
+        police_reward = (police.reward_value) * np.dot(police.action, smuggler.action) - np.dot(police.costs_vector,police.action)
         police.points += int(police_reward)
         police.points_queue.pop(0); police.points_queue.append(police_reward)
         if self.print: print(f"police's points:{police.points}")

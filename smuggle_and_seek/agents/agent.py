@@ -11,7 +11,7 @@ from .strategies.tom2 import Tom2
 SmuggleAndSeekAgent class: the police agent and smuggler agent inherit from this class
 """
 class SmuggleAndSeekAgent(mesa.Agent):
-    def __init__(self, unique_id, model, tom_order, learning_speed1, learning_speed2):
+    def __init__(self, unique_id, model, tom_order, learning_speed1, learning_speed2, agenttype):
         """
         Initializes the agent 
         :param unique_id: The unqiue id related to the agent
@@ -22,9 +22,9 @@ class SmuggleAndSeekAgent(mesa.Agent):
         """
         super().__init__(unique_id, model)
         match tom_order:
-            case 0: self.strategy = Tom0()
-            case 1: self.strategy = Tom1()
-            case 2: self.strategy = Tom2()
+            case 0: self.strategy = Tom0(agenttype)
+            case 1: self.strategy = Tom1(agenttype)
+            case 2: self.strategy = Tom2(agenttype)
 
         self.points = 0
         self.points_queue = [0] * 10

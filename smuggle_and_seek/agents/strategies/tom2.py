@@ -7,8 +7,8 @@ from .strategy import Strategy
 Tom2 class: the tom2 strategy
 """
 class Tom2(Strategy):
-    def __init__(self):
-        super().__init__("tom2")
+    def __init__(self, agent):
+        super().__init__("tom2", agent)
 
         self.prediction_a1 = []
         self.prediction_a2 = []
@@ -33,14 +33,16 @@ class Tom2(Strategy):
 
         return phi
     
-    def calculate_simulation_phi(self, b1, simulated_reward):
+    def calculate_simulation_phi(self, b1, simulated_reward, order):
         """
         Calculates the subjective value phi of the opponent by using beliefs b1 and a simulated reward function
-        """
+        """    
         simulation_phi = np.zeros(len(b1))
         for c in range(len(b1)):
-            for c_star in range(len(b1)):
-                simulation_phi[c] += b1[c_star] * (simulated_reward[c][(c == c_star)])
+            aa = [0]*len(b1); aa[c] = 1
+            if (self.agent == "smuggler" and order%2 == 1) or (self.agent == "police" and order%2 == 0) :sumas = sum(b1)
+            else: sumas = sum(aa)
+            simulation_phi[c] = np.dot(aa, b1) * simulated_reward[c][1] + (sumas - np.dot(aa, b1)) * simulated_reward[c][0]
         return simulation_phi
 
     def merge_prediction(self, prediction, belief, confidence):
@@ -49,7 +51,7 @@ class Tom2(Strategy):
         """
         W = np.zeros(len(belief))
         for c in range(len(belief)):
-            W[c] = confidence * prediction[c] + (1-confidence) * belief[c]
+            W[c] = confidence * sum(belief) * prediction[c] + (1-confidence) * belief[c]
         return W
     
     def choose_action_softmax(self, phi, possible_actions):
@@ -69,29 +71,26 @@ class Tom2(Strategy):
         """
         # Make prediction about behavior of opponent
         #   First make prediction about prediction that tom1 smuggler would make about behavior police        
-        simulation_phi = self.calculate_simulation_phi(b2, simulation_rewardo)
+        simulation_phi = self.calculate_simulation_phi(b2, simulation_rewardo, 1)
         if self.print: print(f"custom's prediction of smuggler's simulation phi is : {simulation_phi}")
         prediction_a1 = np.exp(simulation_phi) / np.sum(np.exp(simulation_phi))
-        prediction_a1 *= np.sum(b1)
         if self.print: print(f"custom's prediction of smuggler's prediction a1 is : {prediction_a1}")
         #   Merge this prediction that tom1 smuggler would make with b1 (represents b0 of smuggler) 
         W = self.merge_prediction(prediction_a1, b1, 0.8)
         if self.print: print(f"W is : {W}")
 
         #   Then use this prediction of integrated beliefs of the opponent to predict the behavior of the opponent
-        simulation_phi = self.calculate_simulation_phi(W, simulation_rewarda)
+        simulation_phi = self.calculate_simulation_phi(W, simulation_rewarda, 2)
         if self.print: print(f"custom's simulation phi is : {simulation_phi}")
-        self.prediction_a2 = np.exp(simulation_phi) / np.sum(np.exp(simulation_phi))   
-        self.prediction_a2 *= np.sum(b0)  
+        self.prediction_a2 = np.exp(simulation_phi) / np.sum(np.exp(simulation_phi))
         if self.print: print(f"prediction a2 is : {self.prediction_a2}")
 
         # Merge prediction with integrated beliefs of first-order prediction and zero-order beliefs
         # Make first-order prediction about behavior of opponent
         if self.print: print(f"police are calculating first-order prediction.....")
-        simulation_phi = self.calculate_simulation_phi(b1, simulation_rewardo)
+        simulation_phi = self.calculate_simulation_phi(b1, simulation_rewardo, 1)
         if self.print: print(f"custom's simulation phi is : {simulation_phi}")
         self.prediction_a1 = np.exp(simulation_phi) / np.sum(np.exp(simulation_phi))
-        self.prediction_a1 *= np.sum(b0)     
         if self.print: print(f"prediction a1 is : {self.prediction_a1}")
         # Merge first-order prediction with zero-order belief
         W = self.merge_prediction(self.prediction_a1, b0, conf1)

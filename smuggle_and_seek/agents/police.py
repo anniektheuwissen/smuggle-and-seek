@@ -18,7 +18,7 @@ class Police(SmuggleAndSeekAgent):
         :param learning_speed1: The speed at which the agent learns in most situations
         :param learning_speed2: The speed at which the agent learns in less informative situations
         """
-        super().__init__(unique_id, model, tom_order, learning_speed1, learning_speed2)
+        super().__init__(unique_id, model, tom_order, learning_speed1, learning_speed2, "police")
 
         self.num_checks = 0
         self.successful_checks = 0
@@ -32,7 +32,7 @@ class Police(SmuggleAndSeekAgent):
         # Define possible actions, and reward and costs vectors
         self.possible_actions = list(map(list, itertools.product([0, 1], repeat=num_cont)))
         self.possible_actions.remove([0]*num_cont)
-        self.reward_value = 2 * self.expected_amount_catch
+        self.reward_value = 3
         self.costs_vector = [4] * num_cont
 
         self.simulationpayoff_o = self.create_simulationpayoff_vector()
@@ -86,7 +86,6 @@ class Police(SmuggleAndSeekAgent):
             if self.model.print: print(f"expected amount catch is: {self.expected_amount_catch}")
 
         for i in range(len(self.simulationpayoff_a)): self.simulationpayoff_a[i] = [-1*self.expected_amount_catch, 1*self.expected_amount_catch]
-        self.reward_value = 2 * self.expected_amount_catch
 
     def update_b0(self):
         """

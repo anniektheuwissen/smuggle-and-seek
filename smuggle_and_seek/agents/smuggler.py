@@ -18,9 +18,9 @@ class Smuggler(SmuggleAndSeekAgent):
         :param learning_speed1: The speed at which the agent learns in most situations
         :param learning_speed2: The speed at which the agent learns in less informative situations
         """
-        super().__init__(unique_id, model, tom_order, learning_speed1, learning_speed2)
+        super().__init__(unique_id, model, tom_order, learning_speed1, learning_speed2, "smuggler")
+
         self.preferences = self.add_preferences()
-        if self.model.print: print("hi???")
         self.num_packages = packages
 
         self.num_smuggles = 0
@@ -29,23 +29,19 @@ class Smuggler(SmuggleAndSeekAgent):
         self.failed_smuggles = 0
         self.failed_packages = 0
 
-        self.average_amount_catch = 5
+        self.average_amount_catch = 1
 
         num_cont = len(self.model.get_agents_of_type(Container))
         # Define possible actions, and reward and costs vectors
-        if self.model.print: print("hi???")
         self.possible_actions = list(self.generate_combinations(packages, num_cont))
         # self.possible_actions = list(map(list, [tuple for tuple in itertools.product(range(packages + 1), repeat=num_cont) if sum(tuple) == packages]))
-        if self.model.print: print("hi???")
-        self.reward_value = 2
+        self.reward_value = 3
         self.costs_vector = self.create_costs_vector(3, 1)
 
         self.simulationpayoff = [[-1*self.average_amount_catch, 1*self.average_amount_catch]] * num_cont
-        if self.model.print: print("hi???")
     
     def generate_combinations(self, packages, num_cont):
         def backtrack(remaining, containers):
-            if self.model.print: print("in function")
             if len(containers) == num_cont:
                 if remaining == 0:
                     yield containers

@@ -7,8 +7,8 @@ from .strategy import Strategy
 Tom1 class: the tom1 strategy
 """
 class Tom1(Strategy):
-    def __init__(self):
-        super().__init__("tom1")
+    def __init__(self, agent):
+        super().__init__("tom1", agent)
 
         self.prediction_a1 = []
         
@@ -32,15 +32,18 @@ class Tom1(Strategy):
 
         return phi
     
-    def calculate_simulation_phi(self, b1, simulated_reward):
+    def calculate_simulation_phi(self, b1, simulated_reward, order):
         """
         Calculates the subjective value phi of the opponent by using beliefs b1 and a simulated reward function
-        """
+        """    
         simulation_phi = np.zeros(len(b1))
         for c in range(len(b1)):
-            for c_star in range(len(b1)):
-                simulation_phi[c] += b1[c_star] * (simulated_reward[c][(c == c_star)])
+            aa = [0]*len(b1); aa[c] = 1
+            if (self.agent == "smuggler" and order%2 == 1) or (self.agent == "police" and order%2 == 0) :sumas = sum(b1)
+            else: sumas = sum(aa)
+            simulation_phi[c] = np.dot(aa, b1) * simulated_reward[c][1] + (sumas - np.dot(aa, b1)) * simulated_reward[c][0]
         return simulation_phi
+
 
     def merge_prediction(self, prediction, belief, confidence):
         """
@@ -48,7 +51,7 @@ class Tom1(Strategy):
         """
         W = np.zeros(len(belief))
         for c in range(len(belief)):
-            W[c] = confidence * prediction[c] + (1-confidence) * belief[c]
+            W[c] = confidence * sum(belief) * prediction[c] + (1-confidence) * belief[c]
         return W
     
     def choose_action_softmax(self, phi, possible_actions):
@@ -68,10 +71,9 @@ class Tom1(Strategy):
         """
         if self.print: print(f"possible actions are : {possible_actions}")
         # Make prediction about behavior of opponent
-        simulation_phi = self.calculate_simulation_phi(b1, simulation_rewardo)
+        simulation_phi = self.calculate_simulation_phi(b1, simulation_rewardo, 1)
         if self.print: print(f"simulation phi is : {simulation_phi}")   
         self.prediction_a1 = np.exp(simulation_phi) / np.sum(np.exp(simulation_phi))
-        self.prediction_a1 *= np.sum(b0)       
         if self.print: print(f"prediction a1 is : {self.prediction_a1}")
 
         # Merge prediction with zero-order belief
