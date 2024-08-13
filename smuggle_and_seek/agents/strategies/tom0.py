@@ -10,7 +10,7 @@ class Tom0(Strategy):
     def __init__(self, agent):
         super().__init__("tom0", agent)
         
-    def calculate_phi(self, b0, possible_actions, reward_value, costs_vector):
+    def calculate_phi(self, b0, possible_actions, reward_value, costs_vector, expected_amount_catch):
         """
         Calculates the subjective value phi of all possible actions and all their distributions
         :param beliefs: The beliefs based on which the phi values have to be calculated
@@ -25,7 +25,7 @@ class Tom0(Strategy):
             #     else: phi[idx] += b0[c] * (reward_value * (max(possible_actions[0]) - np.dot(aa, ao)) - np.dot(costs_vector,[int(c>0) for c in aa])) #MAX IS PACKAGES MOET MOOIER DAN DIT
             # ANDERE METHODE (MAKKELIJKER OP TE SCHRIJVEN), OM DIT WERKEND TE KRIJGEN ALLE PREDICTIONS GESCHAALD NAAR INITIAL BELIEFS
             if len(possible_actions) == (2**len(b0) - 1):
-                phi[idx] = reward_value * np.dot(aa, b0) - np.dot(costs_vector,[int(c>0) for c in aa])
+                phi[idx] = reward_value * expected_amount_catch * np.dot(aa, b0) - np.dot(costs_vector,[int(c>0) for c in aa])
             else: phi[idx] = reward_value * (max(possible_actions[0]) - np.dot(aa, b0)) - np.dot(costs_vector,[int(c>0) for c in aa])
 
         return phi
@@ -46,7 +46,7 @@ class Tom0(Strategy):
         Chooses an action associated with zero-order theory of mind reasoning
         """
         if self.print: print(f"possible actions are : {possible_actions}")
-        phi = self.calculate_phi(b0, possible_actions, reward_value, costs_vector)
+        phi = self.calculate_phi(b0, possible_actions, reward_value, costs_vector, expected_amount_catch)
         if self.print: print(f"phi is : {phi}")
         action = self.choose_action_softmax(phi, possible_actions)
         return action

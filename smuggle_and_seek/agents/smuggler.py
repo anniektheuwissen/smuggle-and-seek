@@ -20,7 +20,6 @@ class Smuggler(SmuggleAndSeekAgent):
         """
         super().__init__(unique_id, model, tom_order, learning_speed1, learning_speed2, "smuggler")
         self.preferences = self.add_preferences()
-        if self.model.print: print("hi???")
         self.num_packages = packages
 
         self.num_smuggles = 0
@@ -37,7 +36,8 @@ class Smuggler(SmuggleAndSeekAgent):
         self.reward_value = 2
         self.costs_vector = self.create_costs_vector(4, 1)
 
-        self.simulationpayoff = [[-1*self.average_amount_catch, 1*self.average_amount_catch]] * num_cont
+        self.simulationpayoff_o = [[-1*self.average_amount_catch, 1*self.average_amount_catch]] * num_cont
+        self.simulationpayoff_a = self.create_simulationpayoff_vector()
     
     def generate_combinations(self, packages, num_cont):
         def backtrack(remaining, containers):
@@ -50,6 +50,14 @@ class Smuggler(SmuggleAndSeekAgent):
                     yield from backtrack(remaining - i, containers + [i])
         
         return list(backtrack(packages, []))
+    
+    def create_simulationpayoff_vector(self):
+        containers = self.model.get_agents_of_type(Container)
+        simulationpayoff = [[1 * self.average_amount_catch, -1 * self.average_amount_catch]] * len(containers)
+        for idx in range(len(simulationpayoff)):
+            for i in range(len(simulationpayoff[idx])):
+                simulationpayoff[idx][i] -= sum([(containers[idx].features[j] != self.preferences[j]) for j in range(len(self.preferences))])
+        return simulationpayoff
 
     def create_costs_vector(self, container_cost, feature_cost):
         containers = self.model.get_agents_of_type(Container)
@@ -95,7 +103,8 @@ class Smuggler(SmuggleAndSeekAgent):
         if (self.num_smuggles - self.successful_smuggles) > 0:
             self.average_amount_catch = self.failed_packages / self.failed_smuggles
 
-        for i in range(len(self.simulationpayoff)): self.simulationpayoff[i] = [-1*self.average_amount_catch, 1*self.average_amount_catch]
+        for i in range(len(self.simulationpayoff_o)): self.simulationpayoff_o[i] = [-1*self.average_amount_catch, 1*self.average_amount_catch]
+        self.simulationpayoff_a = self.create_simulationpayoff_vector()
         
     def update_b0(self):
         """
@@ -181,7 +190,7 @@ class Smuggler(SmuggleAndSeekAgent):
         """
         # Choose action based on order of tom reasoning
         self.action = self.strategy.choose_action(self.possible_actions, self.b0, self.b1, self.b2, self.conf1, self.conf2, 
-                                                  self.reward_value, self.average_amount_catch, self.costs_vector, self.simulationpayoff, None)
+                                                  self.reward_value, self.costs_vector, self.average_amount_catch, self.simulationpayoff_o, self.simulationpayoff_a)
 
         # Take action
         self.take_action()

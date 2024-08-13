@@ -86,6 +86,7 @@ class Police(SmuggleAndSeekAgent):
             if self.model.print: print(f"expected amount catch is: {self.expected_amount_catch}")
 
         for i in range(len(self.simulationpayoff_a)): self.simulationpayoff_a[i] = [-1*self.expected_amount_catch, 1*self.expected_amount_catch]
+        self.simulationpayoff_o = self.create_simulationpayoff_vector()
 
     def update_b0(self):
         """
