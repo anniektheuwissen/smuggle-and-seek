@@ -32,7 +32,7 @@ class Police(SmuggleAndSeekAgent):
         # Define possible actions, and reward and costs vectors
         self.possible_actions = list(map(list, itertools.product([0, 1], repeat=num_cont)))
         self.possible_actions.remove([0]*num_cont)
-        self.reward_value = 3
+        self.reward_value = 2
         self.costs_vector = [4] * num_cont
 
         self.simulationpayoff_o = self.create_simulationpayoff_vector()
@@ -164,7 +164,7 @@ class Police(SmuggleAndSeekAgent):
                     self.b2[c] = (1 - self.learning_speed1) * self.b2[c] + similarity * self.learning_speed1
         elif len(self.failed_actions) > 0:
             for c in range(len(self.b2)):
-                self.b2[c] = (1 - self.learning_speed2) * self.b1[c] - (c in self.failed_actions) * self.learning_speed2
+                self.b2[c] = (1 - self.learning_speed2) * self.b1[c] + (c not in self.failed_actions) * self.learning_speed2
         if self.model.print: print(self.b2)
 
     def update_confidence(self, confidence):
@@ -212,7 +212,7 @@ class Police(SmuggleAndSeekAgent):
         """
         # Choose action based on order of tom reasoning
         self.action = self.strategy.choose_action(self.possible_actions, self.b0, self.b1, self.b2, self.conf1, self.conf2, 
-                                                  self.reward_value, self.costs_vector, self.simulationpayoff_o, self.simulationpayoff_a)
+                                                  self.reward_value, self.costs_vector, self.expected_amount_catch, self.simulationpayoff_o, self.simulationpayoff_a)
 
         # Take action
         self.take_action()

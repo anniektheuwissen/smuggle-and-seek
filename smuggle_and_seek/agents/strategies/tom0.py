@@ -41,7 +41,7 @@ class Tom0(Strategy):
 
         return action
     
-    def choose_action(self, possible_actions, b0, b1, b2, conf1, conf2, reward_value, costs_vector, simulation_rewardo, simulation_rewarda):
+    def choose_action(self, possible_actions, b0, b1, b2, conf1, conf2, reward_value, costs_vector, expected_amount_catch, simulation_rewardo, simulation_rewarda):
         """
         Chooses an action associated with zero-order theory of mind reasoning
         """

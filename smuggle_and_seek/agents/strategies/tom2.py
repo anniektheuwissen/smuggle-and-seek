@@ -13,7 +13,7 @@ class Tom2(Strategy):
         self.prediction_a1 = []
         self.prediction_a2 = []
 
-    def calculate_phi(self, b0, possible_actions, reward_value, costs_vector):
+    def calculate_phi(self, b0, possible_actions, reward_value, costs_vector, expected_amount_catch):
         """
         Calculates the subjective value phi of all possible actions and all their distributions
         :param beliefs: The beliefs based on which the phi values have to be calculated
@@ -28,7 +28,7 @@ class Tom2(Strategy):
             #     else: phi[idx] += b0[c] * (reward_value * (max(possible_actions[0]) - np.dot(aa, ao)) - np.dot(costs_vector,[int(c>0) for c in aa])) #MAX IS PACKAGES MOET MOOIER DAN DIT
             # ANDERE METHODE (MAKKELIJKER OP TE SCHRIJVEN), OM DIT WERKEND TE KRIJGEN ALLE PREDICTIONS GESCHAALD NAAR INITIAL BELIEFS
             if len(possible_actions) == (2**len(b0) - 1):
-                phi[idx] = reward_value * np.dot(aa, b0) - np.dot(costs_vector,[int(c>0) for c in aa])
+                phi[idx] = reward_value * expected_amount_catch * np.dot(aa, b0) - np.dot(costs_vector,[int(c>0) for c in aa])
             else: phi[idx] = reward_value * (max(possible_actions[0]) - np.dot(aa, b0)) - np.dot(costs_vector,[int(c>0) for c in aa])
 
         return phi
@@ -36,7 +36,7 @@ class Tom2(Strategy):
     def calculate_simulation_phi(self, b1, simulated_reward, order):
         """
         Calculates the subjective value phi of the opponent by using beliefs b1 and a simulated reward function
-        """    
+        """
         simulation_phi = np.zeros(len(b1))
         for c in range(len(b1)):
             aa = [0]*len(b1); aa[c] = 1
@@ -51,7 +51,8 @@ class Tom2(Strategy):
         """
         W = np.zeros(len(belief))
         for c in range(len(belief)):
-            W[c] = confidence * sum(belief) * prediction[c] + (1-confidence) * belief[c]
+            prediction[c] *= np.sum(belief)
+            W[c] = confidence * prediction[c] + (1-confidence) * belief[c]
         return W
     
     def choose_action_softmax(self, phi, possible_actions):
@@ -65,13 +66,13 @@ class Tom2(Strategy):
 
         return action
         
-    def choose_action(self, possible_actions, b0, b1, b2, conf1, conf2, reward_value, costs_vector, simulation_rewardo, simulation_rewarda):
+    def choose_action(self, possible_actions, b0, b1, b2, conf1, conf2, reward_value, costs_vector, expected_amount_catch, simulation_rewardo, simulation_rewarda):
         """
         Chooses an action associated with second-order theory of mind reasoning
         """
         # Make prediction about behavior of opponent
         #   First make prediction about prediction that tom1 smuggler would make about behavior police        
-        simulation_phi = self.calculate_simulation_phi(b2, simulation_rewardo, 1)
+        simulation_phi = self.calculate_simulation_phi(b2, simulation_rewarda, 2)
         if self.print: print(f"custom's prediction of smuggler's simulation phi is : {simulation_phi}")
         prediction_a1 = np.exp(simulation_phi) / np.sum(np.exp(simulation_phi))
         if self.print: print(f"custom's prediction of smuggler's prediction a1 is : {prediction_a1}")
@@ -80,7 +81,7 @@ class Tom2(Strategy):
         if self.print: print(f"W is : {W}")
 
         #   Then use this prediction of integrated beliefs of the opponent to predict the behavior of the opponent
-        simulation_phi = self.calculate_simulation_phi(W, simulation_rewarda, 2)
+        simulation_phi = self.calculate_simulation_phi(W, simulation_rewardo, 1)
         if self.print: print(f"custom's simulation phi is : {simulation_phi}")
         self.prediction_a2 = np.exp(simulation_phi) / np.sum(np.exp(simulation_phi))
         if self.print: print(f"prediction a2 is : {self.prediction_a2}")
@@ -100,7 +101,7 @@ class Tom2(Strategy):
         if self.print: print(f"W2 is : {W2}")
 
         # Calculate the subjective value phi for each action, and choose the action with the highest.
-        phi = self.calculate_phi(W2, possible_actions, reward_value, costs_vector)
+        phi = self.calculate_phi(W2, possible_actions, reward_value, costs_vector, expected_amount_catch)
         if self.print: print(f"custom's phi is : {phi}")
         action = self.choose_action_softmax(phi, possible_actions)
 

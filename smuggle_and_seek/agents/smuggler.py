@@ -19,8 +19,8 @@ class Smuggler(SmuggleAndSeekAgent):
         :param learning_speed2: The speed at which the agent learns in less informative situations
         """
         super().__init__(unique_id, model, tom_order, learning_speed1, learning_speed2, "smuggler")
-
         self.preferences = self.add_preferences()
+        if self.model.print: print("hi???")
         self.num_packages = packages
 
         self.num_smuggles = 0
@@ -29,14 +29,13 @@ class Smuggler(SmuggleAndSeekAgent):
         self.failed_smuggles = 0
         self.failed_packages = 0
 
-        self.average_amount_catch = 1
+        self.average_amount_catch = 5
 
         num_cont = len(self.model.get_agents_of_type(Container))
         # Define possible actions, and reward and costs vectors
         self.possible_actions = list(self.generate_combinations(packages, num_cont))
-        # self.possible_actions = list(map(list, [tuple for tuple in itertools.product(range(packages + 1), repeat=num_cont) if sum(tuple) == packages]))
-        self.reward_value = 3
-        self.costs_vector = self.create_costs_vector(3, 1)
+        self.reward_value = 2
+        self.costs_vector = self.create_costs_vector(4, 1)
 
         self.simulationpayoff = [[-1*self.average_amount_catch, 1*self.average_amount_catch]] * num_cont
     
@@ -182,7 +181,7 @@ class Smuggler(SmuggleAndSeekAgent):
         """
         # Choose action based on order of tom reasoning
         self.action = self.strategy.choose_action(self.possible_actions, self.b0, self.b1, self.b2, self.conf1, self.conf2, 
-                                                  self.reward_value, self.costs_vector, self.simulationpayoff, None)
+                                                  self.reward_value, self.average_amount_catch, self.costs_vector, self.simulationpayoff, None)
 
         # Take action
         self.take_action()

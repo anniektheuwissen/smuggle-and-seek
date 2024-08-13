@@ -12,7 +12,7 @@ class Tom1(Strategy):
 
         self.prediction_a1 = []
         
-    def calculate_phi(self, b0, possible_actions, reward_value, costs_vector):
+    def calculate_phi(self, b0, possible_actions, reward_value, costs_vector, expected_amount_catch):
         """
         Calculates the subjective value phi of all possible actions and all their distributions
         :param beliefs: The beliefs based on which the phi values have to be calculated
@@ -27,7 +27,7 @@ class Tom1(Strategy):
             #     else: phi[idx] += b0[c] * (reward_value * (max(possible_actions[0]) - np.dot(aa, ao)) - np.dot(costs_vector,[int(c>0) for c in aa])) #MAX IS PACKAGES MOET MOOIER DAN DIT
             # ANDERE METHODE (MAKKELIJKER OP TE SCHRIJVEN), OM DIT WERKEND TE KRIJGEN ALLE PREDICTIONS GESCHAALD NAAR INITIAL BELIEFS
             if len(possible_actions) == (2**len(b0) - 1):
-                phi[idx] = reward_value * np.dot(aa, b0) - np.dot(costs_vector,[int(c>0) for c in aa])
+                phi[idx] = reward_value * expected_amount_catch * np.dot(aa, b0) - np.dot(costs_vector,[int(c>0) for c in aa])
             else: phi[idx] = reward_value * (max(possible_actions[0]) - np.dot(aa, b0)) - np.dot(costs_vector,[int(c>0) for c in aa])
 
         return phi
@@ -35,7 +35,7 @@ class Tom1(Strategy):
     def calculate_simulation_phi(self, b1, simulated_reward, order):
         """
         Calculates the subjective value phi of the opponent by using beliefs b1 and a simulated reward function
-        """    
+        """
         simulation_phi = np.zeros(len(b1))
         for c in range(len(b1)):
             aa = [0]*len(b1); aa[c] = 1
@@ -44,14 +44,14 @@ class Tom1(Strategy):
             simulation_phi[c] = np.dot(aa, b1) * simulated_reward[c][1] + (sumas - np.dot(aa, b1)) * simulated_reward[c][0]
         return simulation_phi
 
-
     def merge_prediction(self, prediction, belief, confidence):
         """
         Merges prediction with its belief b0
         """
         W = np.zeros(len(belief))
         for c in range(len(belief)):
-            W[c] = confidence * sum(belief) * prediction[c] + (1-confidence) * belief[c]
+            prediction[c] *= np.sum(belief)
+            W[c] = confidence * prediction[c] + (1-confidence) * belief[c]
         return W
     
     def choose_action_softmax(self, phi, possible_actions):
@@ -65,7 +65,7 @@ class Tom1(Strategy):
 
         return action
     
-    def choose_action(self, possible_actions, b0, b1, b2, conf1, conf2, reward_value, costs_vector, simulation_rewardo, simulation_rewarda):
+    def choose_action(self, possible_actions, b0, b1, b2, conf1, conf2, reward_value, costs_vector, expected_amount_catch, simulation_rewardo, simulation_rewarda):
         """
         Chooses an action associated with first-order theory of mind reasoning
         """
@@ -81,7 +81,7 @@ class Tom1(Strategy):
         if self.print: print(f"W is : {W}")
 
         # Choose action based on W
-        phi = self.calculate_phi(W, possible_actions, reward_value, costs_vector)
+        phi = self.calculate_phi(W, possible_actions, reward_value, costs_vector, expected_amount_catch)
         if self.print: print(f"phi is : {phi}")
         action = self.choose_action_softmax(phi, possible_actions)
         return action
