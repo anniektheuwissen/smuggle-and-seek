@@ -1,24 +1,23 @@
-from more_itertools import powerset
 import itertools
 
 from .container import Container
 from .agent import SmuggleAndSeekAgent
 
 """
-police class: the police agent that tries to capture as many drugs as possible from the containers. They
+Customs class: the customs agent that tries to capture as many drugs as possible from the containers. They
 can have different levels of ToM reasoning.
 """
-class Police(SmuggleAndSeekAgent):
+class Customs(SmuggleAndSeekAgent):
     def __init__(self, unique_id, model, tom_order, learning_speed1, learning_speed2):
         """
-        Initializes the agent police
+        Initializes the agent customs
         :param unique_id: The unqiue id related to the agent
         :param model: The model in which the agent is placed
         :param tom_order: The order of ToM at which the agent reasons
         :param learning_speed1: The speed at which the agent learns in most situations
         :param learning_speed2: The speed at which the agent learns in less informative situations
         """
-        super().__init__(unique_id, model, tom_order, learning_speed1, learning_speed2, "police")
+        super().__init__(unique_id, model, tom_order, learning_speed1, learning_speed2, "customs")
 
         self.num_checks = 0
         self.successful_checks = 0
@@ -40,12 +39,18 @@ class Police(SmuggleAndSeekAgent):
 
 
     def initialize_expected_preferences(self):
+        """
+        Initializes expected preferences randomly
+        """
         expected_preferences = {}
         for i in range(self.model.num_features):
             expected_preferences[i] = self.random.randint(0,self.model.i_per_feat-1)
         return expected_preferences
     
     def create_simulationpayoff_vector(self):
+        """
+        Creates the simulation payoff vector
+        """
         containers = self.model.get_agents_of_type(Container)
         simulationpayoff = [[1 * self.expected_amount_catch, -1 * self.expected_amount_catch]] * len(containers)
         for idx in range(len(simulationpayoff)):
@@ -73,7 +78,7 @@ class Police(SmuggleAndSeekAgent):
                 else:
                     if self.model.print: print("wooops caught nothing")
                     self.failed_actions.append(c)
-        if self.model.print: print(f"police succesfull actions are: {self.succes_actions}, and failed actions are: {self.failed_actions}")
+        if self.model.print: print(f"customs succesfull actions are: {self.succes_actions}, and failed actions are: {self.failed_actions}")
         self.successful_checks += len(self.succes_actions)
         self.failed_checks += len(self.failed_actions)
         
@@ -92,7 +97,7 @@ class Police(SmuggleAndSeekAgent):
         """
         Updates b0
         """
-        if self.model.print: print("police are updating beliefs b0 from ... to ...:")
+        if self.model.print: print("customs are updating beliefs b0 from ... to ...:")
         if self.model.print: print(self.b0)
         if len(self.succes_actions) > 0:
             for c in range(len(self.b0)):
@@ -116,7 +121,7 @@ class Police(SmuggleAndSeekAgent):
         """
         Updates the expected preferences of the smuggler
         """
-        if self.model.print: print("police are updating expected preferences beliefs bp to ...:")
+        if self.model.print: print("customs are updating expected preferences beliefs bp to ...:")
         containers = self.model.get_agents_of_type(Container)
         checked = [[0 for _ in range(self.model.i_per_feat)] for _ in range(self.model.num_features)]
         for container in containers:
@@ -130,7 +135,7 @@ class Police(SmuggleAndSeekAgent):
         """
         Updates b1
         """
-        if self.model.print: print("police are updating beliefs b1 from ... to ...:")
+        if self.model.print: print("customs are updating beliefs b1 from ... to ...:")
         if self.model.print: print(self.b1)
         if len(self.succes_actions) > 0:
             for c in range(len(self.b1)):
@@ -151,7 +156,7 @@ class Police(SmuggleAndSeekAgent):
         """
         Updates b2
         """
-        if self.model.print: print("police are updating beliefs b2 from ... to ...:")
+        if self.model.print: print("customs are updating beliefs b2 from ... to ...:")
         if self.model.print: print(self.b2)
         if len(self.succes_actions) > 0:
             for c in range(len(self.b2)):
@@ -172,7 +177,7 @@ class Police(SmuggleAndSeekAgent):
         """
         Updates confidence (c1 or c2)
         """
-        if self.model.print: print("police are updating confidence from ... to ...:")
+        if self.model.print: print("customs are updating confidence from ... to ...:")
         if self.model.print: print(confidence)
         for (c,a) in enumerate(self.action):
             if a>0:
@@ -193,7 +198,6 @@ class Police(SmuggleAndSeekAgent):
         """
         Updates its beliefs, confidence and expectations
         """
-
         self.update_expected_amount_catch()
         self.update_b0()
 

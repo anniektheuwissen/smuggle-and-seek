@@ -1,10 +1,14 @@
 import mesa
 
-from .model import SmuggleAndSeekGame, Smuggler, Police, Container
+from .model import SmuggleAndSeekGame, Smuggler, Customs, Container
+
+"""
+The server
+"""
 
 # Adjust this variable when you want to adjust the grid size:
 ############################################################
-num_items_per_feature = 4
+num_items_per_feature = 2
 ############################################################
 
 def color_variant(hex_color, brightness_offset=1):
@@ -20,9 +24,9 @@ def color_variant(hex_color, brightness_offset=1):
     # hex() produces "0x88", we want just "88"
     return "#" + "".join([hex(i)[2:] for i in new_rgb_int])
 
-def portrayal_police_grid(agent):
+def portrayal_customs_grid(agent):
     """
-    Initializes the portrayal of the agents in the visualization of the police grid
+    Initializes the portrayal of the agents in the visualization of the customs grid
     :param agent: The agent to visualize
     """
     portrayal = {}
@@ -77,13 +81,13 @@ def portrayal_smuggler_grid(agent):
 
     return portrayal
 
-def police_grid_name(model):
+def customs_grid_name(model):
     """
     Display a text representing the name of the grid.
     """
-    last_action = model.get_agents_of_type(Police)[0].action
+    last_action = model.get_agents_of_type(Customs)[0].action
     tab = "&nbsp &nbsp &nbsp &nbsp"   
-    return f"police distribution of actions: {tab}{tab}{tab} last action:{last_action}"
+    return f"customs distribution of actions: {tab}{tab}{tab} last action:{last_action}"
 
 def smuggler_grid_name(model):
     """
@@ -97,7 +101,7 @@ def barchart_name(model):
     """
     Display a text representing the name of the grid.
     """
-    return f"Smuggler's and police distribution of actions:"
+    return f"Smuggler's and customs distribution of actions:"
 
 def chart_name1(model):
     """
@@ -123,7 +127,7 @@ def succesfull_checks(model):
     Display a text representing the succesful checks
     """
     successful_checks = model.datacollector.get_model_vars_dataframe()['successful checks'][model.day]
-    num_checks = model.get_agents_of_type(Police)[0].num_checks
+    num_checks = model.get_agents_of_type(Customs)[0].num_checks
     if (num_checks > 0): percentage = round(successful_checks/num_checks * 100,2)
     else: percentage = 0
     tab = "&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp"  
@@ -166,27 +170,27 @@ def smuggled_packages(model):
 """
 Add the grids, charts, model parameters and server
 """
-grid1 = mesa.visualization.CanvasGrid(portrayal_police_grid, num_items_per_feature, num_items_per_feature, 500, 500)
+grid1 = mesa.visualization.CanvasGrid(portrayal_customs_grid, num_items_per_feature, num_items_per_feature, 500, 500)
 grid2 = mesa.visualization.CanvasGrid(portrayal_smuggler_grid, num_items_per_feature, num_items_per_feature, 500, 500)
 
 barchart = mesa.visualization.BarChartModule(
     [
         {"Label": "used by smugglers", "Color": "#c8a9a6"},
-        {"Label": "used by police", "Color": "#a3c3b1"},
+        {"Label": "used by customs", "Color": "#a3c3b1"},
     ],
     scope="agent" 
 )
 
 chart1 = mesa.visualization.ChartModule(
     [
-        {"Label": "police points", "Color": "#a3c3b1"},
+        {"Label": "customs points", "Color": "#a3c3b1"},
         {"Label": "smuggler points", "Color": "#c8a9a6"},
     ],
 )
 
 chart2 = mesa.visualization.ChartModule(
     [
-        {"Label": "police points averaged", "Color": "#a3c3b1"},
+        {"Label": "customs points averaged", "Color": "#a3c3b1"},
         {"Label": "smuggler points averaged", "Color": "#c8a9a6"},
     ],
 )
@@ -201,8 +205,8 @@ model_params = {
         max_value=10,
         step=1
     ),
-    "tom_police": mesa.visualization.Choice(
-        "police ToM order",
+    "tom_customs": mesa.visualization.Choice(
+        "customs ToM order",
         value=0,
         choices=[0,1,2],
     ),
@@ -229,7 +233,7 @@ model_params = {
 
 
 server = mesa.visualization.ModularServer(SmuggleAndSeekGame, 
-                           [smuggler_grid_name, grid2, police_grid_name, grid1, barchart_name, barchart, preferences, succesfull_smuggles, succesfull_checks, smuggled_packages, caught_packages, chart_name1, chart1, chart_name2, chart2], 
+                           [smuggler_grid_name, grid2, customs_grid_name, grid1, barchart_name, barchart, preferences, succesfull_smuggles, succesfull_checks, smuggled_packages, caught_packages, chart_name1, chart1, chart_name2, chart2], 
                            "Smuggle and Seek Game", 
                            model_params)
 server.port = 8521

@@ -1,9 +1,12 @@
 import mesa
 import pandas as pd
-import os
 from scipy import stats
 import matplotlib.pyplot as plt
 from smuggle_and_seek.model import SmuggleAndSeekGame
+
+"""
+Run a batch run with specified parameters
+"""
 
 def barplot_annotate_brackets(num1, num2, data, center, height, dh=.05, barh=.025):
     """ 
@@ -67,7 +70,7 @@ params = {
     "k": 2,
     "l": 2,
     "m": 5,
-    "tom_police": range(0,3,1),
+    "tom_customs": range(0,3,1),
     "tom_smuggler": range(0,3,1),
     "learning_speed1": 0.2,
     "learning_speed2": 0.05
@@ -76,7 +79,7 @@ params = {
 results = mesa.batch_run(
     SmuggleAndSeekGame,
     parameters=params,
-    iterations=100,
+    iterations=10,
     display_progress=True,
 )
 
@@ -85,17 +88,17 @@ results = mesa.batch_run(
 results_df = pd.DataFrame(results)
 results_df.to_csv('results.csv')
 
-results_0vs0 = results_df[(results_df["tom_police"] == 0) & (results_df["tom_smuggler"] == 0)]
-results_0vs1 = results_df[(results_df["tom_police"] == 0) & (results_df["tom_smuggler"] == 1)]
-results_0vs2 = results_df[(results_df["tom_police"] == 0) & (results_df["tom_smuggler"] == 2)]
-results_1vs0 = results_df[(results_df["tom_police"] == 1) & (results_df["tom_smuggler"] == 0)]
-results_1vs1 = results_df[(results_df["tom_police"] == 1) & (results_df["tom_smuggler"] == 1)]
-results_1vs2 = results_df[(results_df["tom_police"] == 1) & (results_df["tom_smuggler"] == 2)]
-results_2vs0 = results_df[(results_df["tom_police"] == 2) & (results_df["tom_smuggler"] == 0)]
-results_2vs1 = results_df[(results_df["tom_police"] == 2) & (results_df["tom_smuggler"] == 1)]
-# results_2vs2 = results_df[(results_df["tom_police"] == 2) & (results_df["tom_smuggler"] == 2)]
+results_0vs0 = results_df[(results_df["tom_customs"] == 0) & (results_df["tom_smuggler"] == 0)]
+results_0vs1 = results_df[(results_df["tom_customs"] == 0) & (results_df["tom_smuggler"] == 1)]
+results_0vs2 = results_df[(results_df["tom_customs"] == 0) & (results_df["tom_smuggler"] == 2)]
+results_1vs0 = results_df[(results_df["tom_customs"] == 1) & (results_df["tom_smuggler"] == 0)]
+results_1vs1 = results_df[(results_df["tom_customs"] == 1) & (results_df["tom_smuggler"] == 1)]
+results_1vs2 = results_df[(results_df["tom_customs"] == 1) & (results_df["tom_smuggler"] == 2)]
+results_2vs0 = results_df[(results_df["tom_customs"] == 2) & (results_df["tom_smuggler"] == 0)]
+results_2vs1 = results_df[(results_df["tom_customs"] == 2) & (results_df["tom_smuggler"] == 1)]
+# results_2vs2 = results_df[(results_df["tom_customs"] == 2) & (results_df["tom_smuggler"] == 2)]
 
-for data in ["police points", "smuggler points", "successful checks", "successful smuggles", "caught packages", "smuggled packages", "total checks", "total smuggles"]:
+for data in ["customs points", "smuggler points", "successful checks", "successful smuggles", "caught packages", "smuggled packages", "total checks", "total smuggles"]:
     
     t_stat_1vs0, p_val_1vs0 = stats.ttest_ind(results_0vs0[data], results_1vs0[data])
     t_stat_0vs1, p_val_0vs1 = stats.ttest_ind(results_0vs0[data], results_0vs1[data])
@@ -106,8 +109,8 @@ for data in ["police points", "smuggler points", "successful checks", "successfu
     
     fig, ax = plt.subplots(figsize=(16,8))
     boxplot = ax.boxplot([results_0vs0[data], results_1vs0[data], results_0vs1[data], results_2vs0[data], results_0vs2[data], results_1vs1[data], results_2vs1[data], results_1vs2[data]],
-                            labels=['ToM0 police vs\n ToM0 smuggler', 'ToM1 police vs\n ToM0 smuggler', 'ToM0 police vs\n ToM1 smuggler', 'ToM2 police vs\n ToM0 smuggler', 
-                                    'ToM0 police vs\n ToM2 smuggler', 'ToM1 police vs\n ToM1 smuggler', 'ToM2 police vs\n ToM1 smuggler', 'ToM1 police vs\n ToM2 smuggler'], patch_artist=True, medianprops={'color': 'black'}
+                            labels=['ToM0 customs vs\n ToM0 smuggler', 'ToM1 customs vs\n ToM0 smuggler', 'ToM0 customs vs\n ToM1 smuggler', 'ToM2 customs vs\n ToM0 smuggler', 
+                                    'ToM0 customs vs\n ToM2 smuggler', 'ToM1 customs vs\n ToM1 smuggler', 'ToM2 customs vs\n ToM1 smuggler', 'ToM1 customs vs\n ToM2 smuggler'], patch_artist=True, medianprops={'color': 'black'}
                             )
     colors = ['#A8A9AD', '#728FCE', '#728FCE', '#728FCE', '#728FCE', '#A8A9AD', '#728FCE', '#728FCE']
     for box, color in zip(boxplot['boxes'], colors):

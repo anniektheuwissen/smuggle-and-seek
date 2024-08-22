@@ -1,5 +1,3 @@
-from more_itertools import powerset
-
 
 """
 Strategy class: the tom0, tom1, and tom2 strategies inherit from this class
@@ -9,6 +7,7 @@ class Strategy():
         """
         Initializes the strategy 
         :param strategy: the strategy
+        :param agent: the agent type from which this is a strategy
         """
         self.strategy = strategy
         self.agent = agent

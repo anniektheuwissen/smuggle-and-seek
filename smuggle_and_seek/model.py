@@ -1,25 +1,26 @@
 import mesa
 import numpy as np
 
-from .agents.police import Police
+from .agents.customs import Customs
 from .agents.smuggler import Smuggler
 from .agents.container import Container
 
 """
-SmuggleAndSeekGame class: the game in which two agents: a smuggler and a police can smuggle and seek drugs. The game
-environment contains different kinds of containers, each having 2 features, that the agents can use to hide drugs and 
-seek for drugs.
+SmuggleAndSeekGame class: the game in which two agents: a smuggler agent and a customs agent can smuggle and seek drugs. 
+The game environment contains different kinds of containers, each having an amount of features, that the agents can use 
+to hide drugs and seek for drugs.
 """
 class SmuggleAndSeekGame(mesa.Model):
-    def __init__(self, k, l, m, tom_police, tom_smuggler, learning_speed1, learning_speed2):
+    def __init__(self, k, l, m, tom_customs, tom_smuggler, learning_speed1, learning_speed2):
         """
         Initializes the Game
-        :param width: The width of the interface
-        :param height: The height of the interface
-        :param tom_police: The order of theory of mind at which the police reason
-        :param tom_smuggler: The order of theory of mind at which the smuggler reasons
-        :param learning_speed1: The learning speed at which both the police and smuggler learn in most situations
-        :param learning_speed2: The learning speed at which both the police and smuggler learn in less informative situations
+        :param k: The number of features that each container has
+        :param l: The number of different categories that each feature has
+        :param m: The number of packages that the smuggler agent has to smuggle per day
+        :param tom_customs: The order of theory of mind at which the customs agent reason
+        :param tom_smuggler: The order of theory of mind at which the smuggler agent reasons
+        :param learning_speed1: The learning speed at which both the customs agent and smuggler agent learn in most situations
+        :param learning_speed2: The learning speed at which both the customs agent and smuggler agent learn in less informative situations
         """
         super().__init__()
         self.print = False
@@ -47,29 +48,29 @@ class SmuggleAndSeekGame(mesa.Model):
                     if features[-(1+j)] != (self.i_per_feat-1): features[-(1+j)] += 1; features[-(j):] = [0] * len(features[-(j):]); break
             else: features[-1] += 1  
 
-        # Add agents to the game: one smuggler and one police, and add both to the running schedule
+        # Add agents to the game: one smuggler and one customs, and add both to the running schedule
         smuggler = Smuggler(i+1, self, tom_smuggler, learning_speed1, learning_speed2, m)
         self.running_schedule.add(smuggler)
-        police = Police(i+2, self, tom_police, learning_speed1, learning_speed2)
-        self.running_schedule.add(police)
+        customs = Customs(i+2, self, tom_customs, learning_speed1, learning_speed2)
+        self.running_schedule.add(customs)
 
-        # Add data collector that collects the points and average points of both the police and smuggler
+        # Add data collector that collects the points and average points of both the customs and smuggler
         self.datacollector = mesa.DataCollector(
             model_reporters= {
-                "police points": lambda m: m.get_agents_of_type(Police)[0].points,
+                "customs points": lambda m: m.get_agents_of_type(Customs)[0].points,
                 "smuggler points": lambda m: m.get_agents_of_type(Smuggler)[0].points,
-                "police points averaged": lambda m: sum(m.get_agents_of_type(Police)[0].points_queue) / 10,
+                "customs points averaged": lambda m: sum(m.get_agents_of_type(Customs)[0].points_queue) / 10,
                 "smuggler points averaged": lambda m: sum(m.get_agents_of_type(Smuggler)[0].points_queue) / 10,
-                "successful checks": lambda m: m.get_agents_of_type(Police)[0].successful_checks,
+                "successful checks": lambda m: m.get_agents_of_type(Customs)[0].successful_checks,
                 "successful smuggles": lambda m: m.get_agents_of_type(Smuggler)[0].successful_smuggles,
-                "total checks": lambda m: m.get_agents_of_type(Police)[0].failed_checks + m.get_agents_of_type(Police)[0].successful_checks,
+                "total checks": lambda m: m.get_agents_of_type(Customs)[0].failed_checks + m.get_agents_of_type(Customs)[0].successful_checks,
                 "total smuggles": lambda m: m.get_agents_of_type(Smuggler)[0].failed_smuggles + m.get_agents_of_type(Smuggler)[0].successful_smuggles,
-                "caught packages": lambda m: m.get_agents_of_type(Police)[0].catched_packages,
+                "caught packages": lambda m: m.get_agents_of_type(Customs)[0].catched_packages,
                 "smuggled packages": lambda m: m.get_agents_of_type(Smuggler)[0].successful_smuggled_packages,
                 }, 
             agent_reporters={
                 "used by smugglers": lambda a: getattr(a, "used_by_s", 0),
-                "used by police": lambda a: getattr(a, "used_by_c", 0),
+                "used by customs": lambda a: getattr(a, "used_by_c", 0),
                 },
         )
         self.datacollector.collect(self)
@@ -83,33 +84,33 @@ class SmuggleAndSeekGame(mesa.Model):
 
     def distribute_points(self):
         """
-        Distributes points to the smuggler and police based on the taken actions.
+        Distributes points to the smuggler agent and customs agent based on the taken actions.
         """
-        # Retrieve the smuggler and police and their costs parameters
         smuggler = self.get_agents_of_type(Smuggler)[0]
-        police = self.get_agents_of_type(Police)[0]
+        customs = self.get_agents_of_type(Customs)[0]
 
-        smuggler_reward = smuggler.reward_value * (self.packages_per_day - np.dot(smuggler.action, police.action)) - np.dot(smuggler.costs_vector,[int(c>0) for c in smuggler.action])
+        smuggler_reward = smuggler.reward_value * (self.packages_per_day - np.dot(smuggler.action, customs.action)) - np.dot(smuggler.costs_vector,[int(c>0) for c in smuggler.action])
         smuggler.points += int(smuggler_reward)
         smuggler.points_queue.pop(0); smuggler.points_queue.append(smuggler_reward)
         if self.print: print(f"smuggler's points:{smuggler.points}")
         
-        police_reward = (police.reward_value) * np.dot(police.action, smuggler.action) - np.dot(police.costs_vector,police.action)
-        police.points += int(police_reward)
-        police.points_queue.pop(0); police.points_queue.append(police_reward)
-        if self.print: print(f"police's points:{police.points}")
+        customs_reward = (customs.reward_value) * np.dot(customs.action, smuggler.action) - np.dot(customs.costs_vector,customs.action)
+        customs.points += int(customs_reward)
+        customs.points_queue.pop(0); customs.points_queue.append(customs_reward)
+        if self.print: print(f"customs's points:{customs.points}")
 
     def agents_update_beliefs(self):
         """
-        Lets all agents of type Smuggler and police update their beliefs
+        Lets all agents of type Smuggler and Customs update their beliefs
         """
-        for agent in self.get_agents_of_type(Police): agent.update_beliefs()
+        for agent in self.get_agents_of_type(Customs): agent.update_beliefs()
         for agent in self.get_agents_of_type(Smuggler): agent.update_beliefs()
 
     def step(self):
         """
-        Performs one step/round/day in which the agents take actions in turn: first the smuggler and then the police,
-        after which the points are distributed, both agents update their beliefs, and the containers are emptied.
+        Performs one step/round/day in which the agents take actions in turn: first the smuggler agent and then the customs agent,
+        after which the points are distributed, both agents update their beliefs, and the containers are emptied. If the day counter
+        reaches 365 days, the game ends.
         """ 
         self.get_agents_of_type(Smuggler)[0].num_packages = self.packages_per_day    
         self.running_schedule.step()

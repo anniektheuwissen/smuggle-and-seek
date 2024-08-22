@@ -8,7 +8,7 @@ from .strategies.tom1 import Tom1
 from .strategies.tom2 import Tom2
 
 """
-SmuggleAndSeekAgent class: the police agent and smuggler agent inherit from this class
+SmuggleAndSeekAgent class: the customs agent and smuggler agent inherit from this class
 """
 class SmuggleAndSeekAgent(mesa.Agent):
     def __init__(self, unique_id, model, tom_order, learning_speed1, learning_speed2, agenttype):
@@ -19,8 +19,10 @@ class SmuggleAndSeekAgent(mesa.Agent):
         :param tom_order: The order of ToM at which the agent reasons
         :param learning_speed1: The speed at which the agent learns in most situations
         :param learning_speed2: The speed at which the agent learns in less informative situations
+        :param agenttype: The type of the agent, i.e. "smuggler" or "customs"
         """
         super().__init__(unique_id, model)
+
         match tom_order:
             case 0: self.strategy = Tom0(agenttype)
             case 1: self.strategy = Tom1(agenttype)
@@ -44,6 +46,11 @@ class SmuggleAndSeekAgent(mesa.Agent):
         self.conf2 = 0
 
     def similarity(self, c1, c2):
+        """
+        Calculates the similarity between two container types
+        :param c1: Container type 1
+        :param c2: Container type 2
+        """
         container_c1 = self.model.get_agents_of_type(Container)[c1]; container_c2 = self.model.get_agents_of_type(Container)[c2]
         similarity = 0
         for i in range(len(container_c1.features)):
