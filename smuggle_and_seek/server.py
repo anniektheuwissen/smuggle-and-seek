@@ -213,7 +213,7 @@ model_params = {
     "tom_smuggler": mesa.visualization.Choice(
         "Smuggler ToM order",
         value=0,
-        choices=[0,1],
+        choices=[0,1,2],
     ),
     "learning_speed1": mesa.visualization.Slider(
         "Learning speed1",

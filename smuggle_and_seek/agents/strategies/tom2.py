@@ -30,19 +30,18 @@ class Tom2(Strategy):
 
         return phi
     
-    def calculate_simulation_phi(self, b1, simulated_reward, order):
+    def calculate_simulation_phi(self, belief, simulated_reward, sim_agent):
         """
         Calculates the subjective value phi of the opponent by simulating the phi function of the opponent
         :param b1: The first-order beliefs
         :param simulated_reward: The simulated reward
-        :param order: The order of theory of mind at which the agent reasons
+        :param sim_agent: The agent of which the phi values are simulated
         """
-        simulation_phi = np.zeros(len(b1))
-        for c in range(len(b1)):
-            aa = [0]*len(b1); aa[c] = 1
-            if (self.agent == "smuggler" and order%2 == 1) or (self.agent == "customs" and order%2 == 0) :sumas = sum(b1)
-            else: sumas = sum(aa)
-            simulation_phi[c] = np.dot(aa, b1) * simulated_reward[c][1] + (sumas - np.dot(aa, b1)) * simulated_reward[c][0]
+        simulation_phi = np.zeros(len(belief))
+        for c in range(len(belief)):
+            aa = [0]*len(belief); aa[c] = 1
+            if (self.agent == "smuggler" and sim_agent == "self") or (self.agent == "customs" and sim_agent == "other"): simulation_phi[c] = (sum(aa) - np.dot(aa, belief)) * simulated_reward[c][0] - np.dot(aa, belief) * simulated_reward[c][0] - simulated_reward[c][1]
+            elif (self.agent == "customs" and sim_agent == "self") or (self.agent == "smuggler" and sim_agent == "other"): simulation_phi[c] = np.dot(aa, belief) * simulated_reward[c][0] - (sum(belief) - np.dot(aa, belief)) * simulated_reward[c][0] 
         return simulation_phi
 
     def merge_prediction(self, prediction, belief, confidence):
@@ -88,25 +87,25 @@ class Tom2(Strategy):
         """
         # Make prediction about behavior of opponent
         #   First make prediction about prediction that tom1 smuggler would make about behavior customs        
-        simulation_phi = self.calculate_simulation_phi(b2, simulation_rewarda, 2)
-        if self.print: print(f"custom's prediction of smuggler's simulation phi is : {simulation_phi}")
+        simulation_phi = self.calculate_simulation_phi(b2, simulation_rewarda, "self")
+        if self.print: print(f"agents's prediction of opponent's simulation phi is : {simulation_phi}")
         prediction_a1 = np.exp(simulation_phi) / np.sum(np.exp(simulation_phi))
-        if self.print: print(f"custom's prediction of smuggler's prediction a1 is : {prediction_a1}")
+        if self.print: print(f"agent's prediction of opponent's prediction a1 is : {prediction_a1}")
         #   Merge this prediction that tom1 smuggler would make with b1 (represents b0 of smuggler) 
         W = self.merge_prediction(prediction_a1, b1, 0.8)
         if self.print: print(f"W is : {W}")
 
         #   Then use this prediction of integrated beliefs of the opponent to predict the behavior of the opponent
-        simulation_phi = self.calculate_simulation_phi(W, simulation_rewardo, 1)
-        if self.print: print(f"custom's simulation phi is : {simulation_phi}")
+        simulation_phi = self.calculate_simulation_phi(W, simulation_rewardo, "other")
+        if self.print: print(f"agent's simulation phi is : {simulation_phi}")
         self.prediction_a2 = np.exp(simulation_phi) / np.sum(np.exp(simulation_phi))
         if self.print: print(f"prediction a2 is : {self.prediction_a2}")
 
         # Merge prediction with integrated beliefs of first-order prediction and zero-order beliefs
         # Make first-order prediction about behavior of opponent
-        if self.print: print(f"customs are calculating first-order prediction.....")
-        simulation_phi = self.calculate_simulation_phi(b1, simulation_rewardo, 1)
-        if self.print: print(f"custom's simulation phi is : {simulation_phi}")
+        if self.print: print(f"agent is calculating first-order prediction.....")
+        simulation_phi = self.calculate_simulation_phi(b1, simulation_rewardo, "other")
+        if self.print: print(f"agent's simulation phi is : {simulation_phi}")
         self.prediction_a1 = np.exp(simulation_phi) / np.sum(np.exp(simulation_phi))
         if self.print: print(f"prediction a1 is : {self.prediction_a1}")
         # Merge first-order prediction with zero-order belief
@@ -118,7 +117,7 @@ class Tom2(Strategy):
 
         # Calculate the subjective value phi for each action, and choose the action with the highest.
         phi = self.calculate_phi(W2, possible_actions, reward_value, costs_vector, expected_amount_catch)
-        if self.print: print(f"custom's phi is : {phi}")
+        if self.print: print(f"agent's phi is : {phi}")
         action = self.choose_action_softmax(phi, possible_actions)
 
         return action

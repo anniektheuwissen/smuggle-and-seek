@@ -32,19 +32,19 @@ class Tom1(Strategy):
 
         return phi
     
-    def calculate_simulation_phi(self, b1, simulated_reward, order):
+    def calculate_simulation_phi(self, belief, simulated_reward, sim_agent):
         """
         Calculates the subjective value phi of the opponent by simulating the phi function of the opponent
         :param b1: The first-order beliefs
         :param simulated_reward: The simulated reward
-        :param order: The order of theory of mind at which the agent reasons
+        :param sim_agent: The agent of which the phi values are simulated
         """
-        simulation_phi = np.zeros(len(b1))
-        for c in range(len(b1)):
-            aa = [0]*len(b1); aa[c] = 1
-            if (self.agent == "smuggler" and order%2 == 1) or (self.agent == "customs" and order%2 == 0) :sumas = sum(b1)
-            else: sumas = sum(aa)
-            simulation_phi[c] = np.dot(aa, b1) * simulated_reward[c][1] + (sumas - np.dot(aa, b1)) * simulated_reward[c][0]
+        simulation_phi = np.zeros(len(belief))
+        for c in range(len(belief)):
+            aa = [0]*len(belief); aa[c] = 1
+            if (self.agent == "smuggler" and sim_agent == "self") or (self.agent == "customs" and sim_agent == "other"): simulation_phi[c] = (sum(aa) - np.dot(aa, belief)) * simulated_reward[c][0] - np.dot(aa, belief) * simulated_reward[c][0] - simulated_reward[c][1]
+            elif (self.agent == "customs" and sim_agent == "self") or (self.agent == "smuggler" and sim_agent == "other"): 
+                simulation_phi[c] = np.dot(aa, belief) * simulated_reward[c][0] - (sum(belief) - np.dot(aa, belief)) * simulated_reward[c][0] 
         return simulation_phi
 
     def merge_prediction(self, prediction, belief, confidence):
@@ -90,7 +90,7 @@ class Tom1(Strategy):
         """
         if self.print: print(f"possible actions are : {possible_actions}")
         # Make prediction about behavior of opponent
-        simulation_phi = self.calculate_simulation_phi(b1, simulation_rewardo, 1)
+        simulation_phi = self.calculate_simulation_phi(b1, simulation_rewardo, "other")
         if self.print: print(f"simulation phi is : {simulation_phi}")   
         self.prediction_a1 = np.exp(simulation_phi) / np.sum(np.exp(simulation_phi))
         if self.print: print(f"prediction a1 is : {self.prediction_a1}")

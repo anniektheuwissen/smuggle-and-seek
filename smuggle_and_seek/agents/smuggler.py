@@ -33,9 +33,9 @@ class Smuggler(SmuggleAndSeekAgent):
         # Define possible actions, and reward and costs vectors
         self.possible_actions = list(self.generate_combinations(packages, num_cont))
         self.reward_value = 2
-        self.costs_vector = self.create_costs_vector(4, 1)
+        self.costs_vector = self.create_costs_vector(5, 1)
 
-        self.simulationpayoff_o = [[-1*self.average_amount_catch, 1*self.average_amount_catch]] * num_cont
+        self.simulationpayoff_o = [[self.average_amount_catch]] * num_cont
         self.simulationpayoff_a = self.create_simulationpayoff_vector()
     
     def generate_combinations(self, packages, num_cont):
@@ -60,10 +60,9 @@ class Smuggler(SmuggleAndSeekAgent):
         Creates the simulation payoff vector
         """
         containers = self.model.get_agents_of_type(Container)
-        simulationpayoff = [[1 * self.average_amount_catch, -1 * self.average_amount_catch]] * len(containers)
+        simulationpayoff = [[self.average_amount_catch, 0] for _ in range(len(containers))] 
         for idx in range(len(simulationpayoff)):
-            for i in range(len(simulationpayoff[idx])):
-                simulationpayoff[idx][i] -= sum([(containers[idx].features[j] != self.preferences[j]) for j in range(len(self.preferences))])
+            simulationpayoff[idx][1] = sum([(containers[idx].features[j] != self.preferences[j]) for j in range(len(self.preferences))])
         return simulationpayoff
 
     def create_costs_vector(self, container_cost, feature_cost):
@@ -118,7 +117,7 @@ class Smuggler(SmuggleAndSeekAgent):
         if (self.num_smuggles - self.successful_smuggles) > 0:
             self.average_amount_catch = self.failed_smuggled_packages / self.failed_smuggles
 
-        for i in range(len(self.simulationpayoff_o)): self.simulationpayoff_o[i] = [-1*self.average_amount_catch, 1*self.average_amount_catch]
+        for i in range(len(self.simulationpayoff_o)): self.simulationpayoff_o[i] = [self.average_amount_catch]
         self.simulationpayoff_a = self.create_simulationpayoff_vector()
         
     def update_b0(self):
@@ -187,7 +186,7 @@ class Smuggler(SmuggleAndSeekAgent):
                 self.b2[c] = (1 - self.learning_speed2) * self.b1[c] + (c not in self.succes_actions) * self.learning_speed2
         if self.model.print: print(self.b2)
     
-    def update_confidence(self, confidence):
+    def update_confidence(self, confidence, order):
         """
         Updates confidence (c1 or c2)
         """
@@ -195,8 +194,8 @@ class Smuggler(SmuggleAndSeekAgent):
         if self.model.print: print(confidence)
         for (c,a) in enumerate(self.action):
             if a>0:
-                if confidence == self.conf1: prediction = self.strategy.prediction_a1[c]
-                elif confidence == self.conf2: prediction = self.strategy.prediction_a2[c]
+                if order == "1": prediction = self.strategy.prediction_a1[c]
+                elif order == "2": prediction = self.strategy.prediction_a2[c]
                 if prediction < 0.25:
                     update = 0.25 - prediction
                     if c in self.succes_actions: confidence = (1 - update) * confidence + update;
@@ -216,13 +215,13 @@ class Smuggler(SmuggleAndSeekAgent):
         self.update_average_amount_per_catch()
         self.update_b0()
 
-        if self.strategy.strategy == "tom1":
+        if self.strategy.strategy == "tom1" or self.strategy.strategy == "tom2":
             self.update_b1()
-            self.conf1 = self.update_confidence(self.conf1)
+            self.conf1 = self.update_confidence(self.conf1, "1")
         
         if self.strategy.strategy == "tom2":
             self.update_b2()
-            self.conf2 = self.update_confidence(self.conf2)
+            self.conf2 = self.update_confidence(self.conf2, "2")
 
     def step(self):
         """
