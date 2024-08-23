@@ -33,7 +33,7 @@ class Smuggler(SmuggleAndSeekAgent):
         # Define possible actions, and reward and costs vectors
         self.possible_actions = list(self.generate_combinations(packages, num_cont))
         self.reward_value = 2
-        self.costs_vector = self.create_costs_vector(5, 1)
+        self.costs_vector = self.create_costs_vector(5, 2)
 
         self.simulationpayoff_o = [[self.average_amount_catch]] * num_cont
         self.simulationpayoff_a = self.create_simulationpayoff_vector()
@@ -194,8 +194,8 @@ class Smuggler(SmuggleAndSeekAgent):
         if self.model.print: print(confidence)
         for (c,a) in enumerate(self.action):
             if a>0:
-                if order == "1": prediction = self.strategy.prediction_a1[c]
-                elif order == "2": prediction = self.strategy.prediction_a2[c]
+                if order == "1": prediction = self.strategy.prediction_a1[c] / sum(self.strategy.prediction_a1)
+                elif order == "2": prediction = self.strategy.prediction_a2[c] / sum(self.strategy.prediction_a2)
                 if prediction < 0.25:
                     update = 0.25 - prediction
                     if c in self.succes_actions: confidence = (1 - update) * confidence + update;

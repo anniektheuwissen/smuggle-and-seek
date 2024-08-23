@@ -85,6 +85,7 @@ class Tom2(Strategy):
         :param simulation_rewardo: The simulated reward for the opponent agent
         :param simulation_rewarda: The simulated reward for the agent itself
         """
+        if self.print: print(f"possible actions are : {possible_actions}")
         # Make prediction about behavior of opponent
         #   First make prediction about prediction that tom1 smuggler would make about behavior customs        
         simulation_phi = self.calculate_simulation_phi(b2, simulation_rewarda, "self")
