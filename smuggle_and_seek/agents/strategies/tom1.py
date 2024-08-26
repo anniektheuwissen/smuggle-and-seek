@@ -26,9 +26,8 @@ class Tom1(Strategy):
         phi = np.zeros(len(possible_actions))
 
         for (idx,aa) in enumerate(possible_actions):
-            if len(possible_actions) == (2**len(b0) - 1):
-                phi[idx] = reward_value * expected_amount_catch * np.dot(aa, b0) - np.dot(costs_vector,[int(c>0) for c in aa])
-            else: phi[idx] = reward_value * (max(possible_actions[0]) - np.dot(aa, b0)) - np.dot(costs_vector,[int(c>0) for c in aa])
+            if self.agent == "customs": phi[idx] = reward_value * np.dot(aa, b0) - np.dot(costs_vector,[int(c>0) for c in aa])
+            elif self.agent == "smuggler": phi[idx] = reward_value * (max(possible_actions[0]) - np.dot(aa, b0)) - np.dot(costs_vector,[int(c>0) for c in aa])
 
         return phi
     
@@ -43,8 +42,7 @@ class Tom1(Strategy):
         for c in range(len(belief)):
             aa = [0]*len(belief); aa[c] = 1
             if (self.agent == "smuggler" and sim_agent == "self") or (self.agent == "customs" and sim_agent == "other"): simulation_phi[c] = (sum(aa) - np.dot(aa, belief)) * simulated_reward[c][0] - np.dot(aa, belief) * simulated_reward[c][0] - simulated_reward[c][1]
-            elif (self.agent == "customs" and sim_agent == "self") or (self.agent == "smuggler" and sim_agent == "other"): 
-                simulation_phi[c] = np.dot(aa, belief) * simulated_reward[c][0] - (sum(belief) - np.dot(aa, belief)) * simulated_reward[c][0] 
+            elif (self.agent == "customs" and sim_agent == "self") or (self.agent == "smuggler" and sim_agent == "other"): simulation_phi[c] = np.dot(aa, belief) * simulated_reward[c][0] - (sum(belief) - np.dot(aa, belief)) * simulated_reward[c][0] 
         return simulation_phi
 
     def merge_prediction(self, prediction, belief, confidence):
@@ -73,6 +71,14 @@ class Tom1(Strategy):
 
         return action
     
+    def softmax(self, phi, transform):
+        """
+        Calculates softmax of phi values
+        :param phi: The phi values
+        """
+        softmax = np.exp(transform * phi) / np.sum(np.exp(transform * phi))
+        return softmax
+    
     def choose_action(self, possible_actions, b0, b1, b2, conf1, conf2, reward_value, costs_vector, expected_amount_catch, simulation_rewardo, simulation_rewarda):
         """
         Chooses an action associated with first-order theory of mind reasoning
@@ -92,7 +98,7 @@ class Tom1(Strategy):
         # Make prediction about behavior of opponent
         simulation_phi = self.calculate_simulation_phi(b1, simulation_rewardo, "other")
         if self.print: print(f"simulation phi is : {simulation_phi}")   
-        self.prediction_a1 = np.exp(simulation_phi) / np.sum(np.exp(simulation_phi))
+        self.prediction_a1 = self.softmax(simulation_phi, 2)
         if self.print: print(f"prediction a1 is : {self.prediction_a1}")
 
         # Merge prediction with zero-order belief

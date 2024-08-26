@@ -24,9 +24,8 @@ class Tom0(Strategy):
         phi = np.zeros(len(possible_actions))
 
         for (idx,aa) in enumerate(possible_actions):
-            if len(possible_actions) == (2**len(b0) - 1):
-                phi[idx] = reward_value * expected_amount_catch * np.dot(aa, b0) - np.dot(costs_vector,[int(c>0) for c in aa])
-            else: phi[idx] = reward_value * (max(possible_actions[0]) - np.dot(aa, b0)) - np.dot(costs_vector,[int(c>0) for c in aa])
+            if self.agent == "customs": phi[idx] = reward_value * np.dot(aa, b0) - np.dot(costs_vector,[int(c>0) for c in aa])
+            elif self.agent == "smuggler": phi[idx] = reward_value * (max(possible_actions[0]) - np.dot(aa, b0)) - np.dot(costs_vector,[int(c>0) for c in aa])
 
         return phi
     

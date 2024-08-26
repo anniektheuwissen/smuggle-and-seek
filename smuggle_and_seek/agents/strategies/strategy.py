@@ -13,5 +13,3 @@ class Strategy():
         self.agent = agent
         
         self.print = False
-
-    

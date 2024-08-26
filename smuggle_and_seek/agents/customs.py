@@ -32,7 +32,7 @@ class Customs(SmuggleAndSeekAgent):
         self.possible_actions = list(map(list, itertools.product([0, 1], repeat=num_cont)))
         self.possible_actions.remove([0]*num_cont)
         self.reward_value = 2
-        self.costs_vector = [6] * num_cont
+        self.costs_vector = [4] * num_cont
 
         self.simulationpayoff_o = self.create_simulationpayoff_vector()
         self.simulationpayoff_a = [[self.expected_amount_catch]] * num_cont
@@ -54,7 +54,7 @@ class Customs(SmuggleAndSeekAgent):
         containers = self.model.get_agents_of_type(Container)
         simulationpayoff = [[self.expected_amount_catch, 0] for _ in range(len(containers))] 
         for idx in range(len(simulationpayoff)):
-            simulationpayoff[idx][1] = sum([(containers[idx].features[j] != self.expected_preferences[j]) for j in range(len(self.expected_preferences))])
+            simulationpayoff[idx][1] = sum([(containers[idx].features[j] != self.expected_preferences[j]) for j in range(len(self.expected_preferences))]) / len(self.expected_preferences)
         return simulationpayoff
 
     def take_action(self):
@@ -184,11 +184,11 @@ class Customs(SmuggleAndSeekAgent):
                 elif order == "2": prediction = self.strategy.prediction_a2[c] / sum(self.strategy.prediction_a2)
                 if prediction < 0.25:
                     update = 0.25 - prediction
-                    if c in self.failed_actions: confidence = (1 - update) * confidence + update;
+                    if c in self.failed_actions: update /= (len(self.strategy.prediction_a1) -1); confidence = (1 - update) * confidence + update;
                     if c in self.succes_actions: confidence = (1 - update) * confidence;
                 if prediction > 0.25:
                     update = prediction - 0.25
-                    if c in self.failed_actions: confidence = (1 - update) * confidence;
+                    if c in self.failed_actions: update /= (len(self.strategy.prediction_a1) -1); confidence = (1 - update) * confidence;
                     if c in self.succes_actions: confidence = (1 - update) * confidence + update;
         if self.model.print: print(confidence)
         return confidence
