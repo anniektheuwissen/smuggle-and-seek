@@ -1,6 +1,7 @@
 import numpy as np
 
 from .strategy import Strategy
+from .tom1 import Tom1
 
 """
 Tom2 class: the tom2 strategy
@@ -111,16 +112,11 @@ class Tom2(Strategy):
 
         # Merge prediction with integrated beliefs of first-order prediction and zero-order beliefs
         # Make first-order prediction about behavior of opponent
-        if self.print: print(f"agent is calculating first-order prediction.....")
-        simulation_phi3 = self.calculate_simulation_phi(b1, simulation_rewardo, "other")
-        if self.print: print(f"agent's simulation phi is : {simulation_phi3}")
-        self.prediction_a1 = self.softmax(simulation_phi3, 2)
-        if self.print: print(f"prediction a1 is : {self.prediction_a1}")
-        # Merge first-order prediction with zero-order belief
-        W = self.merge_prediction(self.prediction_a1, b0, conf1)
-        if self.print: print(f"W is : {W}")
+        tom1 = Tom1(self.agent)
+        tom1.choose_action(possible_actions, b0, b1, b2, conf1, conf2, reward_value, costs_vector, expected_amount_catch, simulation_rewardo, simulation_rewarda)
+        self.prediction_a1 = tom1.prediction_a1
         # Merge second-order prediction with integrated belief
-        W2 = self.merge_prediction(self.prediction_a2, W, conf2)
+        W2 = self.merge_prediction(self.prediction_a2, tom1.W1, conf2)
         if self.print: print(f"W2 is : {W2}")
 
         # Calculate the subjective value phi for each action, and choose the action with the highest.

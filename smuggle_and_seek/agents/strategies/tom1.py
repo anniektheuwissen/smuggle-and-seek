@@ -13,6 +13,7 @@ class Tom1(Strategy):
         super().__init__("tom1", agent)
 
         self.prediction_a1 = []
+        self.W1 = []
         
     def calculate_phi(self, b0, possible_actions, reward_value, costs_vector, expected_amount_catch):
         """
@@ -102,11 +103,11 @@ class Tom1(Strategy):
         if self.print: print(f"prediction a1 is : {self.prediction_a1}")
 
         # Merge prediction with zero-order belief
-        W = self.merge_prediction(self.prediction_a1, b0, conf1)
-        if self.print: print(f"W is : {W}")
+        self.W1 = self.merge_prediction(self.prediction_a1, b0, conf1)
+        if self.print: print(f"W is : {self.W1}")
 
         # Choose action based on W
-        phi = self.calculate_phi(W, possible_actions, reward_value, costs_vector, expected_amount_catch)
+        phi = self.calculate_phi(self.W1, possible_actions, reward_value, costs_vector, expected_amount_catch)
         if self.print: print(f"phi is : {phi}")
         action = self.choose_action_softmax(phi, possible_actions)
         return action
