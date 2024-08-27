@@ -32,7 +32,7 @@ class Customs(SmuggleAndSeekAgent):
         self.possible_actions = list(map(list, itertools.product([0, 1], repeat=num_cont)))
         self.possible_actions.remove([0]*num_cont)
         self.reward_value = 2
-        self.costs_vector = [4] * num_cont
+        self.costs_vector = [6] * num_cont
 
         self.simulationpayoff_o = self.create_simulationpayoff_vector()
         self.simulationpayoff_a = [[self.expected_amount_catch]] * num_cont

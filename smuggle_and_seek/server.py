@@ -87,7 +87,7 @@ def customs_grid_name(model):
     """
     last_action = model.get_agents_of_type(Customs)[0].action
     tab = "&nbsp &nbsp &nbsp &nbsp"   
-    return f"customs distribution of actions: {tab}{tab}{tab} last action:{last_action}"
+    return f"Customs distribution of actions: {tab}{tab}{tab} last action:{last_action}"
 
 def smuggler_grid_name(model):
     """

@@ -1,3 +1,4 @@
+import numpy as np
 
 """
 Strategy class: the tom0, tom1, and tom2 strategies inherit from this class
@@ -13,3 +14,11 @@ class Strategy():
         self.agent = agent
         
         self.print = False
+    
+    def softmax(self, phi, transform=1):
+        """
+        Calculates softmax of phi values
+        :param phi: The phi values
+        """
+        softmax = np.exp(transform * phi) / np.sum(np.exp(transform * phi))
+        return softmax
