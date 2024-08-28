@@ -27,7 +27,8 @@ class Smuggler(SmuggleAndSeekAgent):
         self.failed_smuggles = 0
         self.failed_smuggled_packages = 0
 
-        self.average_amount_catch = 5
+        self.average_amount_catch = self.model.packages_per_day
+        self.expected_preferences = self.add_preferences()
 
         num_cont = len(self.model.get_agents_of_type(Container))
         # Define possible actions, and reward and costs vectors
@@ -62,7 +63,7 @@ class Smuggler(SmuggleAndSeekAgent):
         containers = self.model.get_agents_of_type(Container)
         simulationpayoff = [[self.average_amount_catch, 0] for _ in range(len(containers))] 
         for idx in range(len(simulationpayoff)):
-            simulationpayoff[idx][1] = sum([(containers[idx].features[j] != self.preferences[j]) for j in range(len(self.preferences))]) / len(self.preferences)
+            simulationpayoff[idx][1] = sum([(containers[idx].features[j] != self.expected_preferences[j]) for j in range(len(self.expected_preferences))]) / len(self.expected_preferences)
         return simulationpayoff
 
     def create_costs_vector(self, container_cost, feature_cost):
@@ -86,6 +87,7 @@ class Smuggler(SmuggleAndSeekAgent):
             preferences[i] = self.random.randint(0,self.model.i_per_feat-1)
         if self.model.print: print(f"preferences: {preferences}")
         return preferences
+
 
     def take_action(self):
         """
@@ -119,6 +121,20 @@ class Smuggler(SmuggleAndSeekAgent):
 
         for i in range(len(self.simulationpayoff_o)): self.simulationpayoff_o[i] = [self.average_amount_catch]
         self.simulationpayoff_a = self.create_simulationpayoff_vector()
+
+    def update_expected_preferences(self):
+        """
+        Updates the expected preferences of the smuggler
+        """
+        if self.model.print: print("smuggler are updating expected preferences beliefs bp from customs to ...:")
+        containers = self.model.get_agents_of_type(Container)
+        checked = [[0 for _ in range(self.model.i_per_feat)] for _ in range(self.model.num_features)]
+        for container in containers:
+            for feat in range(len(container.features)):
+                checked[feat][container.features[feat]] += container.used_succ_by_c
+        for i in range(len(self.expected_preferences)):
+            self.expected_preferences[i] = checked[i].index(max(checked[i]))
+        if self.model.print: print(f"expected preferences are: {self.expected_preferences}")
         
     def update_b0(self):
         """
@@ -197,12 +213,14 @@ class Smuggler(SmuggleAndSeekAgent):
                 if order == "1": prediction = self.strategy.prediction_a1[c] / sum(self.strategy.prediction_a1)
                 elif order == "2": prediction = self.strategy.prediction_a2[c] / sum(self.strategy.prediction_a2)
                 if prediction < 0.25:
-                    update = 0.25 - prediction #if 0.25 - prediction < 0.1 else 0.1
-                    if c in self.succes_actions: update /= (len(self.strategy.prediction_a1) -1); confidence = (1 - update) * confidence + update;
+                    update = 0.25 - prediction
+                    if c in self.succes_actions: #update /= (len(self.strategy.prediction_a1) -1); 
+                        confidence = (1 - update) * confidence + update;
                     if c in self.failed_actions: confidence = (1 - update) * confidence;
                 if prediction > 0.25:
-                    update = prediction - 0.25 #if prediction - 0.25 < 0.3 else 0.3
-                    if c in self.succes_actions: update /= (len(self.strategy.prediction_a1) -1); confidence = (1 - update) * confidence;
+                    update = prediction - 0.25
+                    if c in self.succes_actions: #update /= (len(self.strategy.prediction_a1) -1); 
+                        confidence = (1 - update) * confidence;
                     if c in self.failed_actions: confidence = (1 - update) * confidence + update;
         if self.model.print: print(confidence)
         return confidence
@@ -222,6 +240,7 @@ class Smuggler(SmuggleAndSeekAgent):
         if self.strategy.strategy == "tom2":
             self.update_b2()
             self.conf2 = self.update_confidence(self.conf2, "2")
+            self.update_expected_preferences()
 
     def step(self):
         """

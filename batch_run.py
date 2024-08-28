@@ -68,7 +68,7 @@ def barplot_annotate_brackets(num1, num2, data, center, height, dh=.05, barh=.02
 
 params = {
     "k": 2,
-    "l": 3,
+    "l": 2,
     "m": 5,
     "tom_customs": range(0,3,1),
     "tom_smuggler": range(0,3,1),
