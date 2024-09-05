@@ -72,8 +72,8 @@ params = {
     "m": 5,
     "tom_customs": range(0,3,1),
     "tom_smuggler": range(0,3,1),
-    "learning_speed1": 0.2,
-    "learning_speed2": 0.05
+    "learning_speed1": 0.4,
+    "learning_speed2": 0.2
 }
 
 results = mesa.batch_run(
