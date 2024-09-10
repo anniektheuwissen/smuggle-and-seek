@@ -65,9 +65,26 @@ def barplot_annotate_brackets(num1, num2, data, center, height, dh=.05, barh=.02
 
         plt.text(*mid, text, **kwargs)
 
-
+# Run:
 params = {
     "k": 2,
+    "l": range(2,5,1),
+    "m": 5,
+    "tom_customs": range(0,3,1),
+    "tom_smuggler": range(0,3,1),
+    "learning_speed1": 0.4,
+    "learning_speed2": 0.2
+}
+
+results1 = mesa.batch_run(
+    SmuggleAndSeekGame,
+    parameters=params,
+    iterations=1,
+    display_progress=True,
+)
+
+params = {
+    "k": 3,
     "l": 2,
     "m": 5,
     "tom_customs": range(0,3,1),
@@ -76,39 +93,74 @@ params = {
     "learning_speed2": 0.2
 }
 
-results = mesa.batch_run(
+results2 = mesa.batch_run(
     SmuggleAndSeekGame,
     parameters=params,
-    iterations=10,
+    iterations=1,
     display_progress=True,
 )
 
 
-# Create graph from csv:
-results_df = pd.DataFrame(results)
+# Collect all data together
+results_df1 = pd.DataFrame(results1)
+results_df2 = pd.DataFrame(results2)
+results_df = pd.concat([results_df1, results_df2])
 results_df.to_csv('results.csv')
 
-results_0vs0 = results_df[(results_df["tom_customs"] == 0) & (results_df["tom_smuggler"] == 0)]
-results_0vs1 = results_df[(results_df["tom_customs"] == 0) & (results_df["tom_smuggler"] == 1)]
-results_0vs2 = results_df[(results_df["tom_customs"] == 0) & (results_df["tom_smuggler"] == 2)]
-results_1vs0 = results_df[(results_df["tom_customs"] == 1) & (results_df["tom_smuggler"] == 0)]
-results_1vs1 = results_df[(results_df["tom_customs"] == 1) & (results_df["tom_smuggler"] == 1)]
-results_1vs2 = results_df[(results_df["tom_customs"] == 1) & (results_df["tom_smuggler"] == 2)]
-results_2vs0 = results_df[(results_df["tom_customs"] == 2) & (results_df["tom_smuggler"] == 0)]
-results_2vs1 = results_df[(results_df["tom_customs"] == 2) & (results_df["tom_smuggler"] == 1)]
-# results_2vs2 = results_df[(results_df["tom_customs"] == 2) & (results_df["tom_smuggler"] == 2)]
+
+# Create graphs from csv:
+results_2x2 = results_df[(results_df["k"] == 2) & (results_df["l"] == 2)]
+results_2x2x2 = results_df[(results_df["k"] == 3) & (results_df["l"] == 2)]
+results_3x3 = results_df[(results_df["k"] == 2) & (results_df["l"] == 3)]
+results_4x4 = results_df[(results_df["k"] == 2) & (results_df["l"] == 4)]
+
+results_2x2_0vs0 = results_2x2[(results_2x2["tom_customs"] == 0) & (results_2x2["tom_smuggler"] == 0)]
+results_2x2_0vs1 = results_2x2[(results_2x2["tom_customs"] == 0) & (results_2x2["tom_smuggler"] == 1)]
+results_2x2_0vs2 = results_2x2[(results_2x2["tom_customs"] == 0) & (results_2x2["tom_smuggler"] == 2)]
+results_2x2_1vs0 = results_2x2[(results_2x2["tom_customs"] == 1) & (results_2x2["tom_smuggler"] == 0)]
+results_2x2_1vs1 = results_2x2[(results_2x2["tom_customs"] == 1) & (results_2x2["tom_smuggler"] == 1)]
+results_2x2_1vs2 = results_2x2[(results_2x2["tom_customs"] == 1) & (results_2x2["tom_smuggler"] == 2)]
+results_2x2_2vs0 = results_2x2[(results_2x2["tom_customs"] == 2) & (results_2x2["tom_smuggler"] == 0)]
+results_2x2_2vs1 = results_2x2[(results_2x2["tom_customs"] == 2) & (results_2x2["tom_smuggler"] == 1)]
+
+results_2x2x2_0vs0 = results_2x2x2[(results_2x2x2["tom_customs"] == 0) & (results_2x2x2["tom_smuggler"] == 0)]
+results_2x2x2_0vs1 = results_2x2x2[(results_2x2x2["tom_customs"] == 0) & (results_2x2x2["tom_smuggler"] == 1)]
+results_2x2x2_0vs2 = results_2x2x2[(results_2x2x2["tom_customs"] == 0) & (results_2x2x2["tom_smuggler"] == 2)]
+results_2x2x2_1vs0 = results_2x2x2[(results_2x2x2["tom_customs"] == 1) & (results_2x2x2["tom_smuggler"] == 0)]
+results_2x2x2_1vs1 = results_2x2x2[(results_2x2x2["tom_customs"] == 1) & (results_2x2x2["tom_smuggler"] == 1)]
+results_2x2x2_1vs2 = results_2x2x2[(results_2x2x2["tom_customs"] == 1) & (results_2x2x2["tom_smuggler"] == 2)]
+results_2x2x2_2vs0 = results_2x2x2[(results_2x2x2["tom_customs"] == 2) & (results_2x2x2["tom_smuggler"] == 0)]
+results_2x2x2_2vs1 = results_2x2x2[(results_2x2x2["tom_customs"] == 2) & (results_2x2x2["tom_smuggler"] == 1)]
+
+results_3x3_0vs0 = results_3x3[(results_3x3["tom_customs"] == 0) & (results_3x3["tom_smuggler"] == 0)]
+results_3x3_0vs1 = results_3x3[(results_3x3["tom_customs"] == 0) & (results_3x3["tom_smuggler"] == 1)]
+results_3x3_0vs2 = results_3x3[(results_3x3["tom_customs"] == 0) & (results_3x3["tom_smuggler"] == 2)]
+results_3x3_1vs0 = results_3x3[(results_3x3["tom_customs"] == 1) & (results_3x3["tom_smuggler"] == 0)]
+results_3x3_1vs1 = results_3x3[(results_3x3["tom_customs"] == 1) & (results_3x3["tom_smuggler"] == 1)]
+results_3x3_1vs2 = results_3x3[(results_3x3["tom_customs"] == 1) & (results_3x3["tom_smuggler"] == 2)]
+results_3x3_2vs0 = results_3x3[(results_3x3["tom_customs"] == 2) & (results_3x3["tom_smuggler"] == 0)]
+results_3x3_2vs1 = results_3x3[(results_3x3["tom_customs"] == 2) & (results_3x3["tom_smuggler"] == 1)]
+
+results_4x4_0vs0 = results_4x4[(results_4x4["tom_customs"] == 0) & (results_4x4["tom_smuggler"] == 0)]
+results_4x4_0vs1 = results_4x4[(results_4x4["tom_customs"] == 0) & (results_4x4["tom_smuggler"] == 1)]
+results_4x4_0vs2 = results_4x4[(results_4x4["tom_customs"] == 0) & (results_4x4["tom_smuggler"] == 2)]
+results_4x4_1vs0 = results_4x4[(results_4x4["tom_customs"] == 1) & (results_4x4["tom_smuggler"] == 0)]
+results_4x4_1vs1 = results_4x4[(results_4x4["tom_customs"] == 1) & (results_4x4["tom_smuggler"] == 1)]
+results_4x4_1vs2 = results_4x4[(results_4x4["tom_customs"] == 1) & (results_4x4["tom_smuggler"] == 2)]
+results_4x4_2vs0 = results_4x4[(results_4x4["tom_customs"] == 2) & (results_4x4["tom_smuggler"] == 0)]
+results_4x4_2vs1 = results_4x4[(results_4x4["tom_customs"] == 2) & (results_4x4["tom_smuggler"] == 1)]
 
 for data in ["customs points", "smuggler points", "successful checks", "successful smuggles", "caught packages", "smuggled packages", "total checks", "total smuggles"]:
     
-    t_stat_1vs0, p_val_1vs0 = stats.ttest_ind(results_0vs0[data], results_1vs0[data])
-    t_stat_0vs1, p_val_0vs1 = stats.ttest_ind(results_0vs0[data], results_0vs1[data])
-    t_stat_2vs0, p_val_2vs0 = stats.ttest_ind(results_0vs0[data], results_2vs0[data])
-    t_stat_0vs2, p_val_0vs2 = stats.ttest_ind(results_0vs0[data], results_0vs2[data])
-    t_stat_2vs1, p_val_2vs1 = stats.ttest_ind(results_1vs1[data], results_2vs1[data])
-    t_stat_1vs2, p_val_1vs2 = stats.ttest_ind(results_1vs1[data], results_1vs2[data])
+    t_stat_1vs0, p_val_1vs0 = stats.ttest_ind(results_2x2_0vs0[data], results_2x2_1vs0[data])
+    t_stat_0vs1, p_val_0vs1 = stats.ttest_ind(results_2x2_0vs0[data], results_2x2_0vs1[data])
+    t_stat_2vs0, p_val_2vs0 = stats.ttest_ind(results_2x2_0vs0[data], results_2x2_2vs0[data])
+    t_stat_0vs2, p_val_0vs2 = stats.ttest_ind(results_2x2_0vs0[data], results_2x2_0vs2[data])
+    t_stat_2vs1, p_val_2vs1 = stats.ttest_ind(results_2x2_1vs1[data], results_2x2_2vs1[data])
+    t_stat_1vs2, p_val_1vs2 = stats.ttest_ind(results_2x2_1vs1[data], results_2x2_1vs2[data])
     
     fig, ax = plt.subplots(figsize=(16,8))
-    boxplot = ax.boxplot([results_0vs0[data], results_1vs0[data], results_0vs1[data], results_2vs0[data], results_0vs2[data], results_1vs1[data], results_2vs1[data], results_1vs2[data]],
+    boxplot = ax.boxplot([results_2x2_0vs0[data], results_2x2_1vs0[data], results_2x2_0vs1[data], results_2x2_2vs0[data], results_2x2_0vs2[data], results_2x2_1vs1[data], results_2x2_2vs1[data], results_2x2_1vs2[data]],
                             labels=['ToM0 customs vs\n ToM0 smuggler', 'ToM1 customs vs\n ToM0 smuggler', 'ToM0 customs vs\n ToM1 smuggler', 'ToM2 customs vs\n ToM0 smuggler', 
                                     'ToM0 customs vs\n ToM2 smuggler', 'ToM1 customs vs\n ToM1 smuggler', 'ToM2 customs vs\n ToM1 smuggler', 'ToM1 customs vs\n ToM2 smuggler'], patch_artist=True, medianprops={'color': 'black'}
                             )
@@ -118,8 +170,249 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     plt.ylabel(data)
     plt.title(f"Number of {data} after 365 days")
 
-    height = max([max(results_0vs0[data]), max(results_1vs0[data]), max(results_0vs1[data]), max(results_2vs0[data]), max(results_0vs2[data]), max(results_1vs1[data]), max(results_2vs1[data]), max(results_1vs2[data])])
+    height = max([max(results_2x2_0vs0[data]), max(results_2x2_1vs0[data]), max(results_2x2_0vs1[data]), max(results_2x2_2vs0[data]), max(results_2x2_0vs2[data]), max(results_2x2_1vs1[data]), max(results_2x2_2vs1[data]), max(results_2x2_1vs2[data])])
     barplot_annotate_brackets([0,0,0,0,5,5], [1,2,3,4,6,7], [p_val_1vs0, p_val_0vs1, p_val_2vs0, p_val_0vs2, p_val_2vs1, p_val_1vs2], [1,2,3,4,5,6,7,8], [height]*8, dh=[.05, .1, .15, .2, .05, .1])
 
-    # plt.savefig("results/k="+str(params["k"])+" l="+str(params["l"])+" m="+str(params["m"])+" "+str(data)+".png")
+    # plt.savefig("results/2x2_"+str(data)+".png")
+    plt.show()
+
+
+    t_stat_1vs0, p_val_1vs0 = stats.ttest_ind(results_2x2x2_0vs0[data], results_2x2x2_1vs0[data])
+    t_stat_0vs1, p_val_0vs1 = stats.ttest_ind(results_2x2x2_0vs0[data], results_2x2x2_0vs1[data])
+    t_stat_2vs0, p_val_2vs0 = stats.ttest_ind(results_2x2x2_0vs0[data], results_2x2x2_2vs0[data])
+    t_stat_0vs2, p_val_0vs2 = stats.ttest_ind(results_2x2x2_0vs0[data], results_2x2x2_0vs2[data])
+    t_stat_2vs1, p_val_2vs1 = stats.ttest_ind(results_2x2x2_1vs1[data], results_2x2x2_2vs1[data])
+    t_stat_1vs2, p_val_1vs2 = stats.ttest_ind(results_2x2x2_1vs1[data], results_2x2x2_1vs2[data])
+    
+    fig, ax = plt.subplots(figsize=(16,8))
+    boxplot = ax.boxplot([results_2x2x2_0vs0[data], results_2x2x2_1vs0[data], results_2x2x2_0vs1[data], results_2x2x2_2vs0[data], results_2x2x2_0vs2[data], results_2x2x2_1vs1[data], results_2x2x2_2vs1[data], results_2x2x2_1vs2[data]],
+                            labels=['ToM0 customs vs\n ToM0 smuggler', 'ToM1 customs vs\n ToM0 smuggler', 'ToM0 customs vs\n ToM1 smuggler', 'ToM2 customs vs\n ToM0 smuggler', 
+                                    'ToM0 customs vs\n ToM2 smuggler', 'ToM1 customs vs\n ToM1 smuggler', 'ToM2 customs vs\n ToM1 smuggler', 'ToM1 customs vs\n ToM2 smuggler'], patch_artist=True, medianprops={'color': 'black'}
+                            )
+    colors = ['#A8A9AD', '#728FCE', '#728FCE', '#728FCE', '#728FCE', '#A8A9AD', '#728FCE', '#728FCE']
+    for box, color in zip(boxplot['boxes'], colors):
+        box.set_facecolor(color)
+    plt.ylabel(data)
+    plt.title(f"Number of {data} after 365 days")
+
+    height = max([max(results_2x2x2_0vs0[data]), max(results_2x2x2_1vs0[data]), max(results_2x2x2_0vs1[data]), max(results_2x2x2_2vs0[data]), max(results_2x2x2_0vs2[data]), max(results_2x2x2_1vs1[data]), max(results_2x2x2_2vs1[data]), max(results_2x2x2_1vs2[data])])
+    barplot_annotate_brackets([0,0,0,0,5,5], [1,2,3,4,6,7], [p_val_1vs0, p_val_0vs1, p_val_2vs0, p_val_0vs2, p_val_2vs1, p_val_1vs2], [1,2,3,4,5,6,7,8], [height]*8, dh=[.05, .1, .15, .2, .05, .1])
+
+    # plt.savefig("results/2x2x2_+str(data)+".png")
+    plt.show()
+
+
+    t_stat_1vs0, p_val_1vs0 = stats.ttest_ind(results_3x3_0vs0[data], results_3x3_1vs0[data])
+    t_stat_0vs1, p_val_0vs1 = stats.ttest_ind(results_3x3_0vs0[data], results_3x3_0vs1[data])
+    t_stat_2vs0, p_val_2vs0 = stats.ttest_ind(results_3x3_0vs0[data], results_3x3_2vs0[data])
+    t_stat_0vs2, p_val_0vs2 = stats.ttest_ind(results_3x3_0vs0[data], results_3x3_0vs2[data])
+    t_stat_2vs1, p_val_2vs1 = stats.ttest_ind(results_3x3_1vs1[data], results_3x3_2vs1[data])
+    t_stat_1vs2, p_val_1vs2 = stats.ttest_ind(results_3x3_1vs1[data], results_3x3_1vs2[data])
+    
+    fig, ax = plt.subplots(figsize=(16,8))
+    boxplot = ax.boxplot([results_3x3_0vs0[data], results_3x3_1vs0[data], results_3x3_0vs1[data], results_3x3_2vs0[data], results_3x3_0vs2[data], results_3x3_1vs1[data], results_3x3_2vs1[data], results_3x3_1vs2[data]],
+                            labels=['ToM0 customs vs\n ToM0 smuggler', 'ToM1 customs vs\n ToM0 smuggler', 'ToM0 customs vs\n ToM1 smuggler', 'ToM2 customs vs\n ToM0 smuggler', 
+                                    'ToM0 customs vs\n ToM2 smuggler', 'ToM1 customs vs\n ToM1 smuggler', 'ToM2 customs vs\n ToM1 smuggler', 'ToM1 customs vs\n ToM2 smuggler'], patch_artist=True, medianprops={'color': 'black'}
+                            )
+    colors = ['#A8A9AD', '#728FCE', '#728FCE', '#728FCE', '#728FCE', '#A8A9AD', '#728FCE', '#728FCE']
+    for box, color in zip(boxplot['boxes'], colors):
+        box.set_facecolor(color)
+    plt.ylabel(data)
+    plt.title(f"Number of {data} after 365 days")
+
+    height = max([max(results_3x3_0vs0[data]), max(results_3x3_1vs0[data]), max(results_3x3_0vs1[data]), max(results_3x3_2vs0[data]), max(results_3x3_0vs2[data]), max(results_3x3_1vs1[data]), max(results_3x3_2vs1[data]), max(results_3x3_1vs2[data])])
+    barplot_annotate_brackets([0,0,0,0,5,5], [1,2,3,4,6,7], [p_val_1vs0, p_val_0vs1, p_val_2vs0, p_val_0vs2, p_val_2vs1, p_val_1vs2], [1,2,3,4,5,6,7,8], [height]*8, dh=[.05, .1, .15, .2, .05, .1])
+
+    # plt.savefig("results/3x3_+str(data)+".png")
+    plt.show()
+
+
+    t_stat_1vs0, p_val_1vs0 = stats.ttest_ind(results_4x4_0vs0[data], results_4x4_1vs0[data])
+    t_stat_0vs1, p_val_0vs1 = stats.ttest_ind(results_4x4_0vs0[data], results_4x4_0vs1[data])
+    t_stat_2vs0, p_val_2vs0 = stats.ttest_ind(results_4x4_0vs0[data], results_4x4_2vs0[data])
+    t_stat_0vs2, p_val_0vs2 = stats.ttest_ind(results_4x4_0vs0[data], results_4x4_0vs2[data])
+    t_stat_2vs1, p_val_2vs1 = stats.ttest_ind(results_4x4_1vs1[data], results_4x4_2vs1[data])
+    t_stat_1vs2, p_val_1vs2 = stats.ttest_ind(results_4x4_1vs1[data], results_4x4_1vs2[data])
+    
+    fig, ax = plt.subplots(figsize=(16,8))
+    boxplot = ax.boxplot([results_4x4_0vs0[data], results_4x4_1vs0[data], results_4x4_0vs1[data], results_4x4_2vs0[data], results_4x4_0vs2[data], results_4x4_1vs1[data], results_4x4_2vs1[data], results_4x4_1vs2[data]],
+                            labels=['ToM0 customs vs\n ToM0 smuggler', 'ToM1 customs vs\n ToM0 smuggler', 'ToM0 customs vs\n ToM1 smuggler', 'ToM2 customs vs\n ToM0 smuggler', 
+                                    'ToM0 customs vs\n ToM2 smuggler', 'ToM1 customs vs\n ToM1 smuggler', 'ToM2 customs vs\n ToM1 smuggler', 'ToM1 customs vs\n ToM2 smuggler'], patch_artist=True, medianprops={'color': 'black'}
+                            )
+    colors = ['#A8A9AD', '#728FCE', '#728FCE', '#728FCE', '#728FCE', '#A8A9AD', '#728FCE', '#728FCE']
+    for box, color in zip(boxplot['boxes'], colors):
+        box.set_facecolor(color)
+    plt.ylabel(data)
+    plt.title(f"Number of {data} after 365 days")
+
+    height = max([max(results_4x4_0vs0[data]), max(results_4x4_1vs0[data]), max(results_4x4_0vs1[data]), max(results_4x4_2vs0[data]), max(results_4x4_0vs2[data]), max(results_4x4_1vs1[data]), max(results_4x4_2vs1[data]), max(results_4x4_1vs2[data])])
+    barplot_annotate_brackets([0,0,0,0,5,5], [1,2,3,4,6,7], [p_val_1vs0, p_val_0vs1, p_val_2vs0, p_val_0vs2, p_val_2vs1, p_val_1vs2], [1,2,3,4,5,6,7,8], [height]*8, dh=[.05, .1, .15, .2, .05, .1])
+
+    # plt.savefig("results/4x4_+str(data)+".png")
+    plt.show()
+
+
+increase_2x2_0vs1 = {}; increase_2x2x2_0vs1 = {}; increase_3x3_0vs1 = {}; increase_4x4_0vs1 = {}
+increase_2x2_1vs0 = {}; increase_2x2x2_1vs0 = {}; increase_3x3_1vs0 = {}; increase_4x4_1vs0 = {}
+increase_2x2_1vs2 = {}; increase_2x2x2_1vs2 = {}; increase_3x3_1vs2 = {}; increase_4x4_1vs2 = {}
+increase_2x2_2vs1 = {}; increase_2x2x2_2vs1 = {}; increase_3x3_2vs1 = {}; increase_4x4_2vs1 = {}
+for data in ["customs points", "smuggler points", "successful checks", "successful smuggles", "caught packages", "smuggled packages", "total checks", "total smuggles"]:
+    increase_2x2_0vs1[data] = results_2x2_0vs1[data].values - results_2x2_0vs0[data].values
+    increase_2x2x2_0vs1[data] = results_2x2x2_0vs1[data].values - results_2x2x2_0vs0[data].values
+    increase_3x3_0vs1[data] = results_3x3_0vs1[data].values - results_3x3_0vs0[data].values
+    increase_4x4_0vs1[data] = results_4x4_0vs1[data].values - results_4x4_0vs0[data].values
+
+    increase_2x2_1vs0[data] = results_2x2_1vs0[data].values - results_2x2_0vs0[data].values
+    increase_2x2x2_1vs0[data] = results_2x2x2_1vs0[data].values - results_2x2x2_0vs0[data].values
+    increase_3x3_1vs0[data] = results_3x3_1vs0[data].values - results_3x3_0vs0[data].values
+    increase_4x4_1vs0[data] = results_4x4_1vs0[data].values - results_4x4_0vs0[data].values
+
+    increase_2x2_1vs2[data] = results_2x2_1vs2[data].values - results_2x2_1vs1[data].values
+    increase_2x2x2_1vs2[data] = results_2x2x2_1vs2[data].values - results_2x2x2_1vs1[data].values
+    increase_3x3_1vs2[data] = results_3x3_1vs2[data].values - results_3x3_1vs1[data].values
+    increase_4x4_1vs2[data] = results_4x4_1vs2[data].values - results_4x4_1vs1[data].values
+
+    increase_2x2_2vs1[data] = results_2x2_2vs1[data].values - results_2x2_1vs1[data].values
+    increase_2x2x2_2vs1[data] = results_2x2x2_2vs1[data].values - results_2x2x2_1vs1[data].values
+    increase_3x3_2vs1[data] = results_3x3_2vs1[data].values - results_3x3_1vs1[data].values
+    increase_4x4_2vs1[data] = results_4x4_2vs1[data].values - results_4x4_1vs1[data].values
+
+
+for data in ["customs points", "smuggler points", "successful checks", "successful smuggles", "caught packages", "smuggled packages", "total checks", "total smuggles"]:
+    fig, ax = plt.subplots(figsize=(16,8))
+    boxplot = ax.boxplot([increase_2x2_0vs1[data], increase_2x2x2_0vs1[data], increase_3x3_0vs1[data], increase_4x4_0vs1[data]],
+                            labels=['4', '8', '9', '16'], patch_artist=True, medianprops={'color': 'black'}
+                            )
+    colors = ['#728FCE', '#728FCE', '#728FCE', '#728FCE']
+    for box, color in zip(boxplot['boxes'], colors):
+        box.set_facecolor(color)
+    plt.ylabel(data)
+    plt.title(f"Percentage increase of {data} from 0vs0 to 0vs1 after 365 days")
+
+    # plt.savefig("results/increase_0vs1_+str(data)+".png")
+    plt.show()
+
+
+    fig, ax = plt.subplots(figsize=(16,8))
+    boxplot = ax.boxplot([increase_2x2_1vs0[data], increase_2x2x2_1vs0[data], increase_3x3_1vs0[data], increase_4x4_1vs0[data]],
+                            labels=['4', '8', '9', '16'], patch_artist=True, medianprops={'color': 'black'}
+                            )
+    colors = ['#728FCE', '#728FCE', '#728FCE', '#728FCE']
+    for box, color in zip(boxplot['boxes'], colors):
+        box.set_facecolor(color)
+    plt.ylabel(data)
+    plt.title(f"Percentage increase of {data} from 0vs0 to 1vs0 after 365 days")
+
+    # plt.savefig("results/increase_1vs0_+str(data)+".png")
+    plt.show()
+
+
+    fig, ax = plt.subplots(figsize=(16,8))
+    boxplot = ax.boxplot([increase_2x2_1vs2[data], increase_2x2x2_1vs2[data], increase_3x3_1vs2[data], increase_4x4_1vs2[data]],
+                            labels=['4', '8', '9', '16'], patch_artist=True, medianprops={'color': 'black'}
+                            )
+    colors = ['#728FCE', '#728FCE', '#728FCE', '#728FCE']
+    for box, color in zip(boxplot['boxes'], colors):
+        box.set_facecolor(color)
+    plt.ylabel(data)
+    plt.title(f"Percentage increase of {data} from 1vs1 to 1vs2 after 365 days")
+
+    # plt.savefig("results/increase_1vs2_+str(data)+".png")
+    plt.show()
+    
+
+    fig, ax = plt.subplots(figsize=(16,8))
+    boxplot = ax.boxplot([increase_2x2_2vs1[data], increase_2x2x2_2vs1[data], increase_3x3_2vs1[data], increase_4x4_2vs1[data]],
+                            labels=['4', '8', '9', '16'], patch_artist=True, medianprops={'color': 'black'}
+                            )
+    colors = ['#728FCE', '#728FCE', '#728FCE', '#728FCE']
+    for box, color in zip(boxplot['boxes'], colors):
+        box.set_facecolor(color)
+    plt.ylabel(data)
+    plt.title(f"Percentage increase of {data} from 1vs1 to 2vs1 after 365 days")
+
+    # plt.savefig("results/increase_2vs1_+str(data)+".png")
+    plt.show()
+
+
+percentage_increase_2x2_0vs1 = {}; percentage_increase_2x2x2_0vs1 = {}; percentage_increase_3x3_0vs1 = {}; percentage_increase_4x4_0vs1 = {}
+percentage_increase_2x2_1vs0 = {}; percentage_increase_2x2x2_1vs0 = {}; percentage_increase_3x3_1vs0 = {}; percentage_increase_4x4_1vs0 = {}
+percentage_increase_2x2_1vs2 = {}; percentage_increase_2x2x2_1vs2 = {}; percentage_increase_3x3_1vs2 = {}; percentage_increase_4x4_1vs2 = {}
+percentage_increase_2x2_2vs1 = {}; percentage_increase_2x2x2_2vs1 = {}; percentage_increase_3x3_2vs1 = {}; percentage_increase_4x4_2vs1 = {}
+for data in ["customs points", "smuggler points", "successful checks", "successful smuggles", "caught packages", "smuggled packages", "total checks", "total smuggles"]:
+    percentage_increase_2x2_0vs1[data] = (results_2x2_0vs1[data].values - results_2x2_0vs0[data].values) / results_2x2_0vs1[data].values
+    percentage_increase_2x2x2_0vs1[data] = (results_2x2x2_0vs1[data].values - results_2x2x2_0vs0[data].values) / results_2x2x2_0vs1[data].values
+    percentage_increase_3x3_0vs1[data] = (results_3x3_0vs1[data].values - results_3x3_0vs0[data].values) / results_3x3_0vs1[data].values
+    percentage_increase_4x4_0vs1[data] = (results_4x4_0vs1[data].values - results_4x4_0vs0[data].values) / results_4x4_0vs1[data].values
+
+    percentage_increase_2x2_1vs0[data] = (results_2x2_1vs0[data].values - results_2x2_0vs0[data].values) / results_2x2_1vs0[data].values
+    percentage_increase_2x2x2_1vs0[data] = (results_2x2x2_1vs0[data].values - results_2x2x2_0vs0[data].values) / results_2x2x2_1vs0[data].values
+    percentage_increase_3x3_1vs0[data] = (results_3x3_1vs0[data].values - results_3x3_0vs0[data].values) / results_3x3_1vs0[data].values
+    percentage_increase_4x4_1vs0[data] = (results_4x4_1vs0[data].values - results_4x4_0vs0[data].values) / results_4x4_1vs0[data].values
+
+    percentage_increase_2x2_1vs2[data] = (results_2x2_1vs2[data].values - results_2x2_1vs1[data].values) / results_2x2_1vs2[data].values
+    percentage_increase_2x2x2_1vs2[data] = (results_2x2x2_1vs2[data].values - results_2x2x2_1vs1[data].values) / results_2x2x2_1vs2[data].values
+    percentage_increase_3x3_1vs2[data] = (results_3x3_1vs2[data].values - results_3x3_1vs1[data].values) / results_3x3_1vs2[data].values
+    percentage_increase_4x4_1vs2[data] = (results_4x4_1vs2[data].values - results_4x4_1vs1[data].values) / results_4x4_1vs2[data].values
+
+    percentage_increase_2x2_2vs1[data] = (results_2x2_2vs1[data].values - results_2x2_1vs1[data].values) / results_2x2_2vs1[data].values
+    percentage_increase_2x2x2_2vs1[data] = (results_2x2x2_2vs1[data].values - results_2x2x2_1vs1[data].values) / results_2x2x2_2vs1[data].values
+    percentage_increase_3x3_2vs1[data] = (results_3x3_2vs1[data].values - results_3x3_1vs1[data].values) / results_3x3_2vs1[data].values
+    percentage_increase_4x4_2vs1[data] = (results_4x4_2vs1[data].values - results_4x4_1vs1[data].values) / results_4x4_2vs1[data].values
+
+
+for data in ["customs points", "smuggler points", "successful checks", "successful smuggles", "caught packages", "smuggled packages", "total checks", "total smuggles"]:
+    fig, ax = plt.subplots(figsize=(16,8))
+    boxplot = ax.boxplot([percentage_increase_2x2_0vs1[data], percentage_increase_2x2x2_0vs1[data], percentage_increase_3x3_0vs1[data], percentage_increase_4x4_0vs1[data]],
+                            labels=['4', '8', '9', '16'], patch_artist=True, medianprops={'color': 'black'}
+                            )
+    colors = ['#728FCE', '#728FCE', '#728FCE', '#728FCE']
+    for box, color in zip(boxplot['boxes'], colors):
+        box.set_facecolor(color)
+    plt.ylabel(data)
+    plt.title(f"Percentage increase of {data} from 0vs0 to 0vs1 after 365 days")
+
+    # plt.savefig("results/percentageincrease_0vs1_+str(data)+".png")
+    plt.show()
+
+
+    fig, ax = plt.subplots(figsize=(16,8))
+    boxplot = ax.boxplot([percentage_increase_2x2_1vs0[data], percentage_increase_2x2x2_1vs0[data], percentage_increase_3x3_1vs0[data], percentage_increase_4x4_1vs0[data]],
+                            labels=['4', '8', '9', '16'], patch_artist=True, medianprops={'color': 'black'}
+                            )
+    colors = ['#728FCE', '#728FCE', '#728FCE', '#728FCE']
+    for box, color in zip(boxplot['boxes'], colors):
+        box.set_facecolor(color)
+    plt.ylabel(data)
+    plt.title(f"Percentage increase of {data} from 0vs0 to 1vs0 after 365 days")
+
+    # plt.savefig("results/percentageincrease_1vs0_+str(data)+".png")
+    plt.show()
+
+
+    fig, ax = plt.subplots(figsize=(16,8))
+    boxplot = ax.boxplot([percentage_increase_2x2_1vs2[data], percentage_increase_2x2x2_1vs2[data], percentage_increase_3x3_1vs2[data], percentage_increase_4x4_1vs2[data]],
+                            labels=['4', '8', '9', '16'], patch_artist=True, medianprops={'color': 'black'}
+                            )
+    colors = ['#728FCE', '#728FCE', '#728FCE', '#728FCE']
+    for box, color in zip(boxplot['boxes'], colors):
+        box.set_facecolor(color)
+    plt.ylabel(data)
+    plt.title(f"Percentage increase of {data} from 1vs1 to 1vs2 after 365 days")
+
+    # plt.savefig("results/percentageincrease_1vs2_+str(data)+".png")
+    plt.show()
+
+
+    fig, ax = plt.subplots(figsize=(16,8))
+    boxplot = ax.boxplot([percentage_increase_2x2_2vs1[data], percentage_increase_2x2x2_2vs1[data], percentage_increase_3x3_2vs1[data], percentage_increase_4x4_2vs1[data]],
+                            labels=['4', '8', '9', '16'], patch_artist=True, medianprops={'color': 'black'}
+                            )
+    colors = ['#728FCE', '#728FCE', '#728FCE', '#728FCE']
+    for box, color in zip(boxplot['boxes'], colors):
+        box.set_facecolor(color)
+    plt.ylabel(data)
+    plt.title(f"Percentage increase of {data} from 1vs1 to 2vs1 after 365 days")
+
+    # plt.savefig("results/percentageincrease_2vs1_+str(data)+".png")
     plt.show()
