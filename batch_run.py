@@ -1,5 +1,6 @@
 import mesa
 import pandas as pd
+import numpy as np
 from scipy import stats
 import matplotlib.pyplot as plt
 from smuggle_and_seek.model import SmuggleAndSeekGame
@@ -281,57 +282,118 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
 for data in ["customs points", "smuggler points", "successful checks", "successful smuggles", "caught packages", "smuggled packages", "total checks", "total smuggles"]:
     fig, ax = plt.subplots(figsize=(16,8))
     boxplot = ax.boxplot([increase_2x2_0vs1[data], increase_2x2x2_0vs1[data], increase_3x3_0vs1[data], increase_4x4_0vs1[data]],
-                            labels=['4', '8', '9', '16'], patch_artist=True, medianprops={'color': 'black'}
+                            positions=[4,8,9,16], patch_artist=True, medianprops={'color': 'black'}
                             )
     colors = ['#728FCE', '#728FCE', '#728FCE', '#728FCE']
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
-    plt.ylabel(data)
-    plt.title(f"Percentage increase of {data} from 0vs0 to 0vs1 after 365 days")
+    
+    # Set x-axis limits and ticks
+    plt.xlim(3, 17)  # Set x-axis limits to accommodate space around boxplots
+    plt.xticks(range(4, 17))  # Set x-axis ticks for 16 positions
 
-    # plt.savefig("results/increase_0vs1_+str(data)+".png")
+    # Optionally, add tick labels (if you want specific labels, use the second parameter)
+    plt.gca().set_xticklabels(range(4, 17))
+
+    means = [np.mean(increase_2x2_0vs1[data]), np.mean(increase_2x2x2_0vs1[data]), np.mean(increase_3x3_0vs1[data]), np.mean(increase_4x4_0vs1[data])]
+    x = [4,8,9,16]
+    a, b = np.polyfit(x, means, 1)
+
+    plt.plot(range(4,17), a*range(4,17)+b, ls = '--')
+
+    plt.ylabel(f"Increase of {data}")
+    plt.xlabel("Number of container types")
+    plt.title(f"Increase of {data} after 365 days when ToM0 smugglers becomes ToM1 smuggler against ToM0 customs")
+
+    # plt.savefig("results/increase_0vs1_"+str(data)+".png")
     plt.show()
 
 
     fig, ax = plt.subplots(figsize=(16,8))
     boxplot = ax.boxplot([increase_2x2_1vs0[data], increase_2x2x2_1vs0[data], increase_3x3_1vs0[data], increase_4x4_1vs0[data]],
-                            labels=['4', '8', '9', '16'], patch_artist=True, medianprops={'color': 'black'}
+                            positions=[4,8,9,16], patch_artist=True, medianprops={'color': 'black'}
                             )
     colors = ['#728FCE', '#728FCE', '#728FCE', '#728FCE']
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
-    plt.ylabel(data)
-    plt.title(f"Percentage increase of {data} from 0vs0 to 1vs0 after 365 days")
 
-    # plt.savefig("results/increase_1vs0_+str(data)+".png")
+    # Set x-axis limits and ticks
+    plt.xlim(3, 17)  # Set x-axis limits to accommodate space around boxplots
+    plt.xticks(range(4, 17))  # Set x-axis ticks for 16 positions
+
+    # Optionally, add tick labels (if you want specific labels, use the second parameter)
+    plt.gca().set_xticklabels(range(4, 17))
+        
+    means = [np.mean(increase_2x2_1vs0[data]), np.mean(increase_2x2x2_1vs0[data]), np.mean(increase_3x3_1vs0[data]), np.mean(increase_4x4_1vs0[data])]
+    x = [4,8,9,16]
+    a, b = np.polyfit(x, means, 1)
+
+    plt.plot(range(4,17), a*range(4,17)+b, ls = '--')
+
+    plt.ylabel(f"Increase of {data}")
+    plt.ylabel(data)
+    plt.xlabel("Number of container types")
+    plt.title(f"Increase of {data} after 365 days when ToM0 customs becomes ToM1 customs against ToM0 smuggler")
+
+    # plt.savefig("results/increase_1vs0_"+str(data)+".png")
     plt.show()
 
 
     fig, ax = plt.subplots(figsize=(16,8))
     boxplot = ax.boxplot([increase_2x2_1vs2[data], increase_2x2x2_1vs2[data], increase_3x3_1vs2[data], increase_4x4_1vs2[data]],
-                            labels=['4', '8', '9', '16'], patch_artist=True, medianprops={'color': 'black'}
+                            positions=[4,8,9,16], patch_artist=True, medianprops={'color': 'black'}
                             )
     colors = ['#728FCE', '#728FCE', '#728FCE', '#728FCE']
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
-    plt.ylabel(data)
-    plt.title(f"Percentage increase of {data} from 1vs1 to 1vs2 after 365 days")
+    
+    # Set x-axis limits and ticks
+    plt.xlim(3, 17)  # Set x-axis limits to accommodate space around boxplots
+    plt.xticks(range(4, 17))  # Set x-axis ticks for 16 positions
 
-    # plt.savefig("results/increase_1vs2_+str(data)+".png")
+    # Optionally, add tick labels (if you want specific labels, use the second parameter)
+    plt.gca().set_xticklabels(range(4, 17))
+
+    means = [np.mean(increase_2x2_1vs2[data]), np.mean(increase_2x2x2_1vs2[data]), np.mean(increase_3x3_1vs2[data]), np.mean(increase_4x4_1vs2[data])]
+    x = [4,8,9,16]
+    a, b = np.polyfit(x, means, 1)
+
+    plt.plot(range(4,17), a*range(4,17)+b, ls = '--')
+
+    plt.ylabel(f"Increase of {data}")
+    plt.xlabel("Number of container types")
+    plt.title(f"Increase of {data} after 365 days when ToM1 smuggler becomes ToM2 smuggler against ToM1 customs")
+
+    # plt.savefig("results/increase_1vs2_"+str(data)+".png")
     plt.show()
     
 
     fig, ax = plt.subplots(figsize=(16,8))
     boxplot = ax.boxplot([increase_2x2_2vs1[data], increase_2x2x2_2vs1[data], increase_3x3_2vs1[data], increase_4x4_2vs1[data]],
-                            labels=['4', '8', '9', '16'], patch_artist=True, medianprops={'color': 'black'}
+                            positions=[4,8,9,16], patch_artist=True, medianprops={'color': 'black'}
                             )
     colors = ['#728FCE', '#728FCE', '#728FCE', '#728FCE']
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
-    plt.ylabel(data)
-    plt.title(f"Percentage increase of {data} from 1vs1 to 2vs1 after 365 days")
 
-    # plt.savefig("results/increase_2vs1_+str(data)+".png")
+    # Set x-axis limits and ticks
+    plt.xlim(3, 17)  # Set x-axis limits to accommodate space around boxplots
+    plt.xticks(range(4, 17))  # Set x-axis ticks for 16 positions
+
+    # Optionally, add tick labels (if you want specific labels, use the second parameter)
+    plt.gca().set_xticklabels(range(4, 17))
+    
+    means = [np.mean(increase_2x2_2vs1[data]), np.mean(increase_2x2x2_2vs1[data]), np.mean(increase_3x3_2vs1[data]), np.mean(increase_4x4_2vs1[data])]
+    x = [4,8,9,16]
+    a, b = np.polyfit(x, means, 1)
+
+    plt.plot(range(4,17), a*range(4,17)+b, ls = '--')
+
+    plt.ylabel(f"Increase of {data}")
+    plt.xlabel("Number of container types")
+    plt.title(f"Increase of {data} after 365 days when ToM1 customs becomes ToM2 customs against ToM1 smuggler")
+
+    # plt.savefig("results/increase_2vs1_"+str(data)+".png")
     plt.show()
 
 
@@ -364,55 +426,115 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
 for data in ["customs points", "smuggler points", "successful checks", "successful smuggles", "caught packages", "smuggled packages", "total checks", "total smuggles"]:
     fig, ax = plt.subplots(figsize=(16,8))
     boxplot = ax.boxplot([percentage_increase_2x2_0vs1[data], percentage_increase_2x2x2_0vs1[data], percentage_increase_3x3_0vs1[data], percentage_increase_4x4_0vs1[data]],
-                            labels=['4', '8', '9', '16'], patch_artist=True, medianprops={'color': 'black'}
+                            positions=[4,8,9,16], patch_artist=True, medianprops={'color': 'black'}
                             )
     colors = ['#728FCE', '#728FCE', '#728FCE', '#728FCE']
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
-    plt.ylabel(data)
-    plt.title(f"Percentage increase of {data} from 0vs0 to 0vs1 after 365 days")
 
-    # plt.savefig("results/percentageincrease_0vs1_+str(data)+".png")
+    # Set x-axis limits and ticks
+    plt.xlim(3, 17)  # Set x-axis limits to accommodate space around boxplots
+    plt.xticks(range(4, 17))  # Set x-axis ticks for 16 positions
+
+    # Optionally, add tick labels (if you want specific labels, use the second parameter)
+    plt.gca().set_xticklabels(range(4, 17))
+
+    means = [np.mean(percentage_increase_2x2_0vs1[data]), np.mean(percentage_increase_2x2x2_0vs1[data]), np.mean(percentage_increase_3x3_0vs1[data]), np.mean(percentage_increase_4x4_0vs1[data])]
+    x = [4,8,9,16]
+    a, b = np.polyfit(x, means, 1)
+
+    plt.plot(range(4,17), a*range(4,17)+b, ls = '--')
+
+    plt.ylabel(f"Percentage increase of {data}")
+    plt.xlabel("Number of container types")
+    plt.title(f"Percentage increase of {data} after 365 days when ToM0 smugglers becomes ToM1 smuggler against ToM0 customs")
+
+    # plt.savefig("results/percentageincrease_0vs1_"+str(data)+".png")
     plt.show()
 
 
     fig, ax = plt.subplots(figsize=(16,8))
     boxplot = ax.boxplot([percentage_increase_2x2_1vs0[data], percentage_increase_2x2x2_1vs0[data], percentage_increase_3x3_1vs0[data], percentage_increase_4x4_1vs0[data]],
-                            labels=['4', '8', '9', '16'], patch_artist=True, medianprops={'color': 'black'}
+                            positions=[4,8,9,16], patch_artist=True, medianprops={'color': 'black'}
                             )
     colors = ['#728FCE', '#728FCE', '#728FCE', '#728FCE']
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
-    plt.ylabel(data)
-    plt.title(f"Percentage increase of {data} from 0vs0 to 1vs0 after 365 days")
 
-    # plt.savefig("results/percentageincrease_1vs0_+str(data)+".png")
+    # Set x-axis limits and ticks
+    plt.xlim(3, 17)  # Set x-axis limits to accommodate space around boxplots
+    plt.xticks(range(4, 17))  # Set x-axis ticks for 16 positions
+
+    # Optionally, add tick labels (if you want specific labels, use the second parameter)
+    plt.gca().set_xticklabels(range(4, 17))
+
+    means = [np.mean(percentage_increase_2x2_1vs0[data]), np.mean(percentage_increase_2x2x2_1vs0[data]), np.mean(percentage_increase_3x3_1vs0[data]), np.mean(percentage_increase_4x4_1vs0[data])]
+    x = [4,8,9,16]
+    a, b = np.polyfit(x, means, 1)
+
+    plt.plot(range(4,17), a*range(4,17)+b, ls = '--')
+
+    plt.ylabel(f"Percentage increase of {data}")
+    plt.xlabel("Number of container types")
+    plt.title(f"Percentage increase of {data} after 365 days when ToM0 customs becomes ToM1 customs against ToM0 smuggler")
+
+    # plt.savefig("results/percentageincrease_1vs0_"+str(data)+".png")
     plt.show()
 
 
     fig, ax = plt.subplots(figsize=(16,8))
     boxplot = ax.boxplot([percentage_increase_2x2_1vs2[data], percentage_increase_2x2x2_1vs2[data], percentage_increase_3x3_1vs2[data], percentage_increase_4x4_1vs2[data]],
-                            labels=['4', '8', '9', '16'], patch_artist=True, medianprops={'color': 'black'}
+                            labels=[4,8,9,16], patch_artist=True, medianprops={'color': 'black'}
                             )
     colors = ['#728FCE', '#728FCE', '#728FCE', '#728FCE']
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
-    plt.ylabel(data)
-    plt.title(f"Percentage increase of {data} from 1vs1 to 1vs2 after 365 days")
+    
+    # Set x-axis limits and ticks
+    plt.xlim(3, 17)  # Set x-axis limits to accommodate space around boxplots
+    plt.xticks(range(4, 17))  # Set x-axis ticks for 16 positions
 
-    # plt.savefig("results/percentageincrease_1vs2_+str(data)+".png")
+    # Optionally, add tick labels (if you want specific labels, use the second parameter)
+    plt.gca().set_xticklabels(range(4, 17))
+
+    means = [np.mean(percentage_increase_2x2_1vs2[data]), np.mean(percentage_increase_2x2x2_1vs2[data]), np.mean(percentage_increase_3x3_1vs2[data]), np.mean(percentage_increase_4x4_1vs2[data])]
+    x = [4,8,9,16]
+    a, b = np.polyfit(x, means, 1)
+
+    plt.plot(range(4,17), a*range(4,17)+b, ls = '--')
+
+    plt.ylabel(f"Percentage increase of {data}")
+    plt.xlabel("Number of container types")
+    plt.title(f"Percentage increase of {data} after 365 days when ToM1 smuggler becomes ToM2 smuggler against ToM1 customs")
+
+    # plt.savefig("results/percentageincrease_1vs2_"+str(data)+".png")
     plt.show()
 
 
     fig, ax = plt.subplots(figsize=(16,8))
     boxplot = ax.boxplot([percentage_increase_2x2_2vs1[data], percentage_increase_2x2x2_2vs1[data], percentage_increase_3x3_2vs1[data], percentage_increase_4x4_2vs1[data]],
-                            labels=['4', '8', '9', '16'], patch_artist=True, medianprops={'color': 'black'}
+                            labels=[4,8,9,16], patch_artist=True, medianprops={'color': 'black'}
                             )
     colors = ['#728FCE', '#728FCE', '#728FCE', '#728FCE']
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
-    plt.ylabel(data)
-    plt.title(f"Percentage increase of {data} from 1vs1 to 2vs1 after 365 days")
+    
+    # Set x-axis limits and ticks
+    plt.xlim(3, 17)  # Set x-axis limits to accommodate space around boxplots
+    plt.xticks(range(4, 17))  # Set x-axis ticks for 16 positions
 
-    # plt.savefig("results/percentageincrease_2vs1_+str(data)+".png")
+    # Optionally, add tick labels (if you want specific labels, use the second parameter)
+    plt.gca().set_xticklabels(range(4, 17))
+
+    means = [np.mean(percentage_increase_2x2_2vs1[data]), np.mean(percentage_increase_2x2x2_2vs1[data]), np.mean(percentage_increase_3x3_2vs1[data]), np.mean(percentage_increase_4x4_2vs1[data])]
+    x = [4,8,9,16]
+    a, b = np.polyfit(x, means, 1)
+
+    plt.plot(range(4,17), a*range(4,17)+b, ls = '--')
+
+    plt.ylabel(f"Percentage increase of {data}")
+    plt.xlabel("Number of container types")
+    plt.title(f"Percentage increase of {data} after 365 days when ToM1 customs becomes ToM2 customs against ToM1 smuggler")
+
+    # plt.savefig("results/percentageincrease_2vs1_"+str(data)+".png")
     plt.show()
