@@ -288,11 +288,9 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
     
-    # Set x-axis limits and ticks
-    plt.xlim(3, 17)  # Set x-axis limits to accommodate space around boxplots
-    plt.xticks(range(4, 17))  # Set x-axis ticks for 16 positions
+    plt.xlim(3, 17)
+    plt.xticks(range(4, 17))
 
-    # Optionally, add tick labels (if you want specific labels, use the second parameter)
     plt.gca().set_xticklabels(range(4, 17))
 
     means = [np.mean(increase_2x2_0vs1[data]), np.mean(increase_2x2x2_0vs1[data]), np.mean(increase_3x3_0vs1[data]), np.mean(increase_4x4_0vs1[data])]
@@ -317,11 +315,9 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
 
-    # Set x-axis limits and ticks
-    plt.xlim(3, 17)  # Set x-axis limits to accommodate space around boxplots
-    plt.xticks(range(4, 17))  # Set x-axis ticks for 16 positions
+    plt.xlim(3, 17) 
+    plt.xticks(range(4, 17)) 
 
-    # Optionally, add tick labels (if you want specific labels, use the second parameter)
     plt.gca().set_xticklabels(range(4, 17))
         
     means = [np.mean(increase_2x2_1vs0[data]), np.mean(increase_2x2x2_1vs0[data]), np.mean(increase_3x3_1vs0[data]), np.mean(increase_4x4_1vs0[data])]
@@ -346,12 +342,10 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     colors = ['#728FCE', '#728FCE', '#728FCE', '#728FCE']
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
-    
-    # Set x-axis limits and ticks
-    plt.xlim(3, 17)  # Set x-axis limits to accommodate space around boxplots
-    plt.xticks(range(4, 17))  # Set x-axis ticks for 16 positions
 
-    # Optionally, add tick labels (if you want specific labels, use the second parameter)
+    plt.xlim(3, 17)
+    plt.xticks(range(4, 17))
+
     plt.gca().set_xticklabels(range(4, 17))
 
     means = [np.mean(increase_2x2_1vs2[data]), np.mean(increase_2x2x2_1vs2[data]), np.mean(increase_3x3_1vs2[data]), np.mean(increase_4x4_1vs2[data])]
@@ -376,11 +370,9 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
 
-    # Set x-axis limits and ticks
-    plt.xlim(3, 17)  # Set x-axis limits to accommodate space around boxplots
-    plt.xticks(range(4, 17))  # Set x-axis ticks for 16 positions
+    plt.xlim(3, 17)  
+    plt.xticks(range(4, 17))
 
-    # Optionally, add tick labels (if you want specific labels, use the second parameter)
     plt.gca().set_xticklabels(range(4, 17))
     
     means = [np.mean(increase_2x2_2vs1[data]), np.mean(increase_2x2x2_2vs1[data]), np.mean(increase_3x3_2vs1[data]), np.mean(increase_4x4_2vs1[data])]
@@ -432,11 +424,9 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
 
-    # Set x-axis limits and ticks
-    plt.xlim(3, 17)  # Set x-axis limits to accommodate space around boxplots
-    plt.xticks(range(4, 17))  # Set x-axis ticks for 16 positions
+    plt.xlim(3, 17)
+    plt.xticks(range(4, 17))
 
-    # Optionally, add tick labels (if you want specific labels, use the second parameter)
     plt.gca().set_xticklabels(range(4, 17))
 
     means = [np.mean(percentage_increase_2x2_0vs1[data]), np.mean(percentage_increase_2x2x2_0vs1[data]), np.mean(percentage_increase_3x3_0vs1[data]), np.mean(percentage_increase_4x4_0vs1[data])]
@@ -461,11 +451,9 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
 
-    # Set x-axis limits and ticks
-    plt.xlim(3, 17)  # Set x-axis limits to accommodate space around boxplots
-    plt.xticks(range(4, 17))  # Set x-axis ticks for 16 positions
+    plt.xlim(3, 17) 
+    plt.xticks(range(4, 17))
 
-    # Optionally, add tick labels (if you want specific labels, use the second parameter)
     plt.gca().set_xticklabels(range(4, 17))
 
     means = [np.mean(percentage_increase_2x2_1vs0[data]), np.mean(percentage_increase_2x2x2_1vs0[data]), np.mean(percentage_increase_3x3_1vs0[data]), np.mean(percentage_increase_4x4_1vs0[data])]
@@ -484,17 +472,15 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
 
     fig, ax = plt.subplots(figsize=(16,8))
     boxplot = ax.boxplot([percentage_increase_2x2_1vs2[data], percentage_increase_2x2x2_1vs2[data], percentage_increase_3x3_1vs2[data], percentage_increase_4x4_1vs2[data]],
-                            labels=[4,8,9,16], patch_artist=True, medianprops={'color': 'black'}
+                            positions=[4,8,9,16], patch_artist=True, medianprops={'color': 'black'}
                             )
     colors = ['#728FCE', '#728FCE', '#728FCE', '#728FCE']
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
     
-    # Set x-axis limits and ticks
-    plt.xlim(3, 17)  # Set x-axis limits to accommodate space around boxplots
-    plt.xticks(range(4, 17))  # Set x-axis ticks for 16 positions
+    plt.xlim(3, 17) 
+    plt.xticks(range(4, 17))
 
-    # Optionally, add tick labels (if you want specific labels, use the second parameter)
     plt.gca().set_xticklabels(range(4, 17))
 
     means = [np.mean(percentage_increase_2x2_1vs2[data]), np.mean(percentage_increase_2x2x2_1vs2[data]), np.mean(percentage_increase_3x3_1vs2[data]), np.mean(percentage_increase_4x4_1vs2[data])]
@@ -513,17 +499,15 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
 
     fig, ax = plt.subplots(figsize=(16,8))
     boxplot = ax.boxplot([percentage_increase_2x2_2vs1[data], percentage_increase_2x2x2_2vs1[data], percentage_increase_3x3_2vs1[data], percentage_increase_4x4_2vs1[data]],
-                            labels=[4,8,9,16], patch_artist=True, medianprops={'color': 'black'}
+                            positions=[4,8,9,16], patch_artist=True, medianprops={'color': 'black'}
                             )
     colors = ['#728FCE', '#728FCE', '#728FCE', '#728FCE']
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
     
-    # Set x-axis limits and ticks
-    plt.xlim(3, 17)  # Set x-axis limits to accommodate space around boxplots
-    plt.xticks(range(4, 17))  # Set x-axis ticks for 16 positions
+    plt.xlim(3, 17) 
+    plt.xticks(range(4, 17)) 
 
-    # Optionally, add tick labels (if you want specific labels, use the second parameter)
     plt.gca().set_xticklabels(range(4, 17))
 
     means = [np.mean(percentage_increase_2x2_2vs1[data]), np.mean(percentage_increase_2x2x2_2vs1[data]), np.mean(percentage_increase_3x3_2vs1[data]), np.mean(percentage_increase_4x4_2vs1[data])]
