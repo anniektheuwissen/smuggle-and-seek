@@ -169,7 +169,7 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
     plt.ylabel(data)
-    plt.title(f"Number of {data} after 365 days")
+    plt.title(f"Number of {data} after 365 days in game environment 1")
 
     height = max([max(results_2x2_0vs0[data]), max(results_2x2_1vs0[data]), max(results_2x2_0vs1[data]), max(results_2x2_2vs0[data]), max(results_2x2_0vs2[data]), max(results_2x2_1vs1[data]), max(results_2x2_2vs1[data]), max(results_2x2_1vs2[data])])
     barplot_annotate_brackets([0,0,0,0,5,5], [1,2,3,4,6,7], [p_val_1vs0, p_val_0vs1, p_val_2vs0, p_val_0vs2, p_val_2vs1, p_val_1vs2], [1,2,3,4,5,6,7,8], [height]*8, dh=[.05, .1, .15, .2, .05, .1])
@@ -194,7 +194,7 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
     plt.ylabel(data)
-    plt.title(f"Number of {data} after 365 days")
+    plt.title(f"Number of {data} after 365 days in game environment 2")
 
     height = max([max(results_2x2x2_0vs0[data]), max(results_2x2x2_1vs0[data]), max(results_2x2x2_0vs1[data]), max(results_2x2x2_2vs0[data]), max(results_2x2x2_0vs2[data]), max(results_2x2x2_1vs1[data]), max(results_2x2x2_2vs1[data]), max(results_2x2x2_1vs2[data])])
     barplot_annotate_brackets([0,0,0,0,5,5], [1,2,3,4,6,7], [p_val_1vs0, p_val_0vs1, p_val_2vs0, p_val_0vs2, p_val_2vs1, p_val_1vs2], [1,2,3,4,5,6,7,8], [height]*8, dh=[.05, .1, .15, .2, .05, .1])
@@ -219,7 +219,7 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
     plt.ylabel(data)
-    plt.title(f"Number of {data} after 365 days")
+    plt.title(f"Number of {data} after 365 days in game environment 3")
 
     height = max([max(results_3x3_0vs0[data]), max(results_3x3_1vs0[data]), max(results_3x3_0vs1[data]), max(results_3x3_2vs0[data]), max(results_3x3_0vs2[data]), max(results_3x3_1vs1[data]), max(results_3x3_2vs1[data]), max(results_3x3_1vs2[data])])
     barplot_annotate_brackets([0,0,0,0,5,5], [1,2,3,4,6,7], [p_val_1vs0, p_val_0vs1, p_val_2vs0, p_val_0vs2, p_val_2vs1, p_val_1vs2], [1,2,3,4,5,6,7,8], [height]*8, dh=[.05, .1, .15, .2, .05, .1])
@@ -244,7 +244,7 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
     plt.ylabel(data)
-    plt.title(f"Number of {data} after 365 days")
+    plt.title(f"Number of {data} after 365 days in game environment 4")
 
     height = max([max(results_4x4_0vs0[data]), max(results_4x4_1vs0[data]), max(results_4x4_0vs1[data]), max(results_4x4_2vs0[data]), max(results_4x4_0vs2[data]), max(results_4x4_1vs1[data]), max(results_4x4_2vs1[data]), max(results_4x4_1vs2[data])])
     barplot_annotate_brackets([0,0,0,0,5,5], [1,2,3,4,6,7], [p_val_1vs0, p_val_0vs1, p_val_2vs0, p_val_0vs2, p_val_2vs1, p_val_1vs2], [1,2,3,4,5,6,7,8], [height]*8, dh=[.05, .1, .15, .2, .05, .1])
@@ -297,7 +297,7 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     x = [4,8,9,16]
     a, b = np.polyfit(x, means, 1)
 
-    plt.plot(range(4,17), a*range(4,17)+b, ls = '--')
+    plt.plot(range(4,18), a*range(4,18)+b, ls = '--', color='grey')
 
     plt.ylabel(f"Increase of {data}")
     plt.xlabel("Number of container types")
@@ -324,7 +324,7 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     x = [4,8,9,16]
     a, b = np.polyfit(x, means, 1)
 
-    plt.plot(range(4,17), a*range(4,17)+b, ls = '--')
+    plt.plot(range(4,18), a*range(4,18)+b, ls = '--', color='grey')
 
     plt.ylabel(f"Increase of {data}")
     plt.ylabel(data)
@@ -352,7 +352,7 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     x = [4,8,9,16]
     a, b = np.polyfit(x, means, 1)
 
-    plt.plot(range(4,17), a*range(4,17)+b, ls = '--')
+    plt.plot(range(4,18), a*range(4,18)+b, ls = '--', color='grey')
 
     plt.ylabel(f"Increase of {data}")
     plt.xlabel("Number of container types")
@@ -379,7 +379,7 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     x = [4,8,9,16]
     a, b = np.polyfit(x, means, 1)
 
-    plt.plot(range(4,17), a*range(4,17)+b, ls = '--')
+    plt.plot(range(4,18), a*range(4,18)+b, ls = '--', color='grey')
 
     plt.ylabel(f"Increase of {data}")
     plt.xlabel("Number of container types")
@@ -433,7 +433,7 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     x = [4,8,9,16]
     a, b = np.polyfit(x, means, 1)
 
-    plt.plot(range(4,17), a*range(4,17)+b, ls = '--')
+    plt.plot(range(4,18), a*range(4,18)+b, ls = '--', color='grey')
 
     plt.ylabel(f"Percentage increase of {data}")
     plt.xlabel("Number of container types")
@@ -460,7 +460,7 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     x = [4,8,9,16]
     a, b = np.polyfit(x, means, 1)
 
-    plt.plot(range(4,17), a*range(4,17)+b, ls = '--')
+    plt.plot(range(4,18), a*range(4,18)+b, ls = '--', color='grey')
 
     plt.ylabel(f"Percentage increase of {data}")
     plt.xlabel("Number of container types")
@@ -487,7 +487,7 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     x = [4,8,9,16]
     a, b = np.polyfit(x, means, 1)
 
-    plt.plot(range(4,17), a*range(4,17)+b, ls = '--')
+    plt.plot(range(4,18), a*range(4,18)+b, ls = '--', color='grey')
 
     plt.ylabel(f"Percentage increase of {data}")
     plt.xlabel("Number of container types")
@@ -514,7 +514,7 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     x = [4,8,9,16]
     a, b = np.polyfit(x, means, 1)
 
-    plt.plot(range(4,17), a*range(4,17)+b, ls = '--')
+    plt.plot(range(4,18), a*range(4,18)+b, ls = '--', color='grey')
 
     plt.ylabel(f"Percentage increase of {data}")
     plt.xlabel("Number of container types")
