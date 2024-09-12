@@ -8,7 +8,7 @@ The server
 
 # Adjust this variable when you want to adjust the grid size:
 ############################################################
-num_items_per_feature = 2
+l = 2
 ############################################################
 
 def color_variant(hex_color, brightness_offset=1):
@@ -170,8 +170,8 @@ def smuggled_packages(model):
 """
 Add the grids, charts, model parameters and server
 """
-grid1 = mesa.visualization.CanvasGrid(portrayal_customs_grid, num_items_per_feature, num_items_per_feature, 500, 500)
-grid2 = mesa.visualization.CanvasGrid(portrayal_smuggler_grid, num_items_per_feature, num_items_per_feature, 500, 500)
+grid1 = mesa.visualization.CanvasGrid(portrayal_customs_grid, l, l, 500, 500)
+grid2 = mesa.visualization.CanvasGrid(portrayal_smuggler_grid, l, l, 500, 500)
 
 barchart = mesa.visualization.BarChartModule(
     [
@@ -197,7 +197,7 @@ chart2 = mesa.visualization.ChartModule(
 
 model_params = {
     "k": 2,
-    "l": num_items_per_feature,
+    "l": l,
     "m": mesa.visualization.Slider(
         "m",
         value=5,

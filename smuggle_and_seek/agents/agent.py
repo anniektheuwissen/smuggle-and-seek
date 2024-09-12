@@ -1,6 +1,5 @@
 import mesa
 import numpy as np
-from more_itertools import powerset
 
 from .container import Container
 from .strategies.tom0 import Tom0
