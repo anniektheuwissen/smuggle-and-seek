@@ -8,7 +8,7 @@ Customs class: the customs agent that tries to capture as many drugs as possible
 can have different levels of ToM reasoning.
 """
 class Customs(SmuggleAndSeekAgent):
-    def __init__(self, unique_id, model, tom_order, learning_speed1, learning_speed2):
+    def __init__(self, unique_id, model, tom_order, learning_speed1, learning_speed2, reward, containercost):
         """
         Initializes the agent customs
         :param unique_id: The unqiue id related to the agent
@@ -31,8 +31,8 @@ class Customs(SmuggleAndSeekAgent):
         # Define possible actions, and reward and costs vectors
         self.possible_actions = list(map(list, itertools.product([0, 1], repeat=num_cont)))
         self.possible_actions.remove([0]*num_cont)
-        self.reward_value = 2
-        self.costs_vector = [6] * num_cont
+        self.reward_value = reward
+        self.costs_vector = [containercost] * num_cont
 
         self.simulationpayoff_o = self.create_simulationpayoff_vector()
         self.simulationpayoff_a = [[self.expected_amount_catch]] * num_cont

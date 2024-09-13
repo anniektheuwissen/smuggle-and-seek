@@ -11,7 +11,7 @@ The game environment contains different kinds of containers, each having an amou
 to hide drugs and seek for drugs.
 """
 class SmuggleAndSeekGame(mesa.Model):
-    def __init__(self, k, l, m, tom_customs, tom_smuggler, learning_speed1, learning_speed2):
+    def __init__(self, k, l, m, r_s, r_c, cc_s, cc_c, fc_s, tom_customs, tom_smuggler, learning_speed1, learning_speed2):
         """
         Initializes the Game
         :param k: The number of features that each container has
@@ -49,9 +49,9 @@ class SmuggleAndSeekGame(mesa.Model):
             else: features[-1] += 1  
 
         # Add agents to the game: one smuggler and one customs, and add both to the running schedule
-        smuggler = Smuggler(i+1, self, tom_smuggler, learning_speed1, learning_speed2, m)
+        smuggler = Smuggler(i+1, self, tom_smuggler, learning_speed1, learning_speed2, m, r_s, cc_s, fc_s)
         self.running_schedule.add(smuggler)
-        customs = Customs(i+2, self, tom_customs, learning_speed1, learning_speed2)
+        customs = Customs(i+2, self, tom_customs, learning_speed1, learning_speed2, r_c, cc_c)
         self.running_schedule.add(customs)
 
         # Add data collector that collects the points and average points of both the customs and smuggler

@@ -205,6 +205,41 @@ model_params = {
         max_value=10,
         step=1
     ),
+    "r_s": mesa.visualization.Slider(
+        "reward smuggler",
+        value=2,
+        min_value=1,
+        max_value=10,
+        step=1
+    ),
+    "r_c": mesa.visualization.Slider(
+        "reward customs",
+        value=2,
+        min_value=1,
+        max_value=10,
+        step=1
+    ),
+    "cc_s": mesa.visualization.Slider(
+        "container cost smuggler",
+        value=6,
+        min_value=1,
+        max_value=20,
+        step=1
+    ),
+    "cc_c": mesa.visualization.Slider(
+        "container cost customs",
+        value=6,
+        min_value=1,
+        max_value=20,
+        step=1
+    ),
+    "fc_s": mesa.visualization.Slider(
+        "feature cost smuggler",
+        value=1,
+        min_value=1,
+        max_value=5,
+        step=1
+    ),
     "tom_customs": mesa.visualization.Choice(
         "customs ToM order",
         value=0,

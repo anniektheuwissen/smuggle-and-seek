@@ -71,6 +71,11 @@ params = {
     "k": 2,
     "l": range(2,5,1),
     "m": 5,
+    "r_s": 2,
+    "r_c": 2,
+    "cc_s": 6,
+    "cc_c": 6,
+    "fc_s": 2,
     "tom_customs": range(0,3,1),
     "tom_smuggler": range(0,3,1),
     "learning_speed1": 0.4,
@@ -88,6 +93,11 @@ params = {
     "k": 3,
     "l": 2,
     "m": 5,
+    "r_s": 2,
+    "r_c": 2,
+    "cc_s": 6,
+    "cc_c": 6,
+    "fc_s": 2,
     "tom_customs": range(0,3,1),
     "tom_smuggler": range(0,3,1),
     "learning_speed1": 0.4,
@@ -199,7 +209,7 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     height = max([max(results_2x2x2_0vs0[data]), max(results_2x2x2_1vs0[data]), max(results_2x2x2_0vs1[data]), max(results_2x2x2_2vs0[data]), max(results_2x2x2_0vs2[data]), max(results_2x2x2_1vs1[data]), max(results_2x2x2_2vs1[data]), max(results_2x2x2_1vs2[data])])
     barplot_annotate_brackets([0,0,0,0,5,5], [1,2,3,4,6,7], [p_val_1vs0, p_val_0vs1, p_val_2vs0, p_val_0vs2, p_val_2vs1, p_val_1vs2], [1,2,3,4,5,6,7,8], [height]*8, dh=[.05, .1, .15, .2, .05, .1])
 
-    # plt.savefig("results/2x2x2_+str(data)+".png")
+    # plt.savefig("results/2x2x2_"+str(data)+".png")
     plt.show()
 
 
@@ -224,7 +234,7 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     height = max([max(results_3x3_0vs0[data]), max(results_3x3_1vs0[data]), max(results_3x3_0vs1[data]), max(results_3x3_2vs0[data]), max(results_3x3_0vs2[data]), max(results_3x3_1vs1[data]), max(results_3x3_2vs1[data]), max(results_3x3_1vs2[data])])
     barplot_annotate_brackets([0,0,0,0,5,5], [1,2,3,4,6,7], [p_val_1vs0, p_val_0vs1, p_val_2vs0, p_val_0vs2, p_val_2vs1, p_val_1vs2], [1,2,3,4,5,6,7,8], [height]*8, dh=[.05, .1, .15, .2, .05, .1])
 
-    # plt.savefig("results/3x3_+str(data)+".png")
+    # plt.savefig("results/3x3_"+str(data)+".png")
     plt.show()
 
 
@@ -249,7 +259,7 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     height = max([max(results_4x4_0vs0[data]), max(results_4x4_1vs0[data]), max(results_4x4_0vs1[data]), max(results_4x4_2vs0[data]), max(results_4x4_0vs2[data]), max(results_4x4_1vs1[data]), max(results_4x4_2vs1[data]), max(results_4x4_1vs2[data])])
     barplot_annotate_brackets([0,0,0,0,5,5], [1,2,3,4,6,7], [p_val_1vs0, p_val_0vs1, p_val_2vs0, p_val_0vs2, p_val_2vs1, p_val_1vs2], [1,2,3,4,5,6,7,8], [height]*8, dh=[.05, .1, .15, .2, .05, .1])
 
-    # plt.savefig("results/4x4_+str(data)+".png")
+    # plt.savefig("results/4x4_"+str(data)+".png")
     plt.show()
 
 
@@ -301,7 +311,7 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
 
     plt.ylabel(f"Increase of {data}")
     plt.xlabel("Number of container types")
-    plt.title(f"Increase of {data} after 365 days when ToM0 smugglers becomes ToM1 smuggler against ToM0 customs")
+    plt.title(f"Increase of {data} after 365 days when ToM0 smuggler becomes ToM1 smuggler against ToM0 customs")
 
     # plt.savefig("results/increase_0vs1_"+str(data)+".png")
     plt.show()
@@ -437,7 +447,7 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
 
     plt.ylabel(f"Percentage increase of {data}")
     plt.xlabel("Number of container types")
-    plt.title(f"Percentage increase of {data} after 365 days when ToM0 smugglers becomes ToM1 smuggler against ToM0 customs")
+    plt.title(f"Percentage increase of {data} after 365 days when ToM0 smuggler becomes ToM1 smuggler against ToM0 customs")
 
     # plt.savefig("results/percentageincrease_0vs1_"+str(data)+".png")
     plt.show()

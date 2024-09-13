@@ -6,7 +6,7 @@ Smuggler class: the smuggler agent that tries to smuggle as many drugs as possib
 have preferences for certain containers, and they can have different levels of ToM reasoning.
 """
 class Smuggler(SmuggleAndSeekAgent):
-    def __init__(self, unique_id, model, tom_order, learning_speed1, learning_speed2, packages):
+    def __init__(self, unique_id, model, tom_order, learning_speed1, learning_speed2, packages, reward, containercost, featurecost):
         """
         Initializes the agent Smuggler
         :param unique_id: The unqiue id related to the agent
@@ -33,8 +33,8 @@ class Smuggler(SmuggleAndSeekAgent):
         num_cont = len(self.model.get_agents_of_type(Container))
         # Define possible actions, and reward and costs vectors
         self.possible_actions = list(self.generate_combinations(packages, num_cont))
-        self.reward_value = 2
-        self.costs_vector = self.create_costs_vector(6, 1)
+        self.reward_value = reward
+        self.costs_vector = self.create_costs_vector(containercost, featurecost)
 
         self.simulationpayoff_o = [[self.average_amount_catch]] * num_cont
         self.simulationpayoff_a = self.create_simulationpayoff_vector()
