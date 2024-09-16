@@ -404,25 +404,25 @@ percentage_increase_2x2_1vs0 = {}; percentage_increase_2x2x2_1vs0 = {}; percenta
 percentage_increase_2x2_1vs2 = {}; percentage_increase_2x2x2_1vs2 = {}; percentage_increase_3x3_1vs2 = {}; percentage_increase_4x4_1vs2 = {}
 percentage_increase_2x2_2vs1 = {}; percentage_increase_2x2x2_2vs1 = {}; percentage_increase_3x3_2vs1 = {}; percentage_increase_4x4_2vs1 = {}
 for data in ["customs points", "smuggler points", "successful checks", "successful smuggles", "caught packages", "smuggled packages", "total checks", "total smuggles"]:
-    percentage_increase_2x2_0vs1[data] = (results_2x2_0vs1[data].values - results_2x2_0vs0[data].values) / results_2x2_0vs1[data].values
-    percentage_increase_2x2x2_0vs1[data] = (results_2x2x2_0vs1[data].values - results_2x2x2_0vs0[data].values) / results_2x2x2_0vs1[data].values
-    percentage_increase_3x3_0vs1[data] = (results_3x3_0vs1[data].values - results_3x3_0vs0[data].values) / results_3x3_0vs1[data].values
-    percentage_increase_4x4_0vs1[data] = (results_4x4_0vs1[data].values - results_4x4_0vs0[data].values) / results_4x4_0vs1[data].values
+    percentage_increase_2x2_0vs1[data] = (results_2x2_0vs1[data].values - results_2x2_0vs0[data].values) / abs(results_2x2_0vs1[data].values)
+    percentage_increase_2x2x2_0vs1[data] = (results_2x2x2_0vs1[data].values - results_2x2x2_0vs0[data].values) / abs(results_2x2x2_0vs1[data].values)
+    percentage_increase_3x3_0vs1[data] = (results_3x3_0vs1[data].values - results_3x3_0vs0[data].values) / abs(results_3x3_0vs1[data].values)
+    percentage_increase_4x4_0vs1[data] = (results_4x4_0vs1[data].values - results_4x4_0vs0[data].values) / abs(results_4x4_0vs1[data].values)
 
-    percentage_increase_2x2_1vs0[data] = (results_2x2_1vs0[data].values - results_2x2_0vs0[data].values) / results_2x2_1vs0[data].values
-    percentage_increase_2x2x2_1vs0[data] = (results_2x2x2_1vs0[data].values - results_2x2x2_0vs0[data].values) / results_2x2x2_1vs0[data].values
-    percentage_increase_3x3_1vs0[data] = (results_3x3_1vs0[data].values - results_3x3_0vs0[data].values) / results_3x3_1vs0[data].values
-    percentage_increase_4x4_1vs0[data] = (results_4x4_1vs0[data].values - results_4x4_0vs0[data].values) / results_4x4_1vs0[data].values
+    percentage_increase_2x2_1vs0[data] = (results_2x2_1vs0[data].values - results_2x2_0vs0[data].values) / abs(results_2x2_1vs0[data].values)
+    percentage_increase_2x2x2_1vs0[data] = (results_2x2x2_1vs0[data].values - results_2x2x2_0vs0[data].values) / abs(results_2x2x2_1vs0[data].values)
+    percentage_increase_3x3_1vs0[data] = (results_3x3_1vs0[data].values - results_3x3_0vs0[data].values) / abs(results_3x3_1vs0[data].values)
+    percentage_increase_4x4_1vs0[data] = (results_4x4_1vs0[data].values - results_4x4_0vs0[data].values) / abs(results_4x4_1vs0[data].values)
 
-    percentage_increase_2x2_1vs2[data] = (results_2x2_1vs2[data].values - results_2x2_1vs1[data].values) / results_2x2_1vs2[data].values
-    percentage_increase_2x2x2_1vs2[data] = (results_2x2x2_1vs2[data].values - results_2x2x2_1vs1[data].values) / results_2x2x2_1vs2[data].values
-    percentage_increase_3x3_1vs2[data] = (results_3x3_1vs2[data].values - results_3x3_1vs1[data].values) / results_3x3_1vs2[data].values
-    percentage_increase_4x4_1vs2[data] = (results_4x4_1vs2[data].values - results_4x4_1vs1[data].values) / results_4x4_1vs2[data].values
+    percentage_increase_2x2_1vs2[data] = (results_2x2_1vs2[data].values - results_2x2_1vs1[data].values) / abs(results_2x2_1vs2[data].values)
+    percentage_increase_2x2x2_1vs2[data] = (results_2x2x2_1vs2[data].values - results_2x2x2_1vs1[data].values) / abs(results_2x2x2_1vs2[data].values)
+    percentage_increase_3x3_1vs2[data] = (results_3x3_1vs2[data].values - results_3x3_1vs1[data].values) / abs(results_3x3_1vs2[data].values)
+    percentage_increase_4x4_1vs2[data] = (results_4x4_1vs2[data].values - results_4x4_1vs1[data].values) / abs(results_4x4_1vs2[data].values)
 
-    percentage_increase_2x2_2vs1[data] = (results_2x2_2vs1[data].values - results_2x2_1vs1[data].values) / results_2x2_2vs1[data].values
-    percentage_increase_2x2x2_2vs1[data] = (results_2x2x2_2vs1[data].values - results_2x2x2_1vs1[data].values) / results_2x2x2_2vs1[data].values
-    percentage_increase_3x3_2vs1[data] = (results_3x3_2vs1[data].values - results_3x3_1vs1[data].values) / results_3x3_2vs1[data].values
-    percentage_increase_4x4_2vs1[data] = (results_4x4_2vs1[data].values - results_4x4_1vs1[data].values) / results_4x4_2vs1[data].values
+    percentage_increase_2x2_2vs1[data] = (results_2x2_2vs1[data].values - results_2x2_1vs1[data].values) / abs(results_2x2_2vs1[data].values)
+    percentage_increase_2x2x2_2vs1[data] = (results_2x2x2_2vs1[data].values - results_2x2x2_1vs1[data].values) / abs(results_2x2x2_2vs1[data].values)
+    percentage_increase_3x3_2vs1[data] = (results_3x3_2vs1[data].values - results_3x3_1vs1[data].values) / abs(results_3x3_2vs1[data].values)
+    percentage_increase_4x4_2vs1[data] = (results_4x4_2vs1[data].values - results_4x4_1vs1[data].values) / abs(results_4x4_2vs1[data].values)
 
 
 for data in ["customs points", "smuggler points", "successful checks", "successful smuggles", "caught packages", "smuggled packages", "total checks", "total smuggles"]:
