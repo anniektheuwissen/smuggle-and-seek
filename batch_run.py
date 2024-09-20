@@ -171,8 +171,10 @@ results_4x4_1vs2 = results_4x4[(results_4x4["tom_customs"] == 1) & (results_4x4[
 results_4x4_2vs0 = results_4x4[(results_4x4["tom_customs"] == 2) & (results_4x4["tom_smuggler"] == 0)]
 results_4x4_2vs1 = results_4x4[(results_4x4["tom_customs"] == 2) & (results_4x4["tom_smuggler"] == 1)]
 
+plt.rcParams.update({'font.size': 24})
+
 for data in ["customs points", "smuggler points", "successful checks", "successful smuggles", "caught packages", "smuggled packages", "total checks", "total smuggles"]:
-    
+
     t_stat_1vs0, p_val_1vs0 = stats.ttest_ind(results_2x2_0vs0[data], results_2x2_1vs0[data])
     t_stat_0vs1, p_val_0vs1 = stats.ttest_ind(results_2x2_0vs0[data], results_2x2_0vs1[data])
     t_stat_2vs0, p_val_2vs0 = stats.ttest_ind(results_2x2_0vs0[data], results_2x2_2vs0[data])
@@ -180,7 +182,7 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     t_stat_2vs1, p_val_2vs1 = stats.ttest_ind(results_2x2_1vs1[data], results_2x2_2vs1[data])
     t_stat_1vs2, p_val_1vs2 = stats.ttest_ind(results_2x2_1vs1[data], results_2x2_1vs2[data])
     
-    fig, ax = plt.subplots(figsize=(16,8))
+    fig, ax = plt.subplots(figsize=(26,13))
     boxplot = ax.boxplot([results_2x2_0vs0[data], results_2x2_1vs0[data], results_2x2_0vs1[data], results_2x2_2vs0[data], results_2x2_0vs2[data], results_2x2_1vs1[data], results_2x2_2vs1[data], results_2x2_1vs2[data]],
                             labels=['ToM0 customs vs\n ToM0 smuggler', 'ToM1 customs vs\n ToM0 smuggler', 'ToM0 customs vs\n ToM1 smuggler', 'ToM2 customs vs\n ToM0 smuggler', 
                                     'ToM0 customs vs\n ToM2 smuggler', 'ToM1 customs vs\n ToM1 smuggler', 'ToM2 customs vs\n ToM1 smuggler', 'ToM1 customs vs\n ToM2 smuggler'], patch_artist=True, medianprops={'color': 'black'}
@@ -188,12 +190,15 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     colors = ['#A8A9AD', '#728FCE', '#728FCE', '#728FCE', '#728FCE', '#A8A9AD', '#728FCE', '#728FCE']
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
-    plt.ylabel(data)
-    plt.title(f"Number of {data} after 365 days in game environment 1")
+    plt.ylabel(data, fontsize=30)
+    plt.tick_params(axis='y', labelsize=30)
+    # plt.title(f"Number of {data} after 365 days in game environment 1")
 
     height = max([max(results_2x2_0vs0[data]), max(results_2x2_1vs0[data]), max(results_2x2_0vs1[data]), max(results_2x2_2vs0[data]), max(results_2x2_0vs2[data]), max(results_2x2_1vs1[data]), max(results_2x2_2vs1[data]), max(results_2x2_1vs2[data])])
     barplot_annotate_brackets([0,0,0,0,5,5], [1,2,3,4,6,7], [p_val_1vs0, p_val_0vs1, p_val_2vs0, p_val_0vs2, p_val_2vs1, p_val_1vs2], [1,2,3,4,5,6,7,8], [height]*8, dh=[.05, .1, .15, .2, .05, .1])
 
+    plt.tight_layout()
+    plt.subplots_adjust(left=0.05, right=0.995)
     plt.savefig("results/2x2_"+str(data)+".png")
     # plt.show()
 
@@ -205,7 +210,7 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     t_stat_2vs1, p_val_2vs1 = stats.ttest_ind(results_2x2x2_1vs1[data], results_2x2x2_2vs1[data])
     t_stat_1vs2, p_val_1vs2 = stats.ttest_ind(results_2x2x2_1vs1[data], results_2x2x2_1vs2[data])
     
-    fig, ax = plt.subplots(figsize=(16,8))
+    fig, ax = plt.subplots(figsize=(26,13))
     boxplot = ax.boxplot([results_2x2x2_0vs0[data], results_2x2x2_1vs0[data], results_2x2x2_0vs1[data], results_2x2x2_2vs0[data], results_2x2x2_0vs2[data], results_2x2x2_1vs1[data], results_2x2x2_2vs1[data], results_2x2x2_1vs2[data]],
                             labels=['ToM0 customs vs\n ToM0 smuggler', 'ToM1 customs vs\n ToM0 smuggler', 'ToM0 customs vs\n ToM1 smuggler', 'ToM2 customs vs\n ToM0 smuggler', 
                                     'ToM0 customs vs\n ToM2 smuggler', 'ToM1 customs vs\n ToM1 smuggler', 'ToM2 customs vs\n ToM1 smuggler', 'ToM1 customs vs\n ToM2 smuggler'], patch_artist=True, medianprops={'color': 'black'}
@@ -213,12 +218,15 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     colors = ['#A8A9AD', '#728FCE', '#728FCE', '#728FCE', '#728FCE', '#A8A9AD', '#728FCE', '#728FCE']
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
-    plt.ylabel(data)
-    plt.title(f"Number of {data} after 365 days in game environment 2")
+    plt.ylabel(data, fontsize=30)
+    plt.tick_params(axis='y', labelsize=30)
+    # plt.title(f"Number of {data} after 365 days in game environment 2")
 
     height = max([max(results_2x2x2_0vs0[data]), max(results_2x2x2_1vs0[data]), max(results_2x2x2_0vs1[data]), max(results_2x2x2_2vs0[data]), max(results_2x2x2_0vs2[data]), max(results_2x2x2_1vs1[data]), max(results_2x2x2_2vs1[data]), max(results_2x2x2_1vs2[data])])
     barplot_annotate_brackets([0,0,0,0,5,5], [1,2,3,4,6,7], [p_val_1vs0, p_val_0vs1, p_val_2vs0, p_val_0vs2, p_val_2vs1, p_val_1vs2], [1,2,3,4,5,6,7,8], [height]*8, dh=[.05, .1, .15, .2, .05, .1])
 
+    plt.tight_layout()
+    plt.subplots_adjust(left=0.05, right=0.995)
     plt.savefig("results/2x2x2_"+str(data)+".png")
     # plt.show()
 
@@ -230,7 +238,7 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     t_stat_2vs1, p_val_2vs1 = stats.ttest_ind(results_3x3_1vs1[data], results_3x3_2vs1[data])
     t_stat_1vs2, p_val_1vs2 = stats.ttest_ind(results_3x3_1vs1[data], results_3x3_1vs2[data])
     
-    fig, ax = plt.subplots(figsize=(16,8))
+    fig, ax = plt.subplots(figsize=(26,13))
     boxplot = ax.boxplot([results_3x3_0vs0[data], results_3x3_1vs0[data], results_3x3_0vs1[data], results_3x3_2vs0[data], results_3x3_0vs2[data], results_3x3_1vs1[data], results_3x3_2vs1[data], results_3x3_1vs2[data]],
                             labels=['ToM0 customs vs\n ToM0 smuggler', 'ToM1 customs vs\n ToM0 smuggler', 'ToM0 customs vs\n ToM1 smuggler', 'ToM2 customs vs\n ToM0 smuggler', 
                                     'ToM0 customs vs\n ToM2 smuggler', 'ToM1 customs vs\n ToM1 smuggler', 'ToM2 customs vs\n ToM1 smuggler', 'ToM1 customs vs\n ToM2 smuggler'], patch_artist=True, medianprops={'color': 'black'}
@@ -238,12 +246,15 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     colors = ['#A8A9AD', '#728FCE', '#728FCE', '#728FCE', '#728FCE', '#A8A9AD', '#728FCE', '#728FCE']
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
-    plt.ylabel(data)
-    plt.title(f"Number of {data} after 365 days in game environment 3")
+    plt.ylabel(data, fontsize=30)
+    plt.tick_params(axis='y', labelsize=30)
+    # plt.title(f"Number of {data} after 365 days in game environment 3")
 
     height = max([max(results_3x3_0vs0[data]), max(results_3x3_1vs0[data]), max(results_3x3_0vs1[data]), max(results_3x3_2vs0[data]), max(results_3x3_0vs2[data]), max(results_3x3_1vs1[data]), max(results_3x3_2vs1[data]), max(results_3x3_1vs2[data])])
     barplot_annotate_brackets([0,0,0,0,5,5], [1,2,3,4,6,7], [p_val_1vs0, p_val_0vs1, p_val_2vs0, p_val_0vs2, p_val_2vs1, p_val_1vs2], [1,2,3,4,5,6,7,8], [height]*8, dh=[.05, .1, .15, .2, .05, .1])
 
+    plt.tight_layout()
+    plt.subplots_adjust(left=0.05, right=0.995)
     plt.savefig("results/3x3_"+str(data)+".png")
     # plt.show()
 
@@ -255,7 +266,7 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     t_stat_2vs1, p_val_2vs1 = stats.ttest_ind(results_2x2x2x2_1vs1[data], results_2x2x2x2_2vs1[data])
     t_stat_1vs2, p_val_1vs2 = stats.ttest_ind(results_2x2x2x2_1vs1[data], results_2x2x2x2_1vs2[data])
     
-    fig, ax = plt.subplots(figsize=(16,8))
+    fig, ax = plt.subplots(figsize=(26,13))
     boxplot = ax.boxplot([results_2x2x2x2_0vs0[data], results_2x2x2x2_1vs0[data], results_2x2x2x2_0vs1[data], results_2x2x2x2_2vs0[data], results_2x2x2x2_0vs2[data], results_2x2x2x2_1vs1[data], results_2x2x2x2_2vs1[data], results_2x2x2x2_1vs2[data]],
                             labels=['ToM0 customs vs\n ToM0 smuggler', 'ToM1 customs vs\n ToM0 smuggler', 'ToM0 customs vs\n ToM1 smuggler', 'ToM2 customs vs\n ToM0 smuggler', 
                                     'ToM0 customs vs\n ToM2 smuggler', 'ToM1 customs vs\n ToM1 smuggler', 'ToM2 customs vs\n ToM1 smuggler', 'ToM1 customs vs\n ToM2 smuggler'], patch_artist=True, medianprops={'color': 'black'}
@@ -263,12 +274,15 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     colors = ['#A8A9AD', '#728FCE', '#728FCE', '#728FCE', '#728FCE', '#A8A9AD', '#728FCE', '#728FCE']
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
-    plt.ylabel(data)
-    plt.title(f"Number of {data} after 365 days in game environment 2")
+    plt.ylabel(data, fontsize=30)
+    plt.tick_params(axis='y', labelsize=30)
+    # plt.title(f"Number of {data} after 365 days in game environment 2")
 
     height = max([max(results_2x2x2x2_0vs0[data]), max(results_2x2x2x2_1vs0[data]), max(results_2x2x2x2_0vs1[data]), max(results_2x2x2x2_2vs0[data]), max(results_2x2x2x2_0vs2[data]), max(results_2x2x2x2_1vs1[data]), max(results_2x2x2x2_2vs1[data]), max(results_2x2x2x2_1vs2[data])])
     barplot_annotate_brackets([0,0,0,0,5,5], [1,2,3,4,6,7], [p_val_1vs0, p_val_0vs1, p_val_2vs0, p_val_0vs2, p_val_2vs1, p_val_1vs2], [1,2,3,4,5,6,7,8], [height]*8, dh=[.05, .1, .15, .2, .05, .1])
 
+    plt.tight_layout()
+    plt.subplots_adjust(left=0.05, right=0.995)
     plt.savefig("results/2x2x2x2_"+str(data)+".png")
     # plt.show()
 
@@ -280,7 +294,7 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     t_stat_2vs1, p_val_2vs1 = stats.ttest_ind(results_4x4_1vs1[data], results_4x4_2vs1[data])
     t_stat_1vs2, p_val_1vs2 = stats.ttest_ind(results_4x4_1vs1[data], results_4x4_1vs2[data])
     
-    fig, ax = plt.subplots(figsize=(16,8))
+    fig, ax = plt.subplots(figsize=(26,13))
     boxplot = ax.boxplot([results_4x4_0vs0[data], results_4x4_1vs0[data], results_4x4_0vs1[data], results_4x4_2vs0[data], results_4x4_0vs2[data], results_4x4_1vs1[data], results_4x4_2vs1[data], results_4x4_1vs2[data]],
                             labels=['ToM0 customs vs\n ToM0 smuggler', 'ToM1 customs vs\n ToM0 smuggler', 'ToM0 customs vs\n ToM1 smuggler', 'ToM2 customs vs\n ToM0 smuggler', 
                                     'ToM0 customs vs\n ToM2 smuggler', 'ToM1 customs vs\n ToM1 smuggler', 'ToM2 customs vs\n ToM1 smuggler', 'ToM1 customs vs\n ToM2 smuggler'], patch_artist=True, medianprops={'color': 'black'}
@@ -288,12 +302,15 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     colors = ['#A8A9AD', '#728FCE', '#728FCE', '#728FCE', '#728FCE', '#A8A9AD', '#728FCE', '#728FCE']
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
-    plt.ylabel(data)
-    plt.title(f"Number of {data} after 365 days in game environment 4")
+    plt.ylabel(data, fontsize=30)
+    plt.tick_params(axis='y', labelsize=30)
+    # plt.title(f"Number of {data} after 365 days in game environment 4")
 
     height = max([max(results_4x4_0vs0[data]), max(results_4x4_1vs0[data]), max(results_4x4_0vs1[data]), max(results_4x4_2vs0[data]), max(results_4x4_0vs2[data]), max(results_4x4_1vs1[data]), max(results_4x4_2vs1[data]), max(results_4x4_1vs2[data])])
     barplot_annotate_brackets([0,0,0,0,5,5], [1,2,3,4,6,7], [p_val_1vs0, p_val_0vs1, p_val_2vs0, p_val_0vs2, p_val_2vs1, p_val_1vs2], [1,2,3,4,5,6,7,8], [height]*8, dh=[.05, .1, .15, .2, .05, .1])
 
+    plt.tight_layout()
+    plt.subplots_adjust(left=0.05, right=0.995)
     plt.savefig("results/4x4_"+str(data)+".png")
     # plt.show()
 
@@ -328,9 +345,10 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     percentage_increase_2x2x2x2_2vs1[data] = (results_2x2x2x2_2vs1[data].values - results_2x2x2x2_1vs1[data].values) / abs(results_2x2x2x2_2vs1[data].values)
     percentage_increase_4x4_2vs1[data] = (results_4x4_2vs1[data].values - results_4x4_1vs1[data].values) / abs(results_4x4_2vs1[data].values)
 
+plt.rcParams.update({'font.size': 30})
 
 for data in ["customs points", "smuggler points", "successful checks", "successful smuggles", "caught packages", "smuggled packages", "total checks", "total smuggles"]:
-    fig, ax = plt.subplots(figsize=(8,8))
+    fig, ax = plt.subplots(figsize=(13,13))
     boxplot = ax.boxplot([percentage_increase_2x2_0vs1[data], percentage_increase_3x3_0vs1[data], percentage_increase_4x4_0vs1[data]],
                             labels=[2,3,4], patch_artist=True, medianprops={'color': 'black'}
                             )
@@ -338,14 +356,15 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
 
-    plt.ylabel(f"Percentage increase of {data}")
-    plt.xlabel("Number of features")
-    plt.title(f"Percentage increase of {data} after 365 days when ToM0 smuggler becomes ToM1 smuggler against ToM0 customs")
+    plt.ylabel(f"Percentage increase of {data}", labelpad=30)
+    plt.xlabel("Number of features", labelpad=10)
+    # plt.title(f"Percentage increase of {data} after 365 days when ToM0 smuggler becomes ToM1 smuggler against ToM0 customs")
 
+    plt.tight_layout()
     plt.savefig("results/percentageincrease_0vs1_feat_"+str(data)+".png")
     # plt.show()
 
-    fig, ax = plt.subplots(figsize=(8,8))
+    fig, ax = plt.subplots(figsize=(13,13))
     boxplot = ax.boxplot([percentage_increase_2x2_0vs1[data], percentage_increase_2x2x2_0vs1[data], percentage_increase_2x2x2x2_0vs1[data]],
                             labels=[2,3,4], patch_artist=True, medianprops={'color': 'black'}
                             )
@@ -353,16 +372,17 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
 
-    plt.ylabel(f"Percentage increase of {data}")
-    plt.xlabel("Number of categories per feature")
-    plt.title(f"Percentage increase of {data} after 365 days when ToM0 smuggler becomes ToM1 smuggler against ToM0 customs")
+    plt.ylabel(f"Percentage increase of {data}", labelpad=30)
+    plt.xlabel("Number of categories per feature", labelpad=10)
+    # plt.title(f"Percentage increase of {data} after 365 days when ToM0 smuggler becomes ToM1 smuggler against ToM0 customs")
 
+    plt.tight_layout()
     plt.savefig("results/percentageincrease_0vs1_cat_"+str(data)+".png")
     # plt.show()
 
 
 
-    fig, ax = plt.subplots(figsize=(8,8))
+    fig, ax = plt.subplots(figsize=(13,13))
     boxplot = ax.boxplot([percentage_increase_2x2_1vs0[data], percentage_increase_3x3_1vs0[data], percentage_increase_4x4_1vs0[data]],
                             labels=[2,3,4], patch_artist=True, medianprops={'color': 'black'}
                             )
@@ -370,14 +390,15 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
 
-    plt.ylabel(f"Percentage increase of {data}")
-    plt.xlabel("Number of features")
-    plt.title(f"Percentage increase of {data} after 365 days when ToM0 customs becomes ToM1 customs against ToM0 smuggler")
+    plt.ylabel(f"Percentage increase of {data}", labelpad=30)
+    plt.xlabel("Number of features", labelpad=10)
+    # plt.title(f"Percentage increase of {data} after 365 days when ToM0 customs becomes ToM1 customs against ToM0 smuggler")
 
+    plt.tight_layout()
     plt.savefig("results/percentageincrease_1vs0_feat_"+str(data)+".png")
     # plt.show()
 
-    fig, ax = plt.subplots(figsize=(8,8))
+    fig, ax = plt.subplots(figsize=(13,13))
     boxplot = ax.boxplot([percentage_increase_2x2_1vs0[data], percentage_increase_2x2x2_1vs0[data], percentage_increase_2x2x2x2_1vs0[data]],
                             labels=[2,3,4], patch_artist=True, medianprops={'color': 'black'}
                             )
@@ -385,16 +406,17 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
 
-    plt.ylabel(f"Percentage increase of {data}")
-    plt.xlabel("Number of categories per feature")
-    plt.title(f"Percentage increase of {data} after 365 days when ToM0 customs becomes ToM1 customs against ToM0 smuggler")
+    plt.ylabel(f"Percentage increase of {data}", labelpad=30)
+    plt.xlabel("Number of categories per feature", labelpad=10)
+    # plt.title(f"Percentage increase of {data} after 365 days when ToM0 customs becomes ToM1 customs against ToM0 smuggler")
 
+    plt.tight_layout()
     plt.savefig("results/percentageincrease_1vs0_cat_"+str(data)+".png")
     # plt.show()
 
 
     
-    fig, ax = plt.subplots(figsize=(8,8))
+    fig, ax = plt.subplots(figsize=(13,13))
     boxplot = ax.boxplot([percentage_increase_2x2_1vs2[data], percentage_increase_3x3_1vs2[data], percentage_increase_4x4_1vs2[data]],
                             labels=[2,3,4], patch_artist=True, medianprops={'color': 'black'}
                             )
@@ -402,14 +424,15 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
 
-    plt.ylabel(f"Percentage increase of {data}")
-    plt.xlabel("Number of features")
-    plt.title(f"Percentage increase of {data} after 365 days when ToM1 smuggler becomes ToM2 smuggler against ToM1 customs")
+    plt.ylabel(f"Percentage increase of {data}", labelpad=30)
+    plt.xlabel("Number of features", labelpad=10)
+    # plt.title(f"Percentage increase of {data} after 365 days when ToM1 smuggler becomes ToM2 smuggler against ToM1 customs")
 
+    plt.tight_layout()
     plt.savefig("results/percentageincrease_1vs2_feat_"+str(data)+".png")
     # plt.show()
 
-    fig, ax = plt.subplots(figsize=(8,8))
+    fig, ax = plt.subplots(figsize=(13,13))
     boxplot = ax.boxplot([percentage_increase_2x2_1vs2[data], percentage_increase_2x2x2_1vs2[data], percentage_increase_2x2x2x2_1vs2[data]],
                             labels=[2,3,4], patch_artist=True, medianprops={'color': 'black'}
                             )
@@ -417,16 +440,17 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
 
-    plt.ylabel(f"Percentage increase of {data}")
-    plt.xlabel("Number of categories per feature")
-    plt.title(f"Percentage increase of {data} after 365 days when ToM1 smuggler becomes ToM2 smuggler against ToM1 customs")
+    plt.ylabel(f"Percentage increase of {data}", labelpad=30)
+    plt.xlabel("Number of categories per feature", labelpad=10)
+    # plt.title(f"Percentage increase of {data} after 365 days when ToM1 smuggler becomes ToM2 smuggler against ToM1 customs")
 
+    plt.tight_layout()
     plt.savefig("results/percentageincrease_1vs2_cat_"+str(data)+".png")
     # plt.show()
 
 
 
-    fig, ax = plt.subplots(figsize=(8,8))
+    fig, ax = plt.subplots(figsize=(13,13))
     boxplot = ax.boxplot([percentage_increase_2x2_2vs1[data], percentage_increase_3x3_2vs1[data], percentage_increase_4x4_2vs1[data]],
                             labels=[2,3,4], patch_artist=True, medianprops={'color': 'black'}
                             )
@@ -434,14 +458,15 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
 
-    plt.ylabel(f"Percentage increase of {data}")
-    plt.xlabel("Number of features")
-    plt.title(f"Percentage increase of {data} after 365 days when ToM1 customs becomes ToM2 customs against ToM1 smuggler")
+    plt.ylabel(f"Percentage increase of {data}", labelpad=30)
+    plt.xlabel("Number of features", labelpad=10)
+    # plt.title(f"Percentage increase of {data} after 365 days when ToM1 customs becomes ToM2 customs against ToM1 smuggler")
 
+    plt.tight_layout()
     plt.savefig("results/percentageincrease_2vs1_feat_"+str(data)+".png")
     # plt.show()
 
-    fig, ax = plt.subplots(figsize=(8,8))
+    fig, ax = plt.subplots(figsize=(13,13))
     boxplot = ax.boxplot([percentage_increase_2x2_2vs1[data], percentage_increase_2x2x2_2vs1[data], percentage_increase_2x2x2x2_2vs1[data]],
                             labels=[2,3,4], patch_artist=True, medianprops={'color': 'black'}
                             )
@@ -449,9 +474,10 @@ for data in ["customs points", "smuggler points", "successful checks", "successf
     for box, color in zip(boxplot['boxes'], colors):
         box.set_facecolor(color)
 
-    plt.ylabel(f"Percentage increase of {data}")
-    plt.xlabel("Number of categories per feature")
-    plt.title(f"Percentage increase of {data} after 365 days when ToM1 customs becomes ToM2 customs against ToM1 smuggler")
+    plt.ylabel(f"Percentage increase of {data}", labelpad=30)
+    plt.xlabel("Number of categories per feature", labelpad=10)
+    # plt.title(f"Percentage increase of {data} after 365 days when ToM1 customs becomes ToM2 customs against ToM1 smuggler")
 
+    plt.tight_layout()
     plt.savefig("results/percentageincrease_2vs1_cat_"+str(data)+".png")
     # plt.show()
