@@ -1,0 +1,14 @@
+@startuml diagram
+
+class Strategy
+
+"Smuggle-and-seek Game" *-d- "0..*" Container
+"Smuggle-and-seek Game" *-d- "\t\t\t  2 \t" "Smuggle-and-seek Player"
+"Smuggle-and-seek Player" <|-d- "Smuggler agent"
+"Smuggle-and-seek Player" <|-d- "Customs agent"
+"Smuggle-and-seek Player" *-d- Strategy
+Strategy <|-d-ToM0
+Strategy <|-d-ToM1
+Strategy <|-d-ToM2
+
+@enduml
