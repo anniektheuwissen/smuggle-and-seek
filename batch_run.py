@@ -542,9 +542,7 @@ if __name__ == "__main__":
 
         plt.ylabel(f"Percentage increase of {data}", labelpad=30)
         plt.xlabel("Number of categories per feature", labelpad=10)
-        # plt.title(f"Percentage increase of {data} after 365 days when ToM0 customs becomes ToM1 customs against ToM0 smuggler")
 
-        # ax.set_ylim(5,85)
         plt.tight_layout()
         plt.savefig("results/percentageincrease_1vs0_cat_"+str(data)+".png")
         # plt.show()
@@ -559,9 +557,7 @@ if __name__ == "__main__":
 
         plt.ylabel(f"Percentage increase of {data}", labelpad=30)
         plt.xlabel("Number of features", labelpad=10)
-        # plt.title(f"Percentage increase of {data} after 365 days when ToM0 customs becomes ToM1 customs against ToM0 smuggler")
 
-        # ax.set_ylim(-8,85)
         plt.tight_layout()
         plt.savefig("results/percentageincrease_1vs0_feat_"+str(data)+".png")
         # plt.show()
@@ -578,9 +574,7 @@ if __name__ == "__main__":
 
         plt.ylabel(f"Percentage increase of {data}", labelpad=30)
         plt.xlabel("Number of categories per feature", labelpad=10)
-        # plt.title(f"Percentage increase of {data} after 365 days when ToM1 smuggler becomes ToM2 smuggler against ToM1 customs")
 
-        # ax.set_ylim(-5,109)
         plt.tight_layout()
         plt.savefig("results/percentageincrease_1vs2_cat_"+str(data)+".png")
         # plt.show()
@@ -595,9 +589,7 @@ if __name__ == "__main__":
 
         plt.ylabel(f"Percentage increase of {data}", labelpad=30)
         plt.xlabel("Number of features", labelpad=10)
-        # plt.title(f"Percentage increase of {data} after 365 days when ToM1 smuggler becomes ToM2 smuggler against ToM1 customs")
-
-        # ax.set_ylim(0.1,109)
+        
         plt.tight_layout()
         plt.savefig("results/percentageincrease_1vs2_feat_"+str(data)+".png")
         # plt.show()
@@ -614,9 +606,7 @@ if __name__ == "__main__":
 
         plt.ylabel(f"Percentage increase of {data}", labelpad=30)
         plt.xlabel("Number of categories per feature", labelpad=10)
-        # plt.title(f"Percentage increase of {data} after 365 days when ToM1 customs becomes ToM2 customs against ToM1 smuggler")
-
-        # ax.set_ylim(-18,72)
+        
         plt.tight_layout()
         plt.savefig("results/percentageincrease_2vs1_cat_"+str(data)+".png")
         # plt.show()
@@ -631,9 +621,7 @@ if __name__ == "__main__":
 
         plt.ylabel(f"Percentage increase of {data}", labelpad=30)
         plt.xlabel("Number of features", labelpad=10)
-        # plt.title(f"Percentage increase of {data} after 365 days when ToM1 customs becomes ToM2 customs against ToM1 smuggler")
-
-        # ax.set_ylim(-12,72)
+        
         plt.tight_layout()
         plt.savefig("results/percentageincrease_2vs1_feat_"+str(data)+".png")
         # plt.show()
